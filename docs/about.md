@@ -12,7 +12,7 @@ Security researcher focused on:
 
 ## Contact
 
-- X: https://x.com/YOURUSERNAME
-- GitHub: https://github.com/YOURUSERNAME
-- HackTheBox: https://app.hackthebox.com/profile/YOURID
-- Email: your@email.com
+- [X / Twitter](https://x.com/YOURUSERNAME)
+- [GitHub](https://github.com/YOURUSERNAME)
+- [HackTheBox](https://app.hackthebox.com/profile/YOURID)
+- [Email](mailto:your@email.com)
