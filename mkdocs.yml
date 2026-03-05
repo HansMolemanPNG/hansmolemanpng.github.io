@@ -4,6 +4,7 @@ site_url: https://hansmolemanpng.github.io
 
   theme:
   name: material
+  custom_dir: overrides
   logo: assets/profile.png
   favicon: assets/profile.png
 
