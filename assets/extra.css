@@ -19,7 +19,7 @@ body, .md-container, .md-main, .md-content { background:var(--bg) !important; co
   min-height:100vh;
 }
 
-@media (max-width:900px){
+@media (max-width:900px) and (orientation: portrait){
   .layout{ grid-template-columns: 1fr; }
 }
 
