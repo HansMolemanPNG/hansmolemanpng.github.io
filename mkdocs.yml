@@ -2,7 +2,6 @@ site_name: hansmolemanpng
 site_description: Security research and offensive security notes
 site_url: https://hansmolemanpng.github.io
 
-theme:
   name: material
   palette:
     scheme: slate
@@ -12,14 +11,7 @@ theme:
     - navigation.indexes
     - content.code.copy
     - search.suggest
-    - search.highlight
-
-nav:
-  - Blog: index.md
-  - About: about.md
-
-plugins:
-  - search
+    - search.high
 
 markdown_extensions:
   - admonition
