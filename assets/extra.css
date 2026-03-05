@@ -52,7 +52,7 @@ body, .md-container, .md-main, .md-content { background:var(--bg) !important; co
   object-fit: cover;
 }
 
-.name { font-weight: 900; font-size: 1.35rem; }
+.name { font-weight: 900; font-size: 1.35rem; color: #ffffff; text-shadow: 0 0 18px rgba(0,255,102,.25); }
 .bio { color: var(--muted); line-height: 1.35; }
 
 /* Redes sociales */
@@ -75,7 +75,7 @@ body, .md-container, .md-main, .md-content { background:var(--bg) !important; co
   transition: border-color .12s ease, box-shadow .12s ease, color .12s ease;
 }
 
-.iconbtn svg { width: 20px; height: 20px; fill: currentColor; opacity: .9; }
+.iconbtn svg { display: block; width: 20px; height: 20px; fill: currentColor; opacity: .9; }
 
 .iconbtn:hover {
   border-color: var(--border2);
@@ -146,8 +146,10 @@ body, .md-container, .md-main, .md-content { background:var(--bg) !important; co
   transform: translateY(-3px);
 }
 
+.post-card h3 a { color: #ffffff !important; text-decoration: none; }
+.post-card h3 a:hover { color: var(--green2) !important; text-decoration: none; }
 .post-card a { color: var(--green); text-decoration: none; }
-.post-card a:hover { color: var(--green2); text-decoration: underline; }
+.post-card a:hover { color: var(--green2); }
 
 .post-meta { color: var(--muted); font-size: .92rem; margin-top: 6px; }
 .post-excerpt { margin-top: 10px; opacity: .92; line-height: 1.45; }
@@ -169,6 +171,7 @@ body, .md-container, .md-main, .md-content { background:var(--bg) !important; co
 .md-typeset a { color: #00ff66 !important; }
 .md-typeset a:hover { color: #66ff99 !important; }
 .md-typeset code { color: #9effc7 !important; }
+.md-typeset .headerlink { display: none !important; }
 
 /* ================================
    RESPONSIVE
