@@ -1,0 +1,142 @@
+:root{
+  --bg:#060806;
+  --panel:#0b0f0b;
+  --text:#eaffea;
+  --muted:rgba(234,255,234,.70);
+  --green:#00ff66;
+  --green2:#3dff86;
+  --border:rgba(0,255,102,.22);
+  --border2:rgba(0,255,102,.60);
+}
+
+/* Oculta UI del theme */
+.md-header, .md-tabs, .md-footer, .md-sidebar { display:none !important; }
+body, .md-container, .md-main, .md-content { background:var(--bg) !important; color:var(--text) !important; }
+
+.layout{
+  display:grid;
+  grid-template-columns: 280px minmax(0,1fr);
+  min-height:100vh;
+}
+
+@media (max-width:900px){
+  .layout{ grid-template-columns: 1fr; }
+}
+
+/* Sidebar: más “aire” y centrado */
+.sidebar{
+  background:var(--panel);
+  border-right:1px solid rgba(255,255,255,.06);
+  padding:26px 16px;
+  position:sticky; top:0;
+  height:100vh;
+}
+
+@media (max-width:900px){
+  .sidebar{ position:relative; height:auto; border-right:none; border-bottom:1px solid rgba(255,255,255,.06); }
+}
+
+.sidebar-inner{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+  gap:18px;
+}
+
+.profile{ display:grid; gap:10px; justify-items:center; }
+.avatar{
+  width:76px; height:76px; border-radius:50%;
+  border:1px solid var(--border);
+  object-fit:cover;
+}
+.name{ font-weight:900; font-size:1.35rem; }
+.bio{ color:var(--muted); line-height:1.35; }
+
+/* Redes en una sola línea, solo iconos */
+.social-row{
+  display:flex;
+  gap:12px;
+  align-items:center;
+  justify-content:center;
+}
+
+.iconbtn{
+  width:44px;
+  height:44px;
+  display:grid;
+  place-items:center;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.06);
+  background:rgba(255,255,255,.02);
+  color:var(--text);
+  text-decoration:none;
+}
+
+.iconbtn svg{ width:20px; height:20px; fill:currentColor; opacity:.9; }
+
+.iconbtn:hover{
+  border-color:var(--border2);
+  box-shadow: 0 0 0 1px var(--border), 0 0 22px rgba(0,255,102,.22);
+  color:var(--green);
+}
+
+/* Links Blog/About debajo */
+.navlinks{
+  width:100%;
+  display:grid;
+  gap:10px;
+}
+
+.navbtn{
+  display:flex;
+  justify-content:center;
+  padding:12px 12px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.06);
+  background:rgba(255,255,255,.02);
+  color:var(--text);
+  text-decoration:none;
+}
+.navbtn:hover{
+  border-color:var(--border2);
+  box-shadow: 0 0 0 1px var(--border), 0 0 22px rgba(0,255,102,.22);
+  color:var(--green);
+}
+
+/* Contenido: más aire con respecto a sidebar */
+.main{
+  padding:38px 34px;
+}
+@media (max-width:900px){
+  .main{ padding:26px 18px; }
+}
+
+/* Cards */
+.post-grid{
+  display:grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  gap:16px;
+  margin-top:18px;
+}
+@media (max-width:900px){ .post-grid{ grid-template-columns:1fr; } }
+
+.post-card{
+  border-radius:16px;
+  border:1px solid var(--border);
+  background:rgba(255,255,255,.02);
+  padding:16px;
+  transition: border-color .12s ease, box-shadow .12s ease, transform .12s ease;
+}
+
+.post-card:hover{
+  border-color:var(--border2);
+  box-shadow: 0 0 0 1px var(--border), 0 0 26px rgba(0,255,102,.28);
+  transform: translateY(-3px);
+}
+
+.post-card a{ color:var(--green); text-decoration:none; }
+.post-card a:hover{ color:var(--green2); text-decoration:underline; }
+
+.post-meta{ color:var(--muted); font-size:.92rem; margin-top:6px; }
+.post-excerpt{ margin-top:10px; opacity:.92; line-height:1.45; }
