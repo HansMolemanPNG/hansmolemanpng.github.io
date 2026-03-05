@@ -1,6 +1,6 @@
-site_name: fr3d1s4nm4r
+site_name: hansmolemanpng
 site_description: Security research and offensive security notes
-site_url: https://YOURUSERNAME.github.io
+site_url: https://hansmolemanpng.github.io
 
 theme:
   name: material
