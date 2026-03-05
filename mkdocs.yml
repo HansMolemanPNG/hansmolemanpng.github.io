@@ -8,6 +8,8 @@ theme:
   favicon: assets/profile.jpeg
   palette:
     - scheme: slate
+      primary: black
+      accent: green
       toggle:
         icon: material/weather-night
         name: Dark mode
