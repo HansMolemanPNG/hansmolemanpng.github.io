@@ -185,3 +185,47 @@ body, .md-container, .md-main, .md-content { background:var(--bg) !important; co
     gap: 18px;
   }
 }
+
+/* ================================
+   POST CONTENT TYPOGRAPHY FIX
+   ================================ */
+
+.main h1 {
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.main h2 {
+  color: #eaffea;
+  font-weight: 600;
+}
+
+.main h3 {
+  color: #d6ffd6;
+}
+
+.main p {
+  color: #ffffff;
+}
+
+.main li {
+  color: #ffffff;
+}
+
+.main strong {
+  color: #ffffff;
+}
+
+.main code {
+  color: #9effc7;
+}
+
+/* Links inside posts */
+
+.main a {
+  color: #00ff66;
+}
+
+.main a:hover {
+  color: #66ff99;
+}
