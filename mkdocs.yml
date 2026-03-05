@@ -4,6 +4,8 @@ site_url: https://hansmolemanpng.github.io/
 
 theme:
   name: material
+  logo: assets/profile.jpeg
+  favicon: assets/profile.jpeg
   palette:
     - scheme: slate
       toggle:
