@@ -2,20 +2,61 @@ site_name: hansmolemanpng
 site_description: Security research and offensive security notes
 site_url: https://hansmolemanpng.github.io
 
+  theme:
   name: material
-  palette:
-    scheme: slate
+  logo: assets/profile.png
+  favicon: assets/profile.png
+
   features:
     - navigation.sections
-    - navigation.tabs
+    - navigation.expand
     - navigation.indexes
+    - navigation.top
     - content.code.copy
+    - toc.integrate
     - search.suggest
-    - search.high
+    - search.highlight
+
+  palette:
+    - scheme: slate
+      toggle:
+        icon: material/weather-night
+        name: Dark mode
+    - scheme: default
+      toggle:
+        icon: material/weather-sunny
+        name: Light mode
+
+extra:
+  social:
+    - icon: fontawesome/brands/x-twitter
+      link: https://x.com/TUUSER
+      name: X
+    - icon: fontawesome/brands/github
+      link: https://github.com/TUUSER
+      name: GitHub
+    - icon: fontawesome/brands/hackerrank   # si prefieres otro icono te lo cambio
+      link: https://app.hackthebox.com/profile/TUID
+      name: Hack The Box
+    - icon: fontawesome/solid/envelope
+      link: mailto:tuemail@dominio.com
+      name: Email
+
+plugins:
+  - search
 
 markdown_extensions:
   - admonition
+  - pymdownx.details
   - pymdownx.superfences
-  - pymdownx.highlight
   - pymdownx.inlinehilite
-  - pymdownx.tabbed
+  - pymdownx.highlight
+  - toc:
+      permalink: true
+
+extra_css:
+  - assets/extra.css
+
+nav:
+  - Blog: index.md
+  - About: about.md
