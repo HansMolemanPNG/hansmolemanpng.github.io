@@ -64,7 +64,7 @@ def _build_grid(posts: list) -> str:
 
         card = (
             '<div class="post-card">\n'
-            f'<h3><a href="{post["url"]}">{post["title"]}</a></h3>\n'
+            f'<div class="post-title"><a href="{post["url"]}">{post["title"]}</a></div>\n'
             + (f'<div class="post-meta">{meta_html}</div>\n' if meta_html else '')
             + (f'<div class="post-excerpt">{post["excerpt"]}</div>\n' if post['excerpt'] else '')
             + '</div>'

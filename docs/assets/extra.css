@@ -95,34 +95,32 @@ body, .md-container, .md-main, .md-content { background:var(--bg) !important; co
 .navlinks {
   width: 100%;
   display: grid;
-  gap: 6px;
+  gap: 2px;
 }
 
 .navbtn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 7px 12px;
-  border-radius: 10px;
-  border: 1px solid transparent;
-  background: transparent;
+  display: block;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: none;
+  background: none;
   color: var(--muted);
   text-decoration: none;
   font-size: .9rem;
-  transition: border-color .12s ease, box-shadow .12s ease, color .12s ease, background .12s ease;
+  text-align: center;
+  letter-spacing: .02em;
+  -webkit-tap-highlight-color: transparent;
+  transition: color .12s ease, background .12s ease;
 }
 
 .navbtn:hover {
-  border-color: rgba(255,255,255,.08);
-  background: rgba(255,255,255,.03);
   color: var(--text);
+  background: rgba(255,255,255,.04);
 }
 
 .navbtn.active {
-  border-color: var(--border2);
-  box-shadow: 0 0 0 1px var(--border), 0 0 16px rgba(0,255,102,.18);
   color: var(--green);
-  background: rgba(0,255,102,.04);
+  font-weight: 600;
 }
 
 /* ================================
@@ -156,9 +154,9 @@ body, .md-container, .md-main, .md-content { background:var(--bg) !important; co
   transform: translateY(-2px);
 }
 
-.post-card h3 a { color: var(--green) !important; text-decoration: none; }
-.post-card h3 a:hover { color: var(--green2) !important; }
-.post-card h3 { margin: 0 0 6px 0; font-size: 1rem; }
+.post-title { font-size: 1rem; font-weight: 700; margin: 0 0 6px 0; }
+.post-title a { color: var(--green); text-decoration: none; }
+.post-title a:hover { color: var(--green2); }
 
 .post-meta { color: var(--muted); font-size: .82rem; margin-top: 4px; }
 .post-excerpt { margin-top: 8px; font-size: .88rem; color: var(--muted); line-height: 1.5; }
