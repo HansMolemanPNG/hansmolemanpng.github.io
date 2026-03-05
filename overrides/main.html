@@ -31,8 +31,8 @@
       </div>
 
       <div class="navlinks">
-        <a class="navbtn" href="{{ 'index.html' | url }}">Blog</a>
-        <a class="navbtn" href="{{ 'about/' | url }}">About</a>
+        <a class="navbtn{% if page.file.src_path == 'index.md' or 'blog/' in page.file.src_path %} active{% endif %}" href="{{ 'index.html' | url }}">Blog</a>
+        <a class="navbtn{% if page.file.src_path == 'about.md' %} active{% endif %}" href="{{ 'about/' | url }}">About</a>
       </div>
 
     </div>
