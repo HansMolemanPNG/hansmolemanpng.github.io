@@ -39,6 +39,9 @@ extra_javascript:
 hooks:
   - hooks.py
 
+not_in_nav: |
+  blog/**
+
 nav:
   - Blog: index.md
   - About: about.md

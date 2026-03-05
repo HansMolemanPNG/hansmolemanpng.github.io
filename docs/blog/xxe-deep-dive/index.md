@@ -1,6 +1,5 @@
 ---
 title: XXE Injection Deep Dive
-date: 2024-03-01
 tags: XXE, XML, Web
 excerpt: Attack surface, blind XXE, OOB exfil and mitigations.
 ---
