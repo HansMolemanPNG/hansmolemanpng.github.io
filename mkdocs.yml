@@ -1,23 +1,9 @@
 site_name: hansmolemanpng
-site_description: Security research and offensive security notes
-site_url: https://hansmolemanpng.github.io
+site_description: Security research and vulnerability notes
+site_url: https://hansmolemanpng.github.io/
 
-  theme:
+theme:
   name: material
-  custom_dir: overrides
-  logo: assets/profile.png
-  favicon: assets/profile.png
-
-  features:
-    - navigation.sections
-    - navigation.expand
-    - navigation.indexes
-    - navigation.top
-    - content.code.copy
-    - toc.integrate
-    - search.suggest
-    - search.highlight
-
   palette:
     - scheme: slate
       toggle:
@@ -27,21 +13,14 @@ site_url: https://hansmolemanpng.github.io
       toggle:
         icon: material/weather-sunny
         name: Light mode
-
-extra:
-  social:
-    - icon: fontawesome/brands/x-twitter
-      link: https://x.com/TUUSER
-      name: X
-    - icon: fontawesome/brands/github
-      link: https://github.com/TUUSER
-      name: GitHub
-    - icon: fontawesome/brands/hackerrank   # si prefieres otro icono te lo cambio
-      link: https://app.hackthebox.com/profile/TUID
-      name: Hack The Box
-    - icon: fontawesome/solid/envelope
-      link: mailto:tuemail@dominio.com
-      name: Email
+  features:
+    - navigation.sections
+    - navigation.expand
+    - navigation.indexes
+    - navigation.top
+    - content.code.copy
+    - search.suggest
+    - search.highlight
 
 plugins:
   - search
@@ -54,9 +33,6 @@ markdown_extensions:
   - pymdownx.highlight
   - toc:
       permalink: true
-
-extra_css:
-  - assets/extra.css
 
 nav:
   - Blog: index.md
