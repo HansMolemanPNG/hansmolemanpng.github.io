@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar__profile">
+      <div class="sidebar__name">hansmolemanpng</div>
+      <div class="sidebar__bio">
+        AppSec · Web Security · Vulnerability Research
+      </div>
+    </div>
+
+    <nav class="sidebar__nav">
+      <a href="{{ 'index.html' | url }}">Blog</a>
+      <a href="{{ 'about/' | url }}">About</a>
+    </nav>
+
+    <div class="sidebar__social">
+      <a href="https://x.com/TUUSER" target="_blank" rel="noopener">X</a>
+      <a href="https://github.com/hansmolemanpng" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://app.hackthebox.com/profile/TUID" target="_blank" rel="noopener">HTB</a>
+      <a href="mailto:TUEMAIL">Email</a>
+    </div>
+  </aside>
+
+  <main class="main">
+    {{ page.content }}
+  </main>
+</div>
+{% endblock %}
