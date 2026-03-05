@@ -229,3 +229,41 @@ body, .md-container, .md-main, .md-content { background:var(--bg) !important; co
 .main a:hover {
   color: #66ff99;
 }
+/* ================================
+   FORCE POST TEXT COLORS (Material)
+   ================================ */
+
+.md-typeset,
+.md-typeset p,
+.md-typeset li,
+.md-typeset ul li,
+.md-typeset ol li {
+  color: #ffffff !important;
+}
+
+.md-typeset h1 {
+  color: #ffffff !important;
+  font-weight: 800 !important;
+}
+
+.md-typeset h2 {
+  color: #f0fff0 !important;
+  font-weight: 700 !important;
+}
+
+.md-typeset h3,
+.md-typeset h4 {
+  color: #e0ffe8 !important;
+}
+
+.md-typeset a {
+  color: #00ff66 !important;
+}
+
+.md-typeset a:hover {
+  color: #66ff99 !important;
+}
+
+.md-typeset code {
+  color: #9effc7 !important;
+}
