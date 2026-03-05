@@ -8,7 +8,7 @@
       
       
       
-        <link rel="canonical" href="https://hansmolemanpng.github.io/blog/xxe-deep-dive/">
+        <link rel="canonical" href="https://hansmolemanpng.github.io/blog/informatica-xxe/">
       
       
       
@@ -21,7 +21,7 @@
     
     
       
-        <title>XXE Injection Deep Dive - Hans_Moleman.PNG</title>
+        <title>Informatica MDM XXE Research - Hans_Moleman.PNG</title>
       
     
     
@@ -74,7 +74,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#xxe-injection-deep-dive" class="md-skip">
+        <a href="#informatica-mdm-xxe-research" class="md-skip">
           Skip to content
         </a>
       
@@ -185,47 +185,6 @@
     
   
   
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Overview
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#impact" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Impact
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#example-payload" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Example payload
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
 </nav>
                   </div>
                 </div>
@@ -271,21 +230,12 @@
   </aside>
 
   <main class="main">
-    <h1 id="xxe-injection-deep-dive">XXE Injection Deep Dive<a class="headerlink" href="#xxe-injection-deep-dive" title="Permanent link">&para;</a></h1>
-<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>XML External Entity (XXE) is a vulnerability that occurs when XML parsers process external entities without proper restrictions.</p>
-<h2 id="impact">Impact<a class="headerlink" href="#impact" title="Permanent link">&para;</a></h2>
-<ul>
-<li>Local file disclosure</li>
-<li>SSRF</li>
-<li>Denial of Service</li>
-</ul>
-<h2 id="example-payload">Example payload<a class="headerlink" href="#example-payload" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><span class="cp">&lt;!DOCTYPE foo [</span>
-<span class="cp">&lt;!ENTITY xxe SYSTEM &quot;file:///etc/passwd&quot;&gt;</span>
-]&gt;
-<span class="nt">&lt;foo&gt;</span><span class="ni">&amp;xxe;</span><span class="nt">&lt;/foo&gt;</span>
-</code></pre></div>
+    <h1 id="informatica-mdm-xxe-research">Informatica MDM XXE Research<a class="headerlink" href="#informatica-mdm-xxe-research" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>Este writeup está en proceso de redacción.</p>
+</blockquote>
+<p>Root cause analysis, impact, and disclosure timeline for an XXE vulnerability found in Informatica MDM.</p>
+<p><em>Coming soon.</em></p>
   </main>
 
 </div>
