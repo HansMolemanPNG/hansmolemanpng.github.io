@@ -166,8 +166,8 @@ body, .md-container, .md-main, .md-content { background:var(--bg) !important; co
 }
 
 .md-typeset h1 { color: #ffffff !important; font-weight: 800 !important; }
-.md-typeset h2 { color: #f0fff0 !important; font-weight: 700 !important; }
-.md-typeset h3, .md-typeset h4 { color: #e0ffe8 !important; }
+.md-typeset h2 { color: #ffffff !important; font-weight: 700 !important; }
+.md-typeset h3, .md-typeset h4 { color: #e8e8e8 !important; }
 .md-typeset a { color: #00ff66 !important; }
 .md-typeset a:hover { color: #66ff99 !important; }
 .md-typeset code { color: #9effc7 !important; }
