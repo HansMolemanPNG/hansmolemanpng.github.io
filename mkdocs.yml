@@ -13,8 +13,8 @@ theme:
       accent: green
 
   features:
-    - navigation.top   # opcional
-    - toc.integrate    # opcional
+   # - navigation.top   # opcional
+    #- toc.integrate    # opcional
 
 plugins:
   - search
