@@ -1,0 +1,29 @@
+site_name: fr3d1s4nm4r
+site_description: Security research and offensive security notes
+site_url: https://YOURUSERNAME.github.io
+
+theme:
+  name: material
+  palette:
+    scheme: slate
+  features:
+    - navigation.sections
+    - navigation.tabs
+    - navigation.indexes
+    - content.code.copy
+    - search.suggest
+    - search.highlight
+
+nav:
+  - Blog: index.md
+  - About: about.md
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - pymdownx.superfences
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - pymdownx.tabbed
