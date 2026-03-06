@@ -12,7 +12,7 @@
 /* Oculta UI del theme */
 .md-header, .md-tabs, .md-footer, .md-sidebar { display:none !important; }
 body, .md-container, .md-main, .md-content, .md-content__inner { background:var(--bg) !important; color:var(--text) !important; }
-html, body,
+html, body { overflow-x: hidden; }
 .md-container, .md-main, .md-main__inner, .md-grid,
 .md-content, .md-content__inner {
   padding: 0 !important;
@@ -43,6 +43,8 @@ html, body,
   top: 0;
   height: 100vh;
   overflow-y: auto;
+  overflow-x: hidden;
+  min-width: 0;
 }
 
 .sidebar-inner {
@@ -61,7 +63,7 @@ html, body,
   object-fit: cover;
 }
 
-.name { font-weight: 900; font-size: 1.2rem; color: #ffffff; text-shadow: 0 0 18px rgba(0,255,102,.25); }
+.name { font-weight: 900; font-size: 1.2rem; color: #ffffff; text-shadow: 0 0 18px rgba(0,255,102,.25); word-break: break-word; }
 .bio { color: var(--muted); line-height: 1.35; font-size: .85rem; }
 
 /* Redes sociales */
@@ -218,9 +220,11 @@ html, body,
 /* Tablet landscape / teléfonos grandes: sidebar estrecha */
 @media (min-width: 701px) and (max-width: 900px) {
   .layout {
-    grid-template-columns: 200px minmax(0,1fr);
+    grid-template-columns: 230px minmax(0,1fr);
   }
   .sidebar {
-    padding: 16px 10px;
+    padding: 16px 12px;
   }
+  .name { font-size: 1rem; }
+  .bio { font-size: .78rem; }
 }
