@@ -107,6 +107,31 @@ def _build_output(posts: list) -> str:
     return filter_bar + '\n\n' + grid
 
 
+def on_page_content(html, page, config, **kwargs):
+    """Inject article meta header (badge + date) at top of individual blog post pages."""
+    src = page.file.src_path
+    if not src.startswith('blog/'):
+        return html
+
+    meta = page.meta or {}
+    post_type = meta.get('type', '').lower().strip()
+
+    docs_dir = Path(config['docs_dir'])
+    repo_root = docs_dir.parent
+    index_file = docs_dir / src
+    date = _git_creation_date(index_file, repo_root)
+
+    label = _TYPE_LABELS.get(post_type, post_type.capitalize()) if post_type else ''
+    badge = f'<span class="post-badge post-badge--{post_type}">{label}</span>' if post_type else ''
+    date_span = f'<span class="article-date">{date}</span>' if date else ''
+
+    if not badge and not date_span:
+        return html
+
+    header = f'<div class="article-meta-header">{badge}{date_span}</div>\n'
+    return header + html
+
+
 def on_page_markdown(markdown, page, config, **kwargs):
     if page.file.src_path != 'index.md':
         return markdown

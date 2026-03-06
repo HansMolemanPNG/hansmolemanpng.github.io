@@ -40,7 +40,10 @@
     </div>
   </aside>
 
-  <main class="main">
+  <main class="main{% if 'blog/' in page.file.src_path %} main--article{% endif %}">
+    {% if 'blog/' in page.file.src_path %}
+    <a class="back-link" href="{{ '' | url }}">← Blog</a>
+    {% endif %}
     {{ page.content }}
   </main>
 
