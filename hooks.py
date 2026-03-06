@@ -211,7 +211,7 @@ def _build_kb_index(categories: list) -> str:
                      if cat['post_count'] else '')
 
         card = (
-            f'<a class="kb-card" href="{cat["url"]}" style="--cat-color: var({color_var})">\n'
+            f'<a class="kb-card" href="/{cat["url"]}" style="--cat-color: var({color_var})">\n'
             f'  <span class="kb-card-icon">{cat["icon"]}</span>\n'
             f'  <div class="kb-card-body">\n'
             f'    <div class="kb-card-title">{cat["title"]}</div>\n'
@@ -239,7 +239,7 @@ def _build_kb_sheets(docs_dir: Path, cat_slug: str, all_posts: list) -> str:
         sm = _parse_frontmatter(f.read_text(encoding='utf-8'))
         title = sm.get('title', f.stem.replace('-', ' ').title())
         excerpt = sm.get('excerpt', '')
-        url = f'kb/{cat_slug}/{f.stem}/'
+        url = f'/kb/{cat_slug}/{f.stem}/'
         card = (
             f'<a class="kb-sheet-card" href="{url}" style="--cat-color: var({color_var})">\n'
             f'  <div class="kb-sheet-title">{title}</div>\n'

@@ -94,7 +94,7 @@
     {% if page.file.src_path.startswith('blog/') %}
       <a class="back-link" href="{{ '' | url }}">← Blog</a>
     {% elif in_kb and page.file.src_path != 'kb/index.md' %}
-      {% if kb_parts|length >= 3 %}
+      {% if kb_parts|length >= 3 and kb_parts[-1] != 'index.md' %}
         {# Cheat sheet: back to category #}
         {% for cat in kb_nav %}{% if cat.slug == kb_parts[1] %}
           <a class="back-link" href="{{ (cat.url) | url }}">← {{ cat.title }}</a>
