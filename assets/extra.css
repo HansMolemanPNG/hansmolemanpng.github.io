@@ -149,6 +149,42 @@ body { overflow-x: hidden; position: relative; } /* position:relative necesario 
   align-self: start;
 }
 
+/* Article pages: cap prose width for readability */
+.main--article {
+  max-width: 800px;
+}
+
+/* ================================
+   BACK LINK
+   ================================ */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: .82rem;
+  letter-spacing: .01em;
+  margin-bottom: 20px;
+  transition: color .12s ease;
+}
+.back-link:hover { color: var(--green); }
+
+/* ================================
+   ARTICLE META HEADER (badge + date)
+   ================================ */
+.article-meta-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.article-date {
+  color: var(--muted);
+  font-size: .82rem;
+}
+
 /* ================================
    FILTER BAR
    ================================ */
@@ -263,13 +299,61 @@ body { overflow-x: hidden; position: relative; } /* position:relative necesario 
   color: #ffffff !important;
 }
 
-.md-typeset h1 { color: #ffffff !important; font-weight: 800 !important; }
-.md-typeset h2 { color: #ffffff !important; font-weight: 700 !important; }
+.md-typeset h1 { color: #ffffff !important; font-weight: 800 !important; margin-top: 6px !important; }
+.md-typeset h2 { color: #ffffff !important; font-weight: 700 !important; margin-top: 2em !important; }
 .md-typeset h3, .md-typeset h4 { color: #e8e8e8 !important; }
 .md-typeset a { color: #00ff66 !important; }
 .md-typeset a:hover { color: #66ff99 !important; }
-.md-typeset code { color: #9effc7 !important; }
+.md-typeset code { color: #9effc7 !important; background: rgba(0,255,102,.06) !important; border-radius: 4px; padding: 1px 5px !important; }
 .md-typeset .headerlink { display: none !important; }
+
+/* Code blocks */
+.md-typeset pre {
+  background: #0d0d0d !important;
+  border: 1px solid rgba(255,255,255,.08) !important;
+  border-radius: 8px !important;
+}
+.md-typeset pre code {
+  background: transparent !important;
+  color: #e2e8f0 !important;
+  padding: 0 !important;
+}
+
+/* Horizontal rule */
+.md-typeset hr {
+  border-color: rgba(255,255,255,.08) !important;
+  margin: 2em 0 !important;
+}
+
+/* Blockquote */
+.md-typeset blockquote {
+  border-left: 3px solid var(--border2) !important;
+  background: rgba(0,255,102,.03) !important;
+  color: var(--muted) !important;
+  border-radius: 0 6px 6px 0;
+  padding: 10px 16px !important;
+}
+
+/* Tables */
+.md-typeset table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: .88rem;
+}
+.md-typeset th {
+  background: rgba(0,255,102,.07) !important;
+  color: var(--green) !important;
+  font-weight: 600;
+  border-bottom: 1px solid var(--border) !important;
+  padding: 8px 12px !important;
+}
+.md-typeset td {
+  border-bottom: 1px solid rgba(255,255,255,.06) !important;
+  padding: 7px 12px !important;
+}
+.md-typeset tr:hover td {
+  background: rgba(255,255,255,.02);
+}
 
 /* ================================
    RESPONSIVE

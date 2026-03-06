@@ -244,11 +244,13 @@
   </aside>
 
   <main class="main">
+    
     <h1 id="blog">Blog<a class="headerlink" href="#blog" title="Permanent link">&para;</a></h1>
 <p>Research notes &amp; writeups.</p>
 <div class="filter-bar">
 <button class="filter-btn active" data-filter="all">Todos</button>
 <button class="filter-btn" data-filter="research">Research</button>
+<button class="filter-btn" data-filter="cve">CVE</button>
 <button class="filter-btn" data-filter="writeup">Writeup</button>
 </div>
 
@@ -259,6 +261,27 @@
 <div class="post-title"><a href="blog/Test/">test</a></div>
 <div class="post-meta">2026-03-06 &nbsp;·&nbsp; Tags: test · test · test</div>
 <div class="post-excerpt">test test test test test tes test test test test</div>
+</div>
+
+<div class="post-card" data-type="research">
+<span class="post-badge post-badge--research">Research</span>
+<div class="post-title"><a href="blog/jwt-alg-confusion/">"JWT Algorithm Confusion Attacks"</a></div>
+<div class="post-meta">2026-03-06 &nbsp;·&nbsp; Tags: JWT · Auth · Cryptography · Web</div>
+<div class="post-excerpt">How RS256 to HS256 algorithm confusion works, why it's still found in the wild, and how to test for it.</div>
+</div>
+
+<div class="post-card" data-type="cve">
+<span class="post-badge post-badge--cve">CVE</span>
+<div class="post-title"><a href="blog/cve-2024-4577-php-cgi/">"CVE-2024-4577: PHP CGI Argument Injection on Windows"</a></div>
+<div class="post-meta">2026-03-06 &nbsp;·&nbsp; Tags: PHP · RCE · Windows · CVE</div>
+<div class="post-excerpt">Critical argument injection in PHP CGI mode on Windows allows unauthenticated RCE. CVSS 9.8.</div>
+</div>
+
+<div class="post-card" data-type="writeup">
+<span class="post-badge post-badge--writeup">Writeup</span>
+<div class="post-title"><a href="blog/htb-boardlight/">"HTB BoardLight — Writeup"</a></div>
+<div class="post-meta">2026-03-06 &nbsp;·&nbsp; Tags: HackTheBox · Linux · Dolibarr · CVE-2023-30253 · SUID</div>
+<div class="post-excerpt">Easy Linux box. Initial access via Dolibarr ERP CVE, privesc via vulnerable SUID enlightenment_sys binary.</div>
 </div>
 
 <div class="post-card" data-type="writeup">
