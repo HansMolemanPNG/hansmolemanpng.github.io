@@ -52,7 +52,7 @@ body { overflow-x: hidden; position: relative; }
 }
 
 /* ================================================================
-   LAYOUT
+   LAYOUT — sidebar + main
    ================================================================ */
 .layout {
   display: grid;
@@ -64,6 +64,181 @@ body { overflow-x: hidden; position: relative; }
 /* KB layout: slightly wider sidebar to accommodate the tree */
 .layout--kb {
   grid-template-columns: 280px minmax(0, 1fr);
+}
+
+/* ================================================================
+   LANDING PAGE LAYOUT
+   ================================================================ */
+.layout--landing {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* ── Top navigation bar ── */
+.topnav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(16, 13, 10, .92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+
+.topnav-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 28px;
+  height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.topnav-brand {
+  font-weight: 900;
+  font-size: 1rem;
+  color: #fff;
+  text-decoration: none;
+  letter-spacing: .01em;
+  white-space: nowrap;
+}
+
+.topnav-links {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.topnav-link {
+  padding: 6px 16px;
+  border-radius: 20px;
+  border: 1px solid transparent;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: .82rem;
+  letter-spacing: .04em;
+  transition: color .12s, border-color .12s, background .12s;
+}
+.topnav-link:hover {
+  color: var(--text);
+  border-color: rgba(255, 255, 255, .12);
+}
+
+/* ── Landing main area ── */
+.landing-main {
+  flex: 1;
+  max-width: 1100px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 52px 28px 72px;
+}
+
+/* ── Hero section ── */
+.landing-hero {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  margin-bottom: 56px;
+}
+
+.landing-avatar {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  border: 2px solid var(--border2);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.landing-hero-body { display: flex; flex-direction: column; gap: 8px; }
+
+.landing-name {
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: #fff;
+  margin: 0;
+  line-height: 1.1;
+}
+
+.landing-bio {
+  color: var(--muted);
+  font-size: .9rem;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* ── Overview grid ── */
+.landing-content { width: 100%; }
+
+.landing-overview {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.landing-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, .09);
+  background: rgba(255, 255, 255, .03);
+  padding: 22px 20px;
+  text-decoration: none;
+  transition: border-color .15s, box-shadow .15s, transform .15s;
+}
+.landing-card:hover {
+  border-color: var(--border2);
+  box-shadow: 0 0 32px rgba(248, 168, 88, .10);
+  transform: translateY(-2px);
+}
+
+.landing-card-hdr { display: flex; flex-direction: column; gap: 4px; }
+
+.landing-card-htitle {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.landing-card-hsub {
+  font-size: .80rem;
+  color: var(--muted);
+}
+
+.landing-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.landing-list-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: .87rem;
+}
+
+.landing-item-icon {
+  font-size: 1rem;
+  color: var(--cat-color, var(--accent));
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.landing-item-name { flex: 1; color: var(--text); }
+
+.landing-item-count {
+  color: var(--muted);
+  font-size: .80rem;
+  text-align: right;
 }
 
 /* ================================================================
@@ -177,7 +352,7 @@ body { overflow-x: hidden; position: relative; }
 }
 
 /* ================================================================
-   KB TREE (sidebar navigation)
+   KB TREE — console style with connector lines
    ================================================================ */
 .kb-tree {
   width: 100%;
@@ -236,17 +411,17 @@ body { overflow-x: hidden; position: relative; }
   line-height: 1;
 }
 
+/* Items list — left border acts as the tree trunk */
 .kb-tree-items {
   list-style: none;
-  margin: 2px 0 4px 28px;
+  margin: 2px 0 4px 20px;
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 1px;
-  border-left: 1px solid rgba(255, 255, 255, .07);
+  border-left: 1px solid rgba(255, 255, 255, .12);
   overflow: hidden;
   max-height: 600px;
-  transition: max-height .2s ease, opacity .2s;
+  transition: max-height .22s ease, opacity .2s;
   opacity: 1;
 }
 .kb-tree-items--hidden {
@@ -255,21 +430,103 @@ body { overflow-x: hidden; position: relative; }
   pointer-events: none;
 }
 
+/* Each leaf node: connector drawn via ::before */
+.kb-tree-leaf {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.kb-tree-leaf::before {
+  content: '├── ';
+  font-family: 'Courier New', Courier, monospace;
+  font-size: .78rem;
+  color: rgba(255, 255, 255, .20);
+  white-space: pre;
+  flex-shrink: 0;
+  padding-left: 4px;
+}
+
+/* Last child gets └── instead of ├── */
+.kb-tree-leaf:last-child::before {
+  content: '└── ';
+}
+
 .kb-tree-item {
-  display: block;
-  padding: 5px 10px;
-  margin-left: 6px;
-  border-radius: 6px;
+  flex: 1;
+  padding: 4px 4px 4px 0;
+  border-radius: 5px;
   color: var(--muted);
   text-decoration: none;
   font-size: .79rem;
   transition: background .12s, color .12s;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.kb-tree-item:hover { background: rgba(255, 255, 255, .04); color: var(--text); }
+.kb-tree-item:hover { color: var(--text); }
 .kb-tree-item--active {
   color: var(--cat-color, var(--accent));
-  background: rgba(255, 255, 255, .04);
   font-weight: 600;
+}
+
+/* ================================================================
+   MOBILE KB NAVIGATION DROPDOWN
+   ================================================================ */
+.kb-mobile-menu {
+  display: none;  /* shown only on mobile via media query */
+  margin-bottom: 16px;
+}
+
+.kb-mobile-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 9px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, .10);
+  background: rgba(255, 255, 255, .03);
+  color: var(--muted);
+  font-family: inherit;
+  font-size: .83rem;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color .12s, color .12s;
+}
+.kb-mobile-toggle:hover { border-color: rgba(255, 255, 255, .22); color: var(--text); }
+.kb-mobile-toggle[aria-expanded="true"] {
+  border-color: var(--border2);
+  color: var(--accent);
+}
+
+.kb-mobile-toggle-chevron {
+  font-size: .70rem;
+  transition: transform .2s ease;
+  flex-shrink: 0;
+}
+.kb-mobile-toggle[aria-expanded="true"] .kb-mobile-toggle-chevron {
+  transform: rotate(90deg);
+}
+
+.kb-mobile-nav {
+  margin-top: 6px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, .08);
+  background: rgba(255, 255, 255, .02);
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height .25s ease, opacity .2s, padding .2s;
+  opacity: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+.kb-mobile-nav.open {
+  max-height: 600px;
+  opacity: 1;
+  padding: 10px 12px;
 }
 
 /* ================================================================
@@ -282,6 +539,18 @@ body { overflow-x: hidden; position: relative; }
 }
 
 .main--article { max-width: 820px; }
+
+/* KB index: centered with internal scroll when content overflows */
+.main--kb-index {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100vh;
+  height: 100dvh;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
 
 /* ── Back link ── */
 .back-link {
@@ -511,16 +780,46 @@ body { overflow-x: hidden; position: relative; }
    RESPONSIVE
    ================================================================ */
 @media (max-width: 768px) {
+  /* Layout */
   .layout, .layout--kb { grid-template-columns: 1fr; }
+
   .sidebar, .sidebar--kb {
     position: relative; height: auto; top: auto;
     border-right: none; border-bottom: 1px solid rgba(255,255,255,.06);
     align-items: center; justify-content: center;
+    padding: 16px 14px;
   }
   .sidebar--kb .sidebar-inner { align-items: center; text-align: center; }
+
+  /* Hide desktop KB tree on mobile — dropdown used instead */
   .kb-tree { display: none; }
-  .main { padding: 24px 18px; }
+
+  /* Show mobile KB dropdown */
+  .kb-mobile-menu { display: block; }
+
+  .main { padding: 20px 16px; }
+
+  /* KB index: disable centered scroll on mobile, normal flow */
+  .main--kb-index {
+    height: auto;
+    overflow-y: visible;
+    justify-content: flex-start;
+  }
+
+  /* Grids: single column */
   .post-grid, .kb-grid, .kb-sheet-grid { grid-template-columns: 1fr; }
+
+  /* Landing */
+  .landing-main { padding: 28px 16px 48px; }
+  .landing-hero { flex-direction: column; text-align: center; align-items: center; gap: 16px; margin-bottom: 36px; }
+  .landing-avatar { width: 80px; height: 80px; }
+  .landing-name { font-size: 1.4rem; }
+  .landing-overview { grid-template-columns: 1fr; }
+
+  /* Top nav */
+  .topnav-inner { padding: 0 16px; }
+  .topnav-brand { font-size: .9rem; }
+  .topnav-link  { padding: 5px 12px; font-size: .78rem; }
 }
 
 @media (min-width: 769px) and (max-width: 1024px) {

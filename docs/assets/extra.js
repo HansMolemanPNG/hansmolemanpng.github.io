@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // ── KB sidebar tree toggle ────────────────────────────────────
+  // ── KB sidebar tree toggle (desktop) ─────────────────────────
   document.querySelectorAll('.kb-tree-cat-hdr').forEach(hdr => {
     hdr.addEventListener('click', e => {
       // Let category name link navigate normally
@@ -40,5 +40,17 @@ document.addEventListener('DOMContentLoaded', () => {
       hdr.setAttribute('aria-expanded', String(!isOpen));
     });
   });
+
+  // ── Mobile KB navigation dropdown ────────────────────────────
+  const mobileToggle = document.querySelector('.kb-mobile-toggle');
+  const mobileNav    = document.querySelector('.kb-mobile-nav');
+
+  if (mobileToggle && mobileNav) {
+    mobileToggle.addEventListener('click', () => {
+      const isOpen = mobileToggle.getAttribute('aria-expanded') === 'true';
+      mobileToggle.setAttribute('aria-expanded', String(!isOpen));
+      mobileNav.classList.toggle('open', !isOpen);
+    });
+  }
 
 });

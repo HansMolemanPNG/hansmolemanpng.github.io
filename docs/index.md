@@ -1,5 +1,5 @@
-# Blog
+---
+title: Hans_Moleman.PNG
+---
 
-Research notes & writeups.
-
-<!-- BLOG_POSTS -->
+<!-- LANDING_OVERVIEW -->

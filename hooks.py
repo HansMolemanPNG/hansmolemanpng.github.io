@@ -151,6 +151,69 @@ def _get_kb_categories(docs_dir: Path, all_posts: list) -> list:
 #  Blog index builder
 # ──────────────────────────────────────────────────────────
 
+def _build_landing(all_posts: list, categories: list) -> str:
+    """Generate the landing page overview cards (KB + Blog)."""
+    # KB stats
+    total_sheets = sum(len(cat['sheets']) for cat in categories)
+    cat_count = len(categories)
+
+    kb_rows = ''
+    for cat in categories:
+        sc = len(cat['sheets'])
+        sheet_str = f'{sc} sheet{"s" if sc != 1 else ""}'
+        kb_rows += (
+            f'<li class="landing-list-item" style="--cat-color: var(--col-{cat["color"]})">'
+            f'<span class="landing-item-icon">{cat["icon"]}</span>'
+            f'<span class="landing-item-name">{cat["title"]}</span>'
+            f'<span class="landing-item-count">{sheet_str}</span>'
+            f'</li>'
+        )
+    cat_label = f'{cat_count} categor{"ies" if cat_count != 1 else "y"}'
+    sheet_label = f'{total_sheets} cheat sheet{"s" if total_sheets != 1 else ""}'
+    kb_card = (
+        f'<a class="landing-card" href="/kb/">'
+        f'<div class="landing-card-hdr">'
+        f'<div class="landing-card-htitle">📚 Knowledge Base</div>'
+        f'<div class="landing-card-hsub">{cat_label} · {sheet_label}</div>'
+        f'</div>'
+        f'<ul class="landing-list">{kb_rows}</ul>'
+        f'</a>'
+    )
+
+    # Blog stats by type
+    type_counts: dict = {}
+    for p in all_posts:
+        t = p['type']
+        if t:
+            type_counts[t] = type_counts.get(t, 0) + 1
+    total_posts = len(all_posts)
+
+    blog_rows = ''
+    for t in ['writeup', 'cve', 'research']:
+        count = type_counts.get(t, 0)
+        if count == 0:
+            continue
+        label = _TYPE_LABELS.get(t, t.capitalize())
+        blog_rows += (
+            f'<li class="landing-list-item">'
+            f'<span class="post-badge post-badge--{t}">{label}</span>'
+            f'<span class="landing-item-count">{count}</span>'
+            f'</li>'
+        )
+    post_label = f'{total_posts} post{"s" if total_posts != 1 else ""}'
+    blog_card = (
+        f'<a class="landing-card" href="/blog/">'
+        f'<div class="landing-card-hdr">'
+        f'<div class="landing-card-htitle">✏️ Blog</div>'
+        f'<div class="landing-card-hsub">{post_label}</div>'
+        f'</div>'
+        f'<ul class="landing-list">{blog_rows}</ul>'
+        f'</a>'
+    )
+
+    return f'<div class="landing-overview">\n{kb_card}\n{blog_card}\n</div>'
+
+
 def _build_blog_output(posts: list) -> str:
     present_types, seen = [], set()
     for p in posts:
@@ -159,7 +222,7 @@ def _build_blog_output(posts: list) -> str:
             present_types.append(t)
             seen.add(t)
 
-    filter_buttons = '<button class="filter-btn active" data-filter="all">Todos</button>'
+    filter_buttons = '<button class="filter-btn active" data-filter="all">All</button>'
     for t in present_types:
         label = _TYPE_LABELS.get(t, t.capitalize())
         filter_buttons += f'\n<button class="filter-btn" data-filter="{t}">{label}</button>'
@@ -319,8 +382,15 @@ def on_page_markdown(markdown, page, config, **kwargs):
     docs_dir  = Path(config['docs_dir'])
     repo_root = docs_dir.parent
 
+    # ── Landing page
+    if src == 'index.md' and '<!-- LANDING_OVERVIEW -->' in markdown:
+        all_posts  = _get_all_posts(docs_dir, repo_root)
+        categories = _get_kb_categories(docs_dir, all_posts)
+        output = _build_landing(all_posts, categories)
+        return markdown.replace('<!-- LANDING_OVERVIEW -->', output)
+
     # ── Blog homepage
-    if src == 'index.md' and '<!-- BLOG_POSTS -->' in markdown:
+    if src == 'blog/index.md' and '<!-- BLOG_POSTS -->' in markdown:
         all_posts = _get_all_posts(docs_dir, repo_root)
         output = _build_blog_output(all_posts) if all_posts else ''
         return markdown.replace('<!-- BLOG_POSTS -->', output)
