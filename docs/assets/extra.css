@@ -27,7 +27,7 @@ body, .md-container, .md-main, .md-content, .md-content__inner { background:var(
    SIDEBAR
    ================================ */
 .sidebar {
-  background: var(--panel);
+  background: var(--panel) !important;
   border-right: 1px solid rgba(255,255,255,.06);
   padding: 22px 14px;
   position: sticky;
@@ -127,7 +127,7 @@ body, .md-container, .md-main, .md-content, .md-content__inner { background:var(
    ================================ */
 .main {
   padding: 38px 34px;
-  background: var(--bg);
+  background: var(--bg) !important;
 }
 
 /* ================================
