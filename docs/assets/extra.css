@@ -12,12 +12,15 @@
 /* Oculta UI del theme */
 .md-header, .md-tabs, .md-footer, .md-sidebar { display:none !important; }
 body, .md-container, .md-main, .md-content, .md-content__inner { background:var(--bg) !important; color:var(--text) !important; }
-.md-content, .md-content__inner, .md-main__inner, .md-grid {
+html, body,
+.md-container, .md-main, .md-main__inner, .md-grid,
+.md-content, .md-content__inner {
   padding: 0 !important;
   margin: 0 !important;
-  max-width: none !important;
+  max-width: 100% !important;
+  width: 100% !important;
+  box-sizing: border-box;
 }
-.layout { width: 100%; }
 
 /* ================================
    LAYOUT
