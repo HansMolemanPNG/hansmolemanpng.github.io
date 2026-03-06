@@ -8,7 +8,7 @@
       
       
       
-        <link rel="canonical" href="https://hansmolemanpng.github.io/blog/xxe-deep-dive/">
+        <link rel="canonical" href="https://hansmolemanpng.github.io/kb/web-security/">
       
       
       
@@ -21,7 +21,7 @@
     
     
       
-        <title>XXE Injection Deep Dive - Hans_Moleman.PNG</title>
+        <title>Web Security - Hans_Moleman.PNG</title>
       
     
     
@@ -74,7 +74,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#xxe-injection-deep-dive" class="md-skip">
+        <a href="#web-security" class="md-skip">
           Skip to content
         </a>
       
@@ -145,7 +145,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../kb/" class="md-nav__link">
+      <a href="../" class="md-nav__link">
         
   
   
@@ -212,47 +212,6 @@
     
   
   
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Overview
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#impact" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Impact
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#example-payload" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Example payload
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
 </nav>
                   </div>
                 </div>
@@ -273,9 +232,9 @@
 
 
 
-<div class="layout">
+<div class="layout layout--kb">
 
-  <aside class="sidebar">
+  <aside class="sidebar sidebar--kb">
     <div class="sidebar-inner">
 
       
@@ -302,12 +261,83 @@
 
       
       <div class="navlinks">
-        <a class="navbtn"   href="../../kb/">KB</a>
-        <a class="navbtn active" href="../../index.html">Blog</a>
+        <a class="navbtn active"   href="../">KB</a>
+        <a class="navbtn" href="../../index.html">Blog</a>
         <a class="navbtn" href="../../about/">About</a>
       </div>
 
       
+      
+      <div class="sidebar-divider"></div>
+      <nav class="kb-tree" aria-label="Knowledge Base">
+        <ul class="kb-tree-list">
+          
+          
+          <li class="kb-tree-cat">
+
+            <button class="kb-tree-cat-hdr" aria-expanded="false"
+                    style="--cat-color: var(--col-crypto)">
+              <span class="kb-tree-icon">🔐</span>
+              <a class="kb-tree-cat-name" href="../cryptography/">Cryptography</a>
+              
+              <span class="kb-tree-chevron">▸</span>
+              
+            </button>
+
+            
+            <ul class="kb-tree-items kb-tree-items--hidden">
+              
+              
+              <li>
+                <a class="kb-tree-item"
+                   href="../cryptography/jwt/">JSON Web Tokens (JWT)</a>
+              </li>
+              
+            </ul>
+            
+
+          </li>
+          
+          
+          <li class="kb-tree-cat kb-tree-cat--open">
+
+            <button class="kb-tree-cat-hdr" aria-expanded="true"
+                    style="--cat-color: var(--col-web)">
+              <span class="kb-tree-icon">⚡</span>
+              <a class="kb-tree-cat-name" href="./">Web Security</a>
+              
+              <span class="kb-tree-chevron">▾</span>
+              
+            </button>
+
+            
+            <ul class="kb-tree-items">
+              
+              
+              <li>
+                <a class="kb-tree-item"
+                   href="sqli/">SQL Injection</a>
+              </li>
+              
+              
+              <li>
+                <a class="kb-tree-item"
+                   href="xss/">Cross-Site Scripting (XSS)</a>
+              </li>
+              
+              
+              <li>
+                <a class="kb-tree-item"
+                   href="xxe/">XML External Entity (XXE)</a>
+              </li>
+              
+            </ul>
+            
+
+          </li>
+          
+        </ul>
+      </nav>
       
 
     </div>
@@ -318,25 +348,42 @@
 
     
     
-      <a class="back-link" href="../..">← Blog</a>
+      
+        
+        
+          <a class="back-link" href="./">← Web Security</a>
+        
+      
     
 
-    <div class="article-meta-header"><span class="post-badge post-badge--writeup">Writeup</span><span class="article-date">2026-03-05</span></div>
-<h1 id="xxe-injection-deep-dive">XXE Injection Deep Dive<a class="headerlink" href="#xxe-injection-deep-dive" title="Permanent link">&para;</a></h1>
-<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>XML External Entity (XXE) is a vulnerability that occurs when XML parsers process external entities without proper restrictions.</p>
-<h2 id="impact">Impact<a class="headerlink" href="#impact" title="Permanent link">&para;</a></h2>
+    <h1 id="web-security">Web Security<a class="headerlink" href="#web-security" title="Permanent link">&para;</a></h1>
+<p>Client-side attacks, injection flaws, authentication bypasses, and server-side vulnerabilities.</p>
+<div class="kb-sheet-grid">
+
+<a class="kb-sheet-card" href="kb/web-security/sqli/" style="--cat-color: var(--col-web)">
+  <div class="kb-sheet-title">SQL Injection</div>
+  <div class="kb-sheet-excerpt">Union-based, blind, time-based and OOB SQLi — detection, exploitation, and automation with sqlmap.</div>
+</a>
+
+<a class="kb-sheet-card" href="kb/web-security/xss/" style="--cat-color: var(--col-web)">
+  <div class="kb-sheet-title">Cross-Site Scripting (XSS)</div>
+  <div class="kb-sheet-excerpt">Reflected, stored and DOM-based XSS — payloads, bypasses, and CSP evasion.</div>
+</a>
+
+<a class="kb-sheet-card" href="kb/web-security/xxe/" style="--cat-color: var(--col-web)">
+  <div class="kb-sheet-title">XML External Entity (XXE)</div>
+  <div class="kb-sheet-excerpt">XXE attack patterns — basic, blind OOB exfil, error-based, and SVG/XLSX vectors.</div>
+</a>
+
+</div>
+
+<div class="kb-related">
+<div class="kb-related-title">Related posts</div>
 <ul>
-<li>Local file disclosure</li>
-<li>SSRF</li>
-<li>Denial of Service</li>
+<li><span class="kb-rel-meta"><span class="post-badge post-badge--research">Research</span> 2026-03-06</span> <a href="blog/jwt-alg-confusion/">"JWT Algorithm Confusion Attacks"</a></li>
+<li><span class="kb-rel-meta"><span class="post-badge post-badge--writeup">Writeup</span> 2026-03-05</span> <a href="blog/xxe-deep-dive/">XXE Injection Deep Dive</a></li>
 </ul>
-<h2 id="example-payload">Example payload<a class="headerlink" href="#example-payload" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><span class="cp">&lt;!DOCTYPE foo [</span>
-<span class="cp">&lt;!ENTITY xxe SYSTEM &quot;file:///etc/passwd&quot;&gt;</span>
-]&gt;
-<span class="nt">&lt;foo&gt;</span><span class="ni">&amp;xxe;</span><span class="nt">&lt;/foo&gt;</span>
-</code></pre></div>
+</div>
   </main>
 
 </div>

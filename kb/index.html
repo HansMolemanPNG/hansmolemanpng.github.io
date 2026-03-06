@@ -8,27 +8,31 @@
       
       
       
-        <link rel="canonical" href="https://hansmolemanpng.github.io/blog/xxe-deep-dive/">
+        <link rel="canonical" href="https://hansmolemanpng.github.io/kb/">
       
       
+        <link rel="prev" href="..">
+      
+      
+        <link rel="next" href="../about/">
       
       
         
       
       
-      <link rel="icon" href="../../assets/profile.jpeg">
+      <link rel="icon" href="../assets/profile.jpeg">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
     
     
       
-        <title>XXE Injection Deep Dive - Hans_Moleman.PNG</title>
+        <title>Knowledge Base - Hans_Moleman.PNG</title>
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -47,9 +51,9 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/extra.css">
+      <link rel="stylesheet" href="../assets/extra.css">
     
-    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -74,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#xxe-injection-deep-dive" class="md-skip">
+        <a href="#knowledge-base" class="md-skip">
           Skip to content
         </a>
       
@@ -101,9 +105,9 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Hans_Moleman.PNG" class="md-nav__button md-logo" aria-label="Hans_Moleman.PNG" data-md-component="logo">
+    <a href=".." title="Hans_Moleman.PNG" class="md-nav__button md-logo" aria-label="Hans_Moleman.PNG" data-md-component="logo">
       
-  <img src="../../assets/profile.jpeg" alt="logo">
+  <img src="../assets/profile.jpeg" alt="logo">
 
     </a>
     Hans_Moleman.PNG
@@ -118,7 +122,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../.." class="md-nav__link">
+      <a href=".." class="md-nav__link">
         
   
   
@@ -142,10 +146,19 @@
       
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../kb/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -161,6 +174,7 @@
   
 
       </a>
+      
     </li>
   
 
@@ -172,7 +186,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../about/" class="md-nav__link">
+      <a href="../about/" class="md-nav__link">
         
   
   
@@ -212,47 +226,6 @@
     
   
   
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Overview
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#impact" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Impact
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#example-payload" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Example payload
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
 </nav>
                   </div>
                 </div>
@@ -273,14 +246,14 @@
 
 
 
-<div class="layout">
+<div class="layout layout--kb">
 
-  <aside class="sidebar">
+  <aside class="sidebar sidebar--kb">
     <div class="sidebar-inner">
 
       
       <div class="profile">
-        <img class="avatar" src="../../assets/profile.jpeg" alt="profile">
+        <img class="avatar" src="../assets/profile.jpeg" alt="profile">
         <div class="name">Hans_Moleman.PNG</div>
         <div class="bio">AppSec · Web Security · Vulnerability Research</div>
       </div>
@@ -302,41 +275,115 @@
 
       
       <div class="navlinks">
-        <a class="navbtn"   href="../../kb/">KB</a>
-        <a class="navbtn active" href="../../index.html">Blog</a>
-        <a class="navbtn" href="../../about/">About</a>
+        <a class="navbtn active"   href="./">KB</a>
+        <a class="navbtn" href="../index.html">Blog</a>
+        <a class="navbtn" href="../about/">About</a>
       </div>
 
       
+      
+      <div class="sidebar-divider"></div>
+      <nav class="kb-tree" aria-label="Knowledge Base">
+        <ul class="kb-tree-list">
+          
+          
+          <li class="kb-tree-cat">
+
+            <button class="kb-tree-cat-hdr" aria-expanded="false"
+                    style="--cat-color: var(--col-crypto)">
+              <span class="kb-tree-icon">🔐</span>
+              <a class="kb-tree-cat-name" href="cryptography/">Cryptography</a>
+              
+              <span class="kb-tree-chevron">▸</span>
+              
+            </button>
+
+            
+            <ul class="kb-tree-items kb-tree-items--hidden">
+              
+              
+              <li>
+                <a class="kb-tree-item"
+                   href="cryptography/jwt/">JSON Web Tokens (JWT)</a>
+              </li>
+              
+            </ul>
+            
+
+          </li>
+          
+          
+          <li class="kb-tree-cat">
+
+            <button class="kb-tree-cat-hdr" aria-expanded="false"
+                    style="--cat-color: var(--col-web)">
+              <span class="kb-tree-icon">⚡</span>
+              <a class="kb-tree-cat-name" href="web-security/">Web Security</a>
+              
+              <span class="kb-tree-chevron">▸</span>
+              
+            </button>
+
+            
+            <ul class="kb-tree-items kb-tree-items--hidden">
+              
+              
+              <li>
+                <a class="kb-tree-item"
+                   href="web-security/sqli/">SQL Injection</a>
+              </li>
+              
+              
+              <li>
+                <a class="kb-tree-item"
+                   href="web-security/xss/">Cross-Site Scripting (XSS)</a>
+              </li>
+              
+              
+              <li>
+                <a class="kb-tree-item"
+                   href="web-security/xxe/">XML External Entity (XXE)</a>
+              </li>
+              
+            </ul>
+            
+
+          </li>
+          
+        </ul>
+      </nav>
       
 
     </div>
   </aside>
 
   
-  <main class="main main--article">
+  <main class="main">
 
     
     
-      <a class="back-link" href="../..">← Blog</a>
-    
 
-    <div class="article-meta-header"><span class="post-badge post-badge--writeup">Writeup</span><span class="article-date">2026-03-05</span></div>
-<h1 id="xxe-injection-deep-dive">XXE Injection Deep Dive<a class="headerlink" href="#xxe-injection-deep-dive" title="Permanent link">&para;</a></h1>
-<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>XML External Entity (XXE) is a vulnerability that occurs when XML parsers process external entities without proper restrictions.</p>
-<h2 id="impact">Impact<a class="headerlink" href="#impact" title="Permanent link">&para;</a></h2>
-<ul>
-<li>Local file disclosure</li>
-<li>SSRF</li>
-<li>Denial of Service</li>
-</ul>
-<h2 id="example-payload">Example payload<a class="headerlink" href="#example-payload" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><span class="cp">&lt;!DOCTYPE foo [</span>
-<span class="cp">&lt;!ENTITY xxe SYSTEM &quot;file:///etc/passwd&quot;&gt;</span>
-]&gt;
-<span class="nt">&lt;foo&gt;</span><span class="ni">&amp;xxe;</span><span class="nt">&lt;/foo&gt;</span>
-</code></pre></div>
+    <h1 id="knowledge-base">Knowledge Base<a class="headerlink" href="#knowledge-base" title="Permanent link">&para;</a></h1>
+<p>Reference material, cheat sheets, and attack techniques organized by category.</p>
+<div class="kb-grid">
+
+<a class="kb-card" href="kb/cryptography/" style="--cat-color: var(--col-crypto)">
+  <span class="kb-card-icon">🔐</span>
+  <div class="kb-card-body">
+    <div class="kb-card-title">Cryptography</div>
+    <div class="kb-card-meta">1 sheet &nbsp;·&nbsp; <span class="kb-card-posts">● 1 writeup</span></div>
+  </div>
+</a>
+
+<a class="kb-card" href="kb/web-security/" style="--cat-color: var(--col-web)">
+  <span class="kb-card-icon">⚡</span>
+  <div class="kb-card-body">
+    <div class="kb-card-title">Web Security</div>
+    <div class="kb-card-meta">3 sheets &nbsp;·&nbsp; <span class="kb-card-posts">● 2 writeups</span></div>
+  </div>
+</a>
+
+</div>
   </main>
 
 </div>
@@ -359,12 +406,12 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": [], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
       
-        <script src="../../assets/extra.js"></script>
+        <script src="../assets/extra.js"></script>
       
     
   </body>

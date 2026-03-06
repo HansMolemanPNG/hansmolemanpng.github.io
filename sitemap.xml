@@ -28,4 +28,32 @@
          <loc>https://hansmolemanpng.github.io/blog/xxe-deep-dive/</loc>
          <lastmod>2026-03-06</lastmod>
     </url>
+    <url>
+         <loc>https://hansmolemanpng.github.io/kb/</loc>
+         <lastmod>2026-03-06</lastmod>
+    </url>
+    <url>
+         <loc>https://hansmolemanpng.github.io/kb/cryptography/</loc>
+         <lastmod>2026-03-06</lastmod>
+    </url>
+    <url>
+         <loc>https://hansmolemanpng.github.io/kb/cryptography/jwt/</loc>
+         <lastmod>2026-03-06</lastmod>
+    </url>
+    <url>
+         <loc>https://hansmolemanpng.github.io/kb/web-security/</loc>
+         <lastmod>2026-03-06</lastmod>
+    </url>
+    <url>
+         <loc>https://hansmolemanpng.github.io/kb/web-security/sqli/</loc>
+         <lastmod>2026-03-06</lastmod>
+    </url>
+    <url>
+         <loc>https://hansmolemanpng.github.io/kb/web-security/xss/</loc>
+         <lastmod>2026-03-06</lastmod>
+    </url>
+    <url>
+         <loc>https://hansmolemanpng.github.io/kb/web-security/xxe/</loc>
+         <lastmod>2026-03-06</lastmod>
+    </url>
 </urlset>
