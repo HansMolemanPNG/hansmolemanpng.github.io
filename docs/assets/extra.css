@@ -30,7 +30,7 @@ body { overflow-x: hidden; position: relative; } /* position:relative necesario 
   display: grid;
   grid-template-columns: 260px minmax(0,1fr);
   min-height: 100vh;
-  align-items: start;
+  align-items: stretch;
 }
 
 /* ================================
@@ -42,13 +42,13 @@ body { overflow-x: hidden; position: relative; } /* position:relative necesario 
   padding: 22px 14px;
   position: sticky;
   top: 0;
-  height: 100vh;
-  height: 100dvh; /* Safari 15.4+: excluye la barra del browser */
+  height: 100vh !important;
+  height: 100dvh !important; /* Safari 15.4+: excluye la barra del browser */
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   min-width: 0;
-  display: flex;
+  display: flex !important;
   align-items: center;
   justify-content: center;
 }
@@ -146,6 +146,7 @@ body { overflow-x: hidden; position: relative; } /* position:relative necesario 
 .main {
   padding: 38px 34px;
   background: var(--bg) !important;
+  align-self: start;
 }
 
 /* ================================
