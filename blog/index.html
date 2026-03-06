@@ -8,27 +8,31 @@
       
       
       
-        <link rel="canonical" href="https://hansmolemanpng.github.io/blog/xxe-deep-dive/">
+        <link rel="canonical" href="https://hansmolemanpng.github.io/blog/">
       
       
+        <link rel="prev" href="..">
+      
+      
+        <link rel="next" href="../kb/">
       
       
         
       
       
-      <link rel="icon" href="../../assets/profile.jpeg">
+      <link rel="icon" href="../assets/profile.jpeg">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
     
     
       
-        <title>XXE Injection Deep Dive - Hans_Moleman.PNG</title>
+        <title>Blog - Hans_Moleman.PNG</title>
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -47,9 +51,9 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/extra.css">
+      <link rel="stylesheet" href="../assets/extra.css">
     
-    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -74,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#xxe-injection-deep-dive" class="md-skip">
+        <a href="#blog" class="md-skip">
           Skip to content
         </a>
       
@@ -101,9 +105,9 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Hans_Moleman.PNG" class="md-nav__button md-logo" aria-label="Hans_Moleman.PNG" data-md-component="logo">
+    <a href=".." title="Hans_Moleman.PNG" class="md-nav__button md-logo" aria-label="Hans_Moleman.PNG" data-md-component="logo">
       
-  <img src="../../assets/profile.jpeg" alt="logo">
+  <img src="../assets/profile.jpeg" alt="logo">
 
     </a>
     Hans_Moleman.PNG
@@ -118,7 +122,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../.." class="md-nav__link">
+      <a href=".." class="md-nav__link">
         
   
   
@@ -142,10 +146,19 @@
       
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -161,6 +174,7 @@
   
 
       </a>
+      
     </li>
   
 
@@ -172,7 +186,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../kb/" class="md-nav__link">
+      <a href="../kb/" class="md-nav__link">
         
   
   
@@ -199,7 +213,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../about/" class="md-nav__link">
+      <a href="../about/" class="md-nav__link">
         
   
   
@@ -239,47 +253,6 @@
     
   
   
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Overview
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#impact" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Impact
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#example-payload" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Example payload
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
 </nav>
                   </div>
                 </div>
@@ -311,7 +284,7 @@
 
       
       <div class="profile">
-        <img class="avatar" src="../../assets/profile.jpeg" alt="profile">
+        <img class="avatar" src="../assets/profile.jpeg" alt="profile">
         <div class="name">Hans_Moleman.PNG</div>
         <div class="bio">AppSec · Web Security · Vulnerability Research</div>
       </div>
@@ -333,9 +306,9 @@
 
       
       <div class="navlinks">
-        <a class="navbtn"    href="../../kb/">KB</a>
-        <a class="navbtn active"  href="../">Blog</a>
-        <a class="navbtn" href="../../about/">About</a>
+        <a class="navbtn"    href="../kb/">KB</a>
+        <a class="navbtn active"  href="./">Blog</a>
+        <a class="navbtn" href="../about/">About</a>
       </div>
 
       
@@ -345,32 +318,55 @@
   </aside>
 
   
-  <main class="main main--article">
+  <main class="main">
 
     
     
 
     
     
-      <a class="back-link" href="../">← Blog</a>
-    
 
-    <div class="article-meta-header"><span class="post-badge post-badge--writeup">Writeup</span><span class="article-date">2026-03-05</span></div>
-<h1 id="xxe-injection-deep-dive">XXE Injection Deep Dive<a class="headerlink" href="#xxe-injection-deep-dive" title="Permanent link">&para;</a></h1>
-<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>XML External Entity (XXE) is a vulnerability that occurs when XML parsers process external entities without proper restrictions.</p>
-<h2 id="impact">Impact<a class="headerlink" href="#impact" title="Permanent link">&para;</a></h2>
-<ul>
-<li>Local file disclosure</li>
-<li>SSRF</li>
-<li>Denial of Service</li>
-</ul>
-<h2 id="example-payload">Example payload<a class="headerlink" href="#example-payload" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><span class="cp">&lt;!DOCTYPE foo [</span>
-<span class="cp">&lt;!ENTITY xxe SYSTEM &quot;file:///etc/passwd&quot;&gt;</span>
-]&gt;
-<span class="nt">&lt;foo&gt;</span><span class="ni">&amp;xxe;</span><span class="nt">&lt;/foo&gt;</span>
-</code></pre></div>
+    <div class="article-meta-header"><span class="article-date">2026-03-05</span></div>
+<h1 id="blog">Blog<a class="headerlink" href="#blog" title="Permanent link">&para;</a></h1>
+<p>Research notes &amp; writeups.</p>
+<div class="filter-bar">
+<button class="filter-btn active" data-filter="all">All</button>
+<button class="filter-btn" data-filter="research">Research</button>
+<button class="filter-btn" data-filter="cve">CVE</button>
+<button class="filter-btn" data-filter="writeup">Writeup</button>
+</div>
+
+<div class="post-grid">
+
+<div class="post-card" data-type="research">
+<span class="post-badge post-badge--research">Research</span>
+<div class="post-title"><a href="blog/jwt-alg-confusion/">"JWT Algorithm Confusion Attacks"</a></div>
+<div class="post-meta">2026-03-06 &nbsp;·&nbsp; Tags: jwt · auth · cryptography · web</div>
+<div class="post-excerpt">How RS256 to HS256 algorithm confusion works, why it's still found in the wild, and how to test for it.</div>
+</div>
+
+<div class="post-card" data-type="cve">
+<span class="post-badge post-badge--cve">CVE</span>
+<div class="post-title"><a href="blog/cve-2024-4577-php-cgi/">"CVE-2024-4577: PHP CGI Argument Injection on Windows"</a></div>
+<div class="post-meta">2026-03-06 &nbsp;·&nbsp; Tags: php · rce · windows · cve</div>
+<div class="post-excerpt">Critical argument injection in PHP CGI mode on Windows allows unauthenticated RCE. CVSS 9.8.</div>
+</div>
+
+<div class="post-card" data-type="writeup">
+<span class="post-badge post-badge--writeup">Writeup</span>
+<div class="post-title"><a href="blog/htb-boardlight/">"HTB BoardLight — Writeup"</a></div>
+<div class="post-meta">2026-03-06 &nbsp;·&nbsp; Tags: hackthebox · linux · dolibarr · cve-2023-30253 · suid</div>
+<div class="post-excerpt">Easy Linux box. Initial access via Dolibarr ERP CVE, privesc via vulnerable SUID enlightenment_sys binary.</div>
+</div>
+
+<div class="post-card" data-type="writeup">
+<span class="post-badge post-badge--writeup">Writeup</span>
+<div class="post-title"><a href="blog/xxe-deep-dive/">XXE Injection Deep Dive</a></div>
+<div class="post-meta">2026-03-05 &nbsp;·&nbsp; Tags: xxe · xml · web</div>
+<div class="post-excerpt">Attack surface, blind XXE, OOB exfil and mitigations.</div>
+</div>
+
+</div>
   </main>
 
 </div>
@@ -395,12 +391,12 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": [], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
       
-        <script src="../../assets/extra.js"></script>
+        <script src="../assets/extra.js"></script>
       
     
   </body>

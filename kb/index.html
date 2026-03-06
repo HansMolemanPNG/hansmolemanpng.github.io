@@ -11,7 +11,7 @@
         <link rel="canonical" href="https://hansmolemanpng.github.io/kb/">
       
       
-        <link rel="prev" href="..">
+        <link rel="prev" href="../blog/">
       
       
         <link rel="next" href="../about/">
@@ -123,6 +123,33 @@
   
     <li class="md-nav__item">
       <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../blog/" class="md-nav__link">
         
   
   
@@ -246,6 +273,10 @@
 
 
 
+
+
+
+
 <div class="layout layout--kb">
 
   <aside class="sidebar sidebar--kb">
@@ -275,21 +306,22 @@
 
       
       <div class="navlinks">
-        <a class="navbtn active"   href="./">KB</a>
-        <a class="navbtn" href="../index.html">Blog</a>
+        <a class="navbtn active"    href="./">KB</a>
+        <a class="navbtn"  href="../blog/">Blog</a>
         <a class="navbtn" href="../about/">About</a>
       </div>
 
       
       
       <div class="sidebar-divider"></div>
-      <nav class="kb-tree" aria-label="Knowledge Base">
+      <nav class="kb-tree" aria-label="Knowledge Base navigation">
         <ul class="kb-tree-list">
           
           
           <li class="kb-tree-cat">
 
-            <button class="kb-tree-cat-hdr" aria-expanded="false"
+            <button class="kb-tree-cat-hdr"
+                    aria-expanded="false"
                     style="--cat-color: var(--col-crypto)">
               <span class="kb-tree-icon">🔐</span>
               <a class="kb-tree-cat-name" href="cryptography/">Cryptography</a>
@@ -302,7 +334,7 @@
             <ul class="kb-tree-items kb-tree-items--hidden">
               
               
-              <li>
+              <li class="kb-tree-leaf">
                 <a class="kb-tree-item"
                    href="cryptography/jwt/">JSON Web Tokens (JWT)</a>
               </li>
@@ -315,7 +347,8 @@
           
           <li class="kb-tree-cat">
 
-            <button class="kb-tree-cat-hdr" aria-expanded="false"
+            <button class="kb-tree-cat-hdr"
+                    aria-expanded="false"
                     style="--cat-color: var(--col-web)">
               <span class="kb-tree-icon">⚡</span>
               <a class="kb-tree-cat-name" href="web-security/">Web Security</a>
@@ -328,19 +361,19 @@
             <ul class="kb-tree-items kb-tree-items--hidden">
               
               
-              <li>
+              <li class="kb-tree-leaf">
                 <a class="kb-tree-item"
                    href="web-security/sqli/">SQL Injection</a>
               </li>
               
               
-              <li>
+              <li class="kb-tree-leaf">
                 <a class="kb-tree-item"
                    href="web-security/xss/">Cross-Site Scripting (XSS)</a>
               </li>
               
               
-              <li>
+              <li class="kb-tree-leaf">
                 <a class="kb-tree-item"
                    href="web-security/xxe/">XML External Entity (XXE)</a>
               </li>
@@ -358,7 +391,90 @@
   </aside>
 
   
-  <main class="main">
+  <main class="main main--kb-index">
+
+    
+    
+    <div class="kb-mobile-menu">
+      <button class="kb-mobile-toggle" aria-expanded="false" aria-label="Toggle KB navigation">
+        <span class="kb-mobile-toggle-chevron">▸</span>
+        <span>KB Navigation</span>
+      </button>
+      <div class="kb-mobile-nav">
+        <nav aria-label="Knowledge Base navigation mobile">
+          <ul class="kb-tree-list">
+            
+            
+            <li class="kb-tree-cat">
+
+              <button class="kb-tree-cat-hdr"
+                      aria-expanded="false"
+                      style="--cat-color: var(--col-crypto)">
+                <span class="kb-tree-icon">🔐</span>
+                <a class="kb-tree-cat-name" href="cryptography/">Cryptography</a>
+                
+                <span class="kb-tree-chevron">▸</span>
+                
+              </button>
+
+              
+              <ul class="kb-tree-items kb-tree-items--hidden">
+                
+                
+                <li class="kb-tree-leaf">
+                  <a class="kb-tree-item"
+                     href="cryptography/jwt/">JSON Web Tokens (JWT)</a>
+                </li>
+                
+              </ul>
+              
+
+            </li>
+            
+            
+            <li class="kb-tree-cat">
+
+              <button class="kb-tree-cat-hdr"
+                      aria-expanded="false"
+                      style="--cat-color: var(--col-web)">
+                <span class="kb-tree-icon">⚡</span>
+                <a class="kb-tree-cat-name" href="web-security/">Web Security</a>
+                
+                <span class="kb-tree-chevron">▸</span>
+                
+              </button>
+
+              
+              <ul class="kb-tree-items kb-tree-items--hidden">
+                
+                
+                <li class="kb-tree-leaf">
+                  <a class="kb-tree-item"
+                     href="web-security/sqli/">SQL Injection</a>
+                </li>
+                
+                
+                <li class="kb-tree-leaf">
+                  <a class="kb-tree-item"
+                     href="web-security/xss/">Cross-Site Scripting (XSS)</a>
+                </li>
+                
+                
+                <li class="kb-tree-leaf">
+                  <a class="kb-tree-item"
+                     href="web-security/xxe/">XML External Entity (XXE)</a>
+                </li>
+                
+              </ul>
+              
+
+            </li>
+            
+          </ul>
+        </nav>
+      </div>
+    </div>
+    
 
     
     
@@ -387,6 +503,8 @@
   </main>
 
 </div>
+
+
 
               </article>
             </div>
