@@ -216,26 +216,48 @@ def _build_landing(all_posts: list, categories: list) -> str:
 
 def _build_blog_output(posts: list) -> str:
     present_types, seen = [], set()
+    all_tags_seen: dict = {}
     for p in posts:
         t = p['type']
         if t and t not in seen:
             present_types.append(t)
             seen.add(t)
+        for tag in p['tags']:
+            all_tags_seen[tag] = all_tags_seen.get(tag, 0) + 1
 
+    # Search box
+    search_box = (
+        '<div class="blog-search">'
+        '<input class="blog-search-input" type="search" '
+        'placeholder="Search posts by title, tag or content…" aria-label="Search posts">'
+        '</div>'
+    )
+
+    # Type filter buttons
     filter_buttons = '<button class="filter-btn active" data-filter="all">All</button>'
     for t in present_types:
         label = _TYPE_LABELS.get(t, t.capitalize())
         filter_buttons += f'\n<button class="filter-btn" data-filter="{t}">{label}</button>'
     filter_bar = f'<div class="filter-bar">\n{filter_buttons}\n</div>'
 
+    # Tag cloud (sorted by frequency desc, then alpha)
+    tag_cloud = ''
+    if all_tags_seen:
+        sorted_tags = sorted(all_tags_seen.items(), key=lambda x: (-x[1], x[0]))
+        tag_btns = ''.join(
+            f'<button class="tag-btn" data-tag="{t}">{t}</button>'
+            for t, _ in sorted_tags
+        )
+        tag_cloud = f'<div class="tag-cloud">{tag_btns}</div>'
+
     cards = []
     for post in posts:
-        tags_str = ' · '.join(post['tags']) if post['tags'] else ''
+        tags_data = ','.join(post['tags'])
         meta_parts = []
         if post['date']:
             meta_parts.append(post['date'])
-        if tags_str:
-            meta_parts.append(f'Tags: {tags_str}')
+        if post['tags']:
+            meta_parts.append(' · '.join(post['tags']))
         meta_html = ' &nbsp;·&nbsp; '.join(meta_parts)
 
         badge = ''
@@ -244,7 +266,7 @@ def _build_blog_output(posts: list) -> str:
             badge = f'<span class="post-badge post-badge--{post["type"]}">{label}</span>\n'
 
         card = (
-            f'<div class="post-card" data-type="{post["type"]}">\n'
+            f'<div class="post-card" data-type="{post["type"]}" data-tags="{tags_data}">\n'
             + badge
             + f'<div class="post-title"><a href="{post["url"]}">{post["title"]}</a></div>\n'
             + (f'<div class="post-meta">{meta_html}</div>\n' if meta_html else '')
@@ -254,7 +276,7 @@ def _build_blog_output(posts: list) -> str:
         cards.append(card)
 
     grid = '<div class="post-grid">\n\n' + '\n\n'.join(cards) + '\n\n</div>' if cards else ''
-    return filter_bar + '\n\n' + grid
+    return search_box + '\n' + filter_bar + '\n' + tag_cloud + '\n\n' + grid
 
 
 # ──────────────────────────────────────────────────────────
@@ -356,7 +378,7 @@ def on_env(env, config, **kwargs):
 def on_page_content(html, page, config, **kwargs):
     """Inject article meta header (badge + date) on blog post pages."""
     src = page.file.src_path
-    if not src.startswith('blog/'):
+    if not src.startswith('blog/') or src == 'blog/index.md':
         return html
 
     meta = page.meta or {}
