@@ -1,32 +1,44 @@
 document.addEventListener('DOMContentLoaded', () => {
-  // Make entire post card clickable
+
+  // ── Make post cards fully clickable ──────────────────────────
   document.querySelectorAll('.post-card').forEach(card => {
     const link = card.querySelector('.post-title a');
     if (!link) return;
-    card.style.cursor = 'pointer';
     card.addEventListener('click', e => {
       if (e.target.closest('a')) return;
       window.location.href = link.href;
     });
   });
 
-  // Filter buttons
+  // ── Blog filter buttons ───────────────────────────────────────
   document.querySelectorAll('.filter-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const filter = btn.dataset.filter;
-
-      // Toggle active state
       document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-
-      // Show/hide cards
       document.querySelectorAll('.post-card').forEach(card => {
-        if (filter === 'all' || card.dataset.type === filter) {
-          card.classList.remove('hidden');
-        } else {
-          card.classList.add('hidden');
-        }
+        card.classList.toggle('hidden', filter !== 'all' && card.dataset.type !== filter);
       });
     });
   });
+
+  // ── KB sidebar tree toggle ────────────────────────────────────
+  document.querySelectorAll('.kb-tree-cat-hdr').forEach(hdr => {
+    hdr.addEventListener('click', e => {
+      // Let category name link navigate normally
+      if (e.target.closest('.kb-tree-cat-name')) return;
+
+      const cat     = hdr.closest('.kb-tree-cat');
+      const items   = cat.querySelector('.kb-tree-items');
+      const chevron = hdr.querySelector('.kb-tree-chevron');
+      if (!items) return;
+
+      const isOpen = cat.classList.contains('kb-tree-cat--open');
+      cat.classList.toggle('kb-tree-cat--open', !isOpen);
+      items.classList.toggle('kb-tree-items--hidden', isOpen);
+      if (chevron) chevron.textContent = isOpen ? '▸' : '▾';
+      hdr.setAttribute('aria-expanded', String(!isOpen));
+    });
+  });
+
 });

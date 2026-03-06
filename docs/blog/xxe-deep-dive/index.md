@@ -3,6 +3,7 @@ title: XXE Injection Deep Dive
 type: writeup
 tags: XXE, XML, Web
 excerpt: Attack surface, blind XXE, OOB exfil and mitigations.
+kb_ref: web-security
 ---
 
 # XXE Injection Deep Dive
