@@ -150,6 +150,78 @@ body { overflow-x: hidden; position: relative; } /* position:relative necesario 
 }
 
 /* ================================
+   FILTER BAR
+   ================================ */
+.filter-bar {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+.filter-btn {
+  padding: 5px 16px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.03);
+  color: var(--muted);
+  font-size: .80rem;
+  letter-spacing: .03em;
+  cursor: pointer;
+  transition: border-color .12s ease, color .12s ease, background .12s ease;
+  font-family: inherit;
+}
+
+.filter-btn:hover {
+  border-color: rgba(255,255,255,.22);
+  color: var(--text);
+}
+
+.filter-btn.active {
+  border-color: var(--border2);
+  color: var(--green);
+  background: rgba(0,255,102,.05);
+}
+
+/* ================================
+   POST BADGES
+   ================================ */
+.post-badge {
+  display: inline-block;
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 6px;
+  margin-bottom: 7px;
+  border: 1px solid transparent;
+}
+
+.post-badge--writeup {
+  color: var(--green);
+  background: rgba(0,255,102,.08);
+  border-color: rgba(0,255,102,.25);
+}
+
+.post-badge--cve {
+  color: #ff7070;
+  background: rgba(255,80,80,.08);
+  border-color: rgba(255,80,80,.25);
+}
+
+.post-badge--research {
+  color: #a78bfa;
+  background: rgba(139,92,246,.08);
+  border-color: rgba(139,92,246,.25);
+}
+
+/* Hidden card state */
+.post-card.hidden {
+  display: none;
+}
+
+/* ================================
    POST CARDS
    ================================ */
 .post-grid {

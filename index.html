@@ -245,16 +245,24 @@
 
   <main class="main">
     <h1 id="blog">Blog<a class="headerlink" href="#blog" title="Permanent link">&para;</a></h1>
-<p>Research notes &amp; writeups. test</p>
+<p>Research notes &amp; writeups.</p>
+<div class="filter-bar">
+<button class="filter-btn active" data-filter="all">Todos</button>
+<button class="filter-btn" data-filter="research">Research</button>
+<button class="filter-btn" data-filter="writeup">Writeup</button>
+</div>
+
 <div class="post-grid">
 
-<div class="post-card">
+<div class="post-card" data-type="research">
+<span class="post-badge post-badge--research">Research</span>
 <div class="post-title"><a href="blog/Test/">test</a></div>
 <div class="post-meta">2026-03-06 &nbsp;·&nbsp; Tags: test · test · test</div>
 <div class="post-excerpt">test test test test test tes test test test test</div>
 </div>
 
-<div class="post-card">
+<div class="post-card" data-type="writeup">
+<span class="post-badge post-badge--writeup">Writeup</span>
 <div class="post-title"><a href="blog/xxe-deep-dive/">XXE Injection Deep Dive</a></div>
 <div class="post-meta">2026-03-05 &nbsp;·&nbsp; Tags: XXE · XML · Web</div>
 <div class="post-excerpt">Attack surface, blind XXE, OOB exfil and mitigations.</div>
