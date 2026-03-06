@@ -143,7 +143,7 @@ body, .md-container, .md-main, .md-content, .md-content__inner { background:var(
 .post-card {
   border-radius: 14px;
   border: 1px solid var(--border);
-  background: rgba(255,255,255,.02);
+  background: #1c1c1c;
   padding: 16px;
   transition: border-color .12s ease, box-shadow .12s ease, transform .12s ease;
 }
