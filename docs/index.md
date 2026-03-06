@@ -1,5 +1,5 @@
 # Blog
 
-Research notes & writeups. test
+Research notes & writeups.
 
 <!-- BLOG_POSTS -->

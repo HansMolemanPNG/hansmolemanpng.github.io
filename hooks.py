@@ -6,6 +6,7 @@ Frontmatter fields:
 
     ---
     title: My Post Title
+    type: writeup          # one of: writeup, cve, research
     tags: Tag1, Tag2, Tag3
     excerpt: Short description shown on the index card.
     ---
@@ -13,8 +14,9 @@ Frontmatter fields:
 Publication date is read automatically from the first git commit
 that added the file (no need to set it manually).
 
-The hook replaces <!-- BLOG_POSTS --> in index.md with a
-<div class="post-grid"> of cards, sorted newest-first.
+The hook replaces <!-- BLOG_POSTS --> in index.md with filter
+buttons followed by a <div class="post-grid"> of cards, sorted
+newest-first.
 """
 
 import re
@@ -51,7 +53,31 @@ def _git_creation_date(filepath: Path, repo_root: Path) -> str:
         return ''
 
 
-def _build_grid(posts: list) -> str:
+_TYPE_LABELS = {
+    'writeup':  'Writeup',
+    'cve':      'CVE',
+    'research': 'Research',
+}
+
+
+def _build_output(posts: list) -> str:
+    # Collect types present in posts to build filter buttons
+    present_types = []
+    seen = set()
+    for p in posts:
+        t = p['type']
+        if t and t not in seen:
+            present_types.append(t)
+            seen.add(t)
+
+    # Filter bar (always rendered; hidden via CSS if only one type exists)
+    filter_buttons = '<button class="filter-btn active" data-filter="all">Todos</button>'
+    for t in present_types:
+        label = _TYPE_LABELS.get(t, t.capitalize())
+        filter_buttons += f'\n<button class="filter-btn" data-filter="{t}">{label}</button>'
+    filter_bar = f'<div class="filter-bar">\n{filter_buttons}\n</div>'
+
+    # Cards
     cards = []
     for post in posts:
         tags_str = ' · '.join(post['tags']) if post['tags'] else ''
@@ -62,16 +88,23 @@ def _build_grid(posts: list) -> str:
             meta_parts.append(f'Tags: {tags_str}')
         meta_html = ' &nbsp;·&nbsp; '.join(meta_parts)
 
+        badge = ''
+        if post['type']:
+            label = _TYPE_LABELS.get(post['type'], post['type'].capitalize())
+            badge = f'<span class="post-badge post-badge--{post["type"]}">{label}</span>\n'
+
         card = (
-            '<div class="post-card">\n'
-            f'<div class="post-title"><a href="{post["url"]}">{post["title"]}</a></div>\n'
+            f'<div class="post-card" data-type="{post["type"]}">\n'
+            + badge
+            + f'<div class="post-title"><a href="{post["url"]}">{post["title"]}</a></div>\n'
             + (f'<div class="post-meta">{meta_html}</div>\n' if meta_html else '')
             + (f'<div class="post-excerpt">{post["excerpt"]}</div>\n' if post['excerpt'] else '')
             + '</div>'
         )
         cards.append(card)
 
-    return '<div class="post-grid">\n\n' + '\n\n'.join(cards) + '\n\n</div>'
+    grid = '<div class="post-grid">\n\n' + '\n\n'.join(cards) + '\n\n</div>' if cards else ''
+    return filter_bar + '\n\n' + grid
 
 
 def on_page_markdown(markdown, page, config, **kwargs):
@@ -102,6 +135,7 @@ def on_page_markdown(markdown, page, config, **kwargs):
 
         posts.append({
             'title': meta.get('title', slug.replace('-', ' ').title()),
+            'type': meta.get('type', '').lower().strip(),
             'date': date,
             'tags': [t.strip() for t in meta.get('tags', '').split(',') if t.strip()],
             'excerpt': meta.get('excerpt', ''),
@@ -111,5 +145,5 @@ def on_page_markdown(markdown, page, config, **kwargs):
     # Newest first; posts without date go to the end
     posts.sort(key=lambda p: p['date'] or '0000-00-00', reverse=True)
 
-    grid = _build_grid(posts) if posts else ''
-    return markdown.replace('<!-- BLOG_POSTS -->', grid)
+    output = _build_output(posts) if posts else ''
+    return markdown.replace('<!-- BLOG_POSTS -->', output)
