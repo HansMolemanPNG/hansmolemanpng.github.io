@@ -10,36 +10,68 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // ── Blog filter buttons ───────────────────────────────────────
-  document.querySelectorAll('.filter-btn').forEach(btn => {
+  // ── Blog: combined search + type filter + tag filter ─────────
+  const searchInput = document.querySelector('.blog-search-input');
+  const filterBtns  = document.querySelectorAll('.filter-btn');
+  const tagBtns     = document.querySelectorAll('.tag-btn');
+  const cards       = document.querySelectorAll('.post-card');
+
+  let activeType = 'all';
+  let activeTag  = null;
+  let searchQuery = '';
+
+  function applyFilters() {
+    const q = searchQuery.toLowerCase().trim();
+    cards.forEach(card => {
+      const type     = card.dataset.type || '';
+      const tags     = (card.dataset.tags || '').toLowerCase();
+      const titleEl  = card.querySelector('.post-title');
+      const excerptEl = card.querySelector('.post-excerpt');
+      const title    = titleEl  ? titleEl.textContent.toLowerCase()   : '';
+      const excerpt  = excerptEl ? excerptEl.textContent.toLowerCase() : '';
+
+      const typeMatch = activeType === 'all' || type === activeType;
+      const tagMatch  = !activeTag  || tags.split(',').includes(activeTag);
+      const textMatch = !q || title.includes(q) || excerpt.includes(q) || tags.includes(q);
+
+      card.classList.toggle('hidden', !(typeMatch && tagMatch && textMatch));
+    });
+  }
+
+  if (searchInput) {
+    searchInput.addEventListener('input', () => {
+      searchQuery = searchInput.value;
+      applyFilters();
+    });
+  }
+
+  filterBtns.forEach(btn => {
     btn.addEventListener('click', () => {
-      const filter = btn.dataset.filter;
-      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      filterBtns.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      document.querySelectorAll('.post-card').forEach(card => {
-        card.classList.toggle('hidden', filter !== 'all' && card.dataset.type !== filter);
-      });
+      activeType = btn.dataset.filter;
+      applyFilters();
+    });
+  });
+
+  tagBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tag = btn.dataset.tag;
+      if (activeTag === tag) {
+        // deselect
+        btn.classList.remove('active');
+        activeTag = null;
+      } else {
+        tagBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        activeTag = tag;
+      }
+      applyFilters();
     });
   });
 
   // ── KB sidebar tree toggle (desktop) ─────────────────────────
-  document.querySelectorAll('.kb-tree-cat-hdr').forEach(hdr => {
-    hdr.addEventListener('click', e => {
-      // Let category name link navigate normally
-      if (e.target.closest('.kb-tree-cat-name')) return;
-
-      const cat     = hdr.closest('.kb-tree-cat');
-      const items   = cat.querySelector('.kb-tree-items');
-      const chevron = hdr.querySelector('.kb-tree-chevron');
-      if (!items) return;
-
-      const isOpen = cat.classList.contains('kb-tree-cat--open');
-      cat.classList.toggle('kb-tree-cat--open', !isOpen);
-      items.classList.toggle('kb-tree-items--hidden', isOpen);
-      if (chevron) chevron.textContent = isOpen ? '▸' : '▾';
-      hdr.setAttribute('aria-expanded', String(!isOpen));
-    });
-  });
+  // (kb-nav-cards are always expanded — no toggle needed)
 
   // ── Mobile KB navigation dropdown ────────────────────────────
   const mobileToggle = document.querySelector('.kb-mobile-toggle');

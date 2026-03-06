@@ -275,8 +275,6 @@
 
 
 
-
-
 <div class="layout">
 
   <aside class="sidebar">
@@ -284,7 +282,9 @@
 
       
       <div class="profile">
-        <img class="avatar" src="../assets/profile.jpeg" alt="profile">
+        <a class="avatar-link" href=".." aria-label="Home">
+          <img class="avatar" src="../assets/profile.jpeg" alt="profile">
+        </a>
         <div class="name">Hans_Moleman.PNG</div>
         <div class="bio">AppSec · Web Security · Vulnerability Research</div>
       </div>
@@ -306,9 +306,12 @@
 
       
       <div class="navlinks">
-        <a class="navbtn"    href="../kb/">KB</a>
-        <a class="navbtn active"  href="./">Blog</a>
-        <a class="navbtn" href="../about/">About</a>
+        <div class="navlinks-row">
+          <a class="navbtn" href="..">Home</a>
+          <a class="navbtn"   href="../kb/">KB</a>
+          <a class="navbtn active" href="./">Blog</a>
+        </div>
+        <a class="navbtn navbtn--wide" href="../about/">About</a>
       </div>
 
       
@@ -326,43 +329,44 @@
     
     
 
-    <div class="article-meta-header"><span class="article-date">2026-03-05</span></div>
-<h1 id="blog">Blog<a class="headerlink" href="#blog" title="Permanent link">&para;</a></h1>
+    <h1 id="blog">Blog<a class="headerlink" href="#blog" title="Permanent link">&para;</a></h1>
 <p>Research notes &amp; writeups.</p>
+<div class="blog-search"><input class="blog-search-input" type="search" placeholder="Search posts by title, tag or content…" aria-label="Search posts"></div>
 <div class="filter-bar">
 <button class="filter-btn active" data-filter="all">All</button>
 <button class="filter-btn" data-filter="research">Research</button>
 <button class="filter-btn" data-filter="cve">CVE</button>
 <button class="filter-btn" data-filter="writeup">Writeup</button>
 </div>
+<div class="tag-cloud"><button class="tag-btn" data-tag="web">web</button><button class="tag-btn" data-tag="auth">auth</button><button class="tag-btn" data-tag="cryptography">cryptography</button><button class="tag-btn" data-tag="cve">cve</button><button class="tag-btn" data-tag="cve-2023-30253">cve-2023-30253</button><button class="tag-btn" data-tag="dolibarr">dolibarr</button><button class="tag-btn" data-tag="hackthebox">hackthebox</button><button class="tag-btn" data-tag="jwt">jwt</button><button class="tag-btn" data-tag="linux">linux</button><button class="tag-btn" data-tag="php">php</button><button class="tag-btn" data-tag="rce">rce</button><button class="tag-btn" data-tag="suid">suid</button><button class="tag-btn" data-tag="windows">windows</button><button class="tag-btn" data-tag="xml">xml</button><button class="tag-btn" data-tag="xxe">xxe</button></div>
 
 <div class="post-grid">
 
-<div class="post-card" data-type="research">
+<div class="post-card" data-type="research" data-tags="jwt,auth,cryptography,web">
 <span class="post-badge post-badge--research">Research</span>
 <div class="post-title"><a href="blog/jwt-alg-confusion/">"JWT Algorithm Confusion Attacks"</a></div>
-<div class="post-meta">2026-03-06 &nbsp;·&nbsp; Tags: jwt · auth · cryptography · web</div>
+<div class="post-meta">2026-03-06 &nbsp;·&nbsp; jwt · auth · cryptography · web</div>
 <div class="post-excerpt">How RS256 to HS256 algorithm confusion works, why it's still found in the wild, and how to test for it.</div>
 </div>
 
-<div class="post-card" data-type="cve">
+<div class="post-card" data-type="cve" data-tags="php,rce,windows,cve">
 <span class="post-badge post-badge--cve">CVE</span>
 <div class="post-title"><a href="blog/cve-2024-4577-php-cgi/">"CVE-2024-4577: PHP CGI Argument Injection on Windows"</a></div>
-<div class="post-meta">2026-03-06 &nbsp;·&nbsp; Tags: php · rce · windows · cve</div>
+<div class="post-meta">2026-03-06 &nbsp;·&nbsp; php · rce · windows · cve</div>
 <div class="post-excerpt">Critical argument injection in PHP CGI mode on Windows allows unauthenticated RCE. CVSS 9.8.</div>
 </div>
 
-<div class="post-card" data-type="writeup">
+<div class="post-card" data-type="writeup" data-tags="hackthebox,linux,dolibarr,cve-2023-30253,suid">
 <span class="post-badge post-badge--writeup">Writeup</span>
 <div class="post-title"><a href="blog/htb-boardlight/">"HTB BoardLight — Writeup"</a></div>
-<div class="post-meta">2026-03-06 &nbsp;·&nbsp; Tags: hackthebox · linux · dolibarr · cve-2023-30253 · suid</div>
+<div class="post-meta">2026-03-06 &nbsp;·&nbsp; hackthebox · linux · dolibarr · cve-2023-30253 · suid</div>
 <div class="post-excerpt">Easy Linux box. Initial access via Dolibarr ERP CVE, privesc via vulnerable SUID enlightenment_sys binary.</div>
 </div>
 
-<div class="post-card" data-type="writeup">
+<div class="post-card" data-type="writeup" data-tags="xxe,xml,web">
 <span class="post-badge post-badge--writeup">Writeup</span>
 <div class="post-title"><a href="blog/xxe-deep-dive/">XXE Injection Deep Dive</a></div>
-<div class="post-meta">2026-03-05 &nbsp;·&nbsp; Tags: xxe · xml · web</div>
+<div class="post-meta">2026-03-05 &nbsp;·&nbsp; xxe · xml · web</div>
 <div class="post-excerpt">Attack surface, blind XXE, OOB exfil and mitigations.</div>
 </div>
 

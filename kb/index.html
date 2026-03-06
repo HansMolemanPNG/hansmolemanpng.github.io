@@ -275,8 +275,6 @@
 
 
 
-
-
 <div class="layout layout--kb">
 
   <aside class="sidebar sidebar--kb">
@@ -284,7 +282,9 @@
 
       
       <div class="profile">
-        <img class="avatar" src="../assets/profile.jpeg" alt="profile">
+        <a class="avatar-link" href=".." aria-label="Home">
+          <img class="avatar" src="../assets/profile.jpeg" alt="profile">
+        </a>
         <div class="name">Hans_Moleman.PNG</div>
         <div class="bio">AppSec · Web Security · Vulnerability Research</div>
       </div>
@@ -306,84 +306,71 @@
 
       
       <div class="navlinks">
-        <a class="navbtn active"    href="./">KB</a>
-        <a class="navbtn"  href="../blog/">Blog</a>
-        <a class="navbtn" href="../about/">About</a>
+        <div class="navlinks-row">
+          <a class="navbtn" href="..">Home</a>
+          <a class="navbtn active"   href="./">KB</a>
+          <a class="navbtn" href="../blog/">Blog</a>
+        </div>
+        <a class="navbtn navbtn--wide" href="../about/">About</a>
       </div>
 
       
       
       <div class="sidebar-divider"></div>
-      <nav class="kb-tree" aria-label="Knowledge Base navigation">
-        <ul class="kb-tree-list">
+      <nav class="kb-nav-cards" aria-label="Knowledge Base navigation">
+        
+        
+        <div class="kb-nav-card"
+             style="--cat-color: var(--col-crypto)">
+          <a class="kb-nav-card-hdr" href="cryptography/">
+            <span class="kb-nav-card-icon">🔐</span>
+            <span class="kb-nav-card-title">Cryptography</span>
+          </a>
           
-          
-          <li class="kb-tree-cat">
-
-            <button class="kb-tree-cat-hdr"
-                    aria-expanded="false"
-                    style="--cat-color: var(--col-crypto)">
-              <span class="kb-tree-icon">🔐</span>
-              <a class="kb-tree-cat-name" href="cryptography/">Cryptography</a>
-              
-              <span class="kb-tree-chevron">▸</span>
-              
-            </button>
-
+          <ul class="kb-nav-card-items">
             
-            <ul class="kb-tree-items kb-tree-items--hidden">
-              
-              
-              <li class="kb-tree-leaf">
-                <a class="kb-tree-item"
-                   href="cryptography/jwt/">JSON Web Tokens (JWT)</a>
-              </li>
-              
-            </ul>
             
-
-          </li>
-          
-          
-          <li class="kb-tree-cat">
-
-            <button class="kb-tree-cat-hdr"
-                    aria-expanded="false"
-                    style="--cat-color: var(--col-web)">
-              <span class="kb-tree-icon">⚡</span>
-              <a class="kb-tree-cat-name" href="web-security/">Web Security</a>
-              
-              <span class="kb-tree-chevron">▸</span>
-              
-            </button>
-
+            <li>
+              <a class="kb-nav-card-item"
+                 href="cryptography/jwt/">JSON Web Tokens (JWT)</a>
+            </li>
             
-            <ul class="kb-tree-items kb-tree-items--hidden">
-              
-              
-              <li class="kb-tree-leaf">
-                <a class="kb-tree-item"
-                   href="web-security/sqli/">SQL Injection</a>
-              </li>
-              
-              
-              <li class="kb-tree-leaf">
-                <a class="kb-tree-item"
-                   href="web-security/xss/">Cross-Site Scripting (XSS)</a>
-              </li>
-              
-              
-              <li class="kb-tree-leaf">
-                <a class="kb-tree-item"
-                   href="web-security/xxe/">XML External Entity (XXE)</a>
-              </li>
-              
-            </ul>
-            
-
-          </li>
+          </ul>
           
-        </ul>
+        </div>
+        
+        
+        <div class="kb-nav-card"
+             style="--cat-color: var(--col-web)">
+          <a class="kb-nav-card-hdr" href="web-security/">
+            <span class="kb-nav-card-icon">⚡</span>
+            <span class="kb-nav-card-title">Web Security</span>
+          </a>
+          
+          <ul class="kb-nav-card-items">
+            
+            
+            <li>
+              <a class="kb-nav-card-item"
+                 href="web-security/sqli/">SQL Injection</a>
+            </li>
+            
+            
+            <li>
+              <a class="kb-nav-card-item"
+                 href="web-security/xss/">Cross-Site Scripting (XSS)</a>
+            </li>
+            
+            
+            <li>
+              <a class="kb-nav-card-item"
+                 href="web-security/xxe/">XML External Entity (XXE)</a>
+            </li>
+            
+          </ul>
+          
+        </div>
+        
       </nav>
       
 
@@ -402,75 +389,59 @@
       </button>
       <div class="kb-mobile-nav">
         <nav aria-label="Knowledge Base navigation mobile">
-          <ul class="kb-tree-list">
+          
+          
+          <div class="kb-nav-card"
+               style="--cat-color: var(--col-crypto)">
+            <a class="kb-nav-card-hdr" href="cryptography/">
+              <span class="kb-nav-card-icon">🔐</span>
+              <span class="kb-nav-card-title">Cryptography</span>
+            </a>
             
-            
-            <li class="kb-tree-cat">
-
-              <button class="kb-tree-cat-hdr"
-                      aria-expanded="false"
-                      style="--cat-color: var(--col-crypto)">
-                <span class="kb-tree-icon">🔐</span>
-                <a class="kb-tree-cat-name" href="cryptography/">Cryptography</a>
-                
-                <span class="kb-tree-chevron">▸</span>
-                
-              </button>
-
+            <ul class="kb-nav-card-items">
               
-              <ul class="kb-tree-items kb-tree-items--hidden">
-                
-                
-                <li class="kb-tree-leaf">
-                  <a class="kb-tree-item"
-                     href="cryptography/jwt/">JSON Web Tokens (JWT)</a>
-                </li>
-                
-              </ul>
               
-
-            </li>
-            
-            
-            <li class="kb-tree-cat">
-
-              <button class="kb-tree-cat-hdr"
-                      aria-expanded="false"
-                      style="--cat-color: var(--col-web)">
-                <span class="kb-tree-icon">⚡</span>
-                <a class="kb-tree-cat-name" href="web-security/">Web Security</a>
-                
-                <span class="kb-tree-chevron">▸</span>
-                
-              </button>
-
+              <li>
+                <a class="kb-nav-card-item"
+                   href="cryptography/jwt/">JSON Web Tokens (JWT)</a>
+              </li>
               
-              <ul class="kb-tree-items kb-tree-items--hidden">
-                
-                
-                <li class="kb-tree-leaf">
-                  <a class="kb-tree-item"
-                     href="web-security/sqli/">SQL Injection</a>
-                </li>
-                
-                
-                <li class="kb-tree-leaf">
-                  <a class="kb-tree-item"
-                     href="web-security/xss/">Cross-Site Scripting (XSS)</a>
-                </li>
-                
-                
-                <li class="kb-tree-leaf">
-                  <a class="kb-tree-item"
-                     href="web-security/xxe/">XML External Entity (XXE)</a>
-                </li>
-                
-              </ul>
-              
-
-            </li>
+            </ul>
             
-          </ul>
+          </div>
+          
+          
+          <div class="kb-nav-card"
+               style="--cat-color: var(--col-web)">
+            <a class="kb-nav-card-hdr" href="web-security/">
+              <span class="kb-nav-card-icon">⚡</span>
+              <span class="kb-nav-card-title">Web Security</span>
+            </a>
+            
+            <ul class="kb-nav-card-items">
+              
+              
+              <li>
+                <a class="kb-nav-card-item"
+                   href="web-security/sqli/">SQL Injection</a>
+              </li>
+              
+              
+              <li>
+                <a class="kb-nav-card-item"
+                   href="web-security/xss/">Cross-Site Scripting (XSS)</a>
+              </li>
+              
+              
+              <li>
+                <a class="kb-nav-card-item"
+                   href="web-security/xxe/">XML External Entity (XXE)</a>
+              </li>
+              
+            </ul>
+            
+          </div>
+          
         </nav>
       </div>
     </div>

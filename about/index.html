@@ -340,8 +340,6 @@
 
 
 
-
-
 <div class="layout">
 
   <aside class="sidebar">
@@ -349,7 +347,9 @@
 
       
       <div class="profile">
-        <img class="avatar" src="../assets/profile.jpeg" alt="profile">
+        <a class="avatar-link" href=".." aria-label="Home">
+          <img class="avatar" src="../assets/profile.jpeg" alt="profile">
+        </a>
         <div class="name">Hans_Moleman.PNG</div>
         <div class="bio">AppSec · Web Security · Vulnerability Research</div>
       </div>
@@ -371,9 +371,12 @@
 
       
       <div class="navlinks">
-        <a class="navbtn"    href="../kb/">KB</a>
-        <a class="navbtn"  href="../blog/">Blog</a>
-        <a class="navbtn active" href="./">About</a>
+        <div class="navlinks-row">
+          <a class="navbtn" href="..">Home</a>
+          <a class="navbtn"   href="../kb/">KB</a>
+          <a class="navbtn" href="../blog/">Blog</a>
+        </div>
+        <a class="navbtn navbtn--wide active" href="./">About</a>
       </div>
 
       
