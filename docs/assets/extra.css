@@ -48,6 +48,9 @@ body { overflow-x: hidden; position: relative; } /* position:relative necesario 
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .sidebar-inner {
