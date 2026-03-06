@@ -12,7 +12,8 @@
 /* Oculta UI del theme */
 .md-header, .md-tabs, .md-footer, .md-sidebar { display:none !important; }
 body, .md-container, .md-main, .md-content, .md-content__inner { background:var(--bg) !important; color:var(--text) !important; }
-html, body { overflow-x: hidden; }
+html { overflow-x: hidden; }
+body { overflow-x: hidden; position: relative; } /* position:relative necesario en Safari */
 .md-container, .md-main, .md-main__inner, .md-grid,
 .md-content, .md-content__inner {
   padding: 0 !important;
@@ -42,8 +43,10 @@ html, body { overflow-x: hidden; }
   position: sticky;
   top: 0;
   height: 100vh;
+  height: 100dvh; /* Safari 15.4+: excluye la barra del browser */
   overflow-y: auto;
   overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
   min-width: 0;
 }
 
