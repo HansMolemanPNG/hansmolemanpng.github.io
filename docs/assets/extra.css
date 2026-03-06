@@ -65,7 +65,7 @@ body { overflow-x: hidden; position: relative; } /* position:relative necesario 
 .profile { display: grid; gap: 8px; justify-items: center; }
 
 .avatar {
-  width: 70px; height: 70px; border-radius: 50%;
+  width: 96px; height: 96px; border-radius: 50%;
   border: 1px solid var(--border);
   object-fit: cover;
 }
@@ -117,7 +117,7 @@ body { overflow-x: hidden; position: relative; } /* position:relative necesario 
 }
 
 .navbtn {
-  padding: 5px 20px;
+  padding: 8px 26px;
   border-radius: 20px;
   border: 1px solid rgba(255,255,255,.10);
   background: rgba(255,255,255,.03);
@@ -161,7 +161,7 @@ body { overflow-x: hidden; position: relative; } /* position:relative necesario 
 
 .post-card {
   border-radius: 14px;
-  border: 1px solid var(--border);
+  border: 1px solid rgba(255,255,255,.10);
   background: #1c1c1c;
   padding: 16px;
   transition: border-color .12s ease, box-shadow .12s ease, transform .12s ease;
