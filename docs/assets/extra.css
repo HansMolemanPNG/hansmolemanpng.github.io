@@ -53,6 +53,7 @@ html, body { overflow-x: hidden; }
   align-items: center;
   text-align: center;
   gap: 14px;
+  width: 100%;
 }
 
 .profile { display: grid; gap: 8px; justify-items: center; }
@@ -197,8 +198,8 @@ html, body { overflow-x: hidden; }
    Landscape / desktop: sidebar izquierda
    ================================ */
 
-/* Mobile: apila sidebar arriba */
-@media (max-width: 700px) {
+/* Móvil: apila sidebar arriba (portrait y landscape) */
+@media (max-width: 768px) {
   .layout {
     grid-template-columns: 1fr;
   }
@@ -217,8 +218,8 @@ html, body { overflow-x: hidden; }
   }
 }
 
-/* Tablet landscape / teléfonos grandes: sidebar estrecha */
-@media (min-width: 701px) and (max-width: 900px) {
+/* Tablet pequeña: sidebar más estrecha */
+@media (min-width: 769px) and (max-width: 1024px) {
   .layout {
     grid-template-columns: 230px minmax(0,1fr);
   }
