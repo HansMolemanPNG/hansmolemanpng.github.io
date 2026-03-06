@@ -1,7 +1,7 @@
 :root {
   --bg: #141414;
   --panel: #000000;
-  --text: #eaffea;
+  --text: #f0f0f0;
   --muted: rgba(200,200,200,.70);
   --green: #00ff66;
   --green2: #3dff86;
@@ -195,8 +195,8 @@ html, body,
    Landscape / desktop: sidebar izquierda
    ================================ */
 
-/* Portrait phones */
-@media (max-width: 900px) and (orientation: portrait) {
+/* Mobile: apila sidebar arriba */
+@media (max-width: 700px) {
   .layout {
     grid-template-columns: 1fr;
   }
@@ -215,10 +215,10 @@ html, body,
   }
 }
 
-/* Landscape phones: sidebar más estrecha */
-@media (max-width: 820px) and (orientation: landscape) {
+/* Tablet landscape / teléfonos grandes: sidebar estrecha */
+@media (min-width: 701px) and (max-width: 900px) {
   .layout {
-    grid-template-columns: 220px minmax(0,1fr);
+    grid-template-columns: 200px minmax(0,1fr);
   }
   .sidebar {
     padding: 16px 10px;
