@@ -39,10 +39,11 @@ hooks:
   - hooks.py
 
 not_in_nav: |
-  blog/**
+  blog/*/index.md
   kb/**
 
 nav:
-  - Blog: index.md
+  - Home: index.md
+  - Blog: blog/index.md
   - Knowledge Base: kb/index.md
   - About: about.md
