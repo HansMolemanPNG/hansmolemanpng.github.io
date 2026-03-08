@@ -6,36 +6,15 @@ tags: XXE, XML, SSRF, LFI, OOB, DTD, Blind XXE
 
 # Context of XXE
 
-Many legacy and modern applications rely on the XML format to consume, store
-and manage data from several sources. In the past, XML was the most reliable
-way of processing and storing complex data structures. Now a days we have other
-and more efficient ways of processing data as it may be JSON, but due to the
-inheritance of XML many products use it. XML provides some key benefits that
-support its usage in modern applications:
-1. **Flexibility**: XML by design adapts to many
-different data types and structures since it allows to create custom tags. This
-is very convenient for managing great amounts of data since you can define an
-XML Schema Definition (XSD) and a Document Type Definition (DTD) to structure
-and process the data. 
-2. **Platform independence**: XML is based on plain
-text files which allows any operating system to support it. This make it very
-convenient for cross-platform solutions in which the data must be accessed from
-different sources. Additionally, many programing languages support the XML
-format so the data can be transformed, edited and processed internally by the
-core of the applications. 
-3. **Industry Adoption and Standardization**: The
-World Wide Web Consortium (W3C) has established standards for XML, ensuring
-consistent implementation and interoperability across different systems and
-platforms. This industry-wide standardization of XML further enhances its
-credibility and usability as a preferred choice for data storage
-interoperability.
+Many legacy and modern applications rely on the XML format to consume, store and manage data from several sources. In the past, XML was the most reliable way of processing and storing complex data structures. Now a days we have other and more efficient ways of processing data as it may be JSON, but due to the inheritance of XML many products use it. XML provides some key benefits that support its usage in modern applications:
+1. **Flexibility**: XML by design adapts to many different data types and structures since it allows to create custom tags. This is very convenient for managing great amounts of data since you can define an XML Schema Definition (XSD) and a Document Type Definition (DTD) to structure and process the data.
+2. **Platform independence**: XML is based on plain text files which allows any operating system to support it. This makes it very convenient for cross-platform solutions in which the data must be accessed from different sources. Additionally, many programing languages support the XML format so the data can be transformed, edited and processed internally by the core of the applications.
+3. **Industry Adoption and Standardization**: The World Wide Web Consortium (W3C) has established standards for XML, ensuring consistent implementation and interoperability across different systems and platforms. This industry-wide standardization of XML further enhances its credibility and usability as a preferred choice for data storage interoperability.
+
+---
 # What is it
-An XML External Entity attack is a type of attack
-against an application that parses non-validated XML input. This attack occurs
-when XML input containing a reference to an external entity is processed by a
-weakly configured XML parser. Those external entities are defined by the
-attacker and they can lead to several side effects like data exfiltration or
-DoS attacks.
+An XML External Entity attack is a type of attack against an application that parses non-validated XML input. This attack occurs when XML input containing a reference to an external entity is processed by a weakly configured XML parser. Those external entities are defined by the attacker and they can lead to several side effects like data exfiltration or DoS attacks.
+
 **Example of external entity**:
 ```XML
 <!--?xml version="1.0" ?-->
@@ -46,27 +25,20 @@ DoS attacks.
   <lastName>&example;</lastName>
 </userInfo>
 ```
-In this example the attacker is defining the entity
-"example", assigning the value "Doe" to it and then
-reflecting it in the "lastName" element.
-# Requirements
-The XXE attacks requires from the application to
-accept XML from uncontrolled sources and parse it in an insecure way. Many XML
-parser by default require the developer to limit their capabilities by setting
-different flags in the component that uses it. 
- 
-# Security risks and impacts:
 
-The main impact of the XXE vulnerabilities is produced in the data stored in
-the server. XXE is a very common data exfiltration attack vector since not only
-it can read data stored in the affected server, the XXE attack vector can
-create connections to other systems and leak data to external sources, leading
-to internal fingerprinting and giving the attacker information to design more
-complex chained vectors that may impact other resources in the corporate
+In this example the attacker is defining the entity "example", assigning the value "Doe" to it and then reflecting it in the "lastName" element.
+
+---
+# Requirements
+The XXE attacks requires from the application to accept XML from uncontrolled sources and parse it in an insecure way. Many XML parser by default require the developer to limit their capabilities by setting different flags in the component that uses it. 
+
+---
+# Security risks and impacts:
+The main impact of the XXE vulnerabilities is produced in the data stored in the server. XXE is a very common data exfiltration attack vector since not only it can read data stored in the affected server, the XXE attack vector can create connections to other systems and leak data to external sources, leading to internal fingerprinting and giving the attacker information to design more complex chained vectors that may impact other resources in the corporate
 ecosystem. 
+
 ## Local File Inclusion (LFI)
-XML LFI payloads usually result on the application
-returning the contents of the file requested. 
+XML LFI payloads usually result on the application returning the contents of the file requested. 
 ```XML
 <?xml version="1.0"
 encoding="ISO-8859-1"?>
@@ -75,35 +47,15 @@ encoding="ISO-8859-1"?>
 <!ENTITY xxe SYSTEM file:///etc/passwd>]>
 <foo>&xxe;</foo>
 ``` 
-In this payload, the entity "xxe" will
-return the content of the file /etc/passwd since it is referenced below the
-definition in the element foo. Depending on the context this may not result in
-data exfiltration since it depends on how the application returns data. 
-## Server Side Request Forgery (SSRF)/ Out-of-Band
-(OOB)
-Server-Side Request Forgery (SSRF) is a web security
-vulnerability that allows an attacker to induce the server-side application to
-make requests to unintended locations. This can lead to unauthorized actions or
-access to data within the organization and provides the attacker with the
-ability of fingerprinting other services running internally. One variant of
-this attack also leads into OOB attacks when the firewall protection of the
-affected application is poor. OOB allows the attacker to perform connections to
-third-party sources (mainly attacker controlled servers) which allows the
-delivery of malicious content that can interact with the vulnerable server. 
-In some cases where the direct LFI is not possible,
-the attacker may use above techniques to exfiltrate data to some controlled
-server. 
-[What is a blind XXE attack? Tutorial & Examples |
-Web Security Academy](https://portswigger.net/web-security/xxe/blind#exploiting-blind-xxe-to-exfiltrate-data-out-of-band)
+In this payload, the entity "xxe" will return the content of the file /etc/passwd since it is referenced below the definition in the element foo. Depending on the context this may not result in data exfiltration since it depends on how the application returns data.
+
+## Server Side Request Forgery (SSRF)/ Out-of-Band (OOB)
+Server-Side Request Forgery (SSRF) is a web security vulnerability that allows an attacker to induce the server-side application to make requests to unintended locations. This can lead to unauthorized actions or access to data within the organization and provides the attacker with the ability of fingerprinting other services running internally. One variant of this attack also leads into OOB attacks when the firewall protection of the affected application is poor. OOB allows the attacker to perform connections to third-party sources (mainly attacker controlled servers) which allows the delivery of malicious content that can interact with the vulnerable server. 
+In some cases where the direct LFI is not possible, the attacker may use above techniques to exfiltrate data to some controlled server. 
+[What is a blind XXE attack? Tutorial & Examples | Web Security Academy](https://portswigger.net/web-security/xxe/blind#exploiting-blind-xxe-to-exfiltrate-data-out-of-band)
+
 ## Resource Exhaustion (DoS)
-XML has a feature that allows to expand entities in a
-recursive way by referencing them in loop. While this cannot be considered an
-external entity attack, worth mentioning it due to the impact that may cause in
-the application. If the parser is not well configured those entities will kept
-being called until the application consume their resources. The most famous
-resource exhaustion attack is the Billion Laughs DoS. While this attack is
-mostly mitigated in modern XML parsers, it provides very useful context on how
-XML works.
+XML has a feature that allows to expand entities in a recursive way by referencing them in loop. While this cannot be considered an external entity attack, worth mentioning it due to the impact that may cause in the application. If the parser is not well configured those entities will kept being called until the application consume their resources. The most famous resource exhaustion attack is the Billion Laughs DoS. While this attack is mostly mitigated in modern XML parsers, it provides very useful context on how XML works.
 ```XML
 <?xml version="1.0"
 encoding="utf-8"?>
@@ -119,15 +71,10 @@ encoding="utf-8"?>
 ]>
 <laugh>&LOL3;</laugh>
 ```
-Above payload makes the XML parser to expands each of
-the entities, generating a large number of “LOLs”. Above payload would generate
-hundred of thousands "LOL" strings but a full scale payload would
-generate literally "Billions" of "LOL" string.
+Above payload makes the XML parser to expands each of the entities, generating a large number of “LOLs”. Above payload would generate hundred of thousands "LOL" strings but a full scale payload would generate literally "Billions" of "LOL" string.
+
 ## Remote Code Execution (RCE)
-In some environments XXE attacks may allow the
-attacker to perform RCE. By design, XML does not allow directly to execute code
-and most XXE attacks that lead to RCE rely on internal programing languages
-protocols (like php:). This attack vector requires of a thorough recognition of
+In some environments XXE attacks may allow the attacker to perform RCE. By design, XML does not allow directly to execute code and most XXE attacks that lead to RCE rely on internal programing languages protocols (like php:). This attack vector requires of a thorough recognition of
 the affected system to identify compatible tools that may allow this chain
 attack.
  
