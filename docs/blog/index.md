@@ -1,9 +1,4 @@
 ---
 title: Blog
+template: blog-index.html
 ---
-
-# Blog
-
-Research notes & writeups.
-
-<!-- BLOG_POSTS -->

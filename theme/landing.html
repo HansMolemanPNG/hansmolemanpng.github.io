@@ -1,0 +1,61 @@
+{% extends "main.html" %}
+{% block content %}
+<div class="landing">
+
+  <header class="hero">
+    <img class="hero-avatar" src="{{ base_url }}assets/profile.jpeg" alt="Hans_Moleman.PNG">
+    <h1 class="hero-name">Hans_Moleman.PNG</h1>
+    <p class="hero-bio">Security researcher · CTF player · Bug hunter</p>
+    <div class="hero-links">
+      <a href="https://x.com/HansMolemanPNG" target="_blank" rel="noopener" class="hero-link">𝕏</a>
+      <a href="https://github.com/HansMolemanPNG" target="_blank" rel="noopener" class="hero-link">GitHub</a>
+      <a href="https://app.hackthebox.com/profile/HansMolemanPNG" target="_blank" rel="noopener" class="hero-link">HackTheBox</a>
+      <a href="mailto:alsamapa@gmail.com" class="hero-link">Mail</a>
+    </div>
+  </header>
+
+  <div class="content-map">
+
+    <section class="map-block">
+      <h2 class="map-label">Knowledge Base</h2>
+      <div class="map-grid">
+        {% for cat in kb_categories %}
+        <div class="map-cat" style="--cat-color: var(--col-{{ cat.color }})">
+          <a class="map-cat-hdr" href="/{{ cat.url }}">
+            <span class="map-cat-icon">{{ cat.icon }}</span>
+            <span class="map-cat-name">{{ cat.title }}</span>
+            {% if cat.post_count %}
+            <span class="map-cat-posts">{{ cat.post_count }} post{{ 's' if cat.post_count != 1 }}</span>
+            {% endif %}
+          </a>
+          <div class="map-sheets">
+            {% for sheet in cat.sheets %}
+            <a class="map-sheet" href="/{{ sheet.url }}">
+              <span class="map-sheet-title">{{ sheet.title }}</span>
+              {% if sheet.posts %}
+              <span class="map-sheet-dot">● {{ sheet.posts | length }}</span>
+              {% endif %}
+            </a>
+            {% endfor %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="map-block">
+      <h2 class="map-label">Latest Posts <a class="map-label-all" href="/blog/">all →</a></h2>
+      <div class="post-list">
+        {% for post in all_posts[:5] %}
+        <a class="post-row" href="/{{ post.url }}">
+          <span class="badge badge--{{ post.type }}">{{ post.label }}</span>
+          <span class="post-row-title">{{ post.title }}</span>
+          <time class="post-row-date">{{ post.date }}</time>
+        </a>
+        {% endfor %}
+      </div>
+    </section>
+
+  </div>
+</div>
+{% endblock %}

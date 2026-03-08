@@ -1,0 +1,35 @@
+{% extends "main.html" %}
+{% block content %}
+<div class="page">
+
+  <header class="page-hdr">
+    <h1 class="page-title">Blog</h1>
+  </header>
+
+  <div class="filter-bar">
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="writeup">Writeups</button>
+    <button class="filter-btn" data-filter="cve">CVEs</button>
+    <button class="filter-btn" data-filter="research">Research</button>
+  </div>
+
+  <div class="post-list post-list--full">
+    {% for post in all_posts %}
+    <a class="post-row post-row--full" href="/{{ post.url }}" data-type="{{ post.type }}">
+      <div class="post-row-hdr">
+        <span class="badge badge--{{ post.type }}">{{ post.label }}</span>
+        <time class="post-row-date">{{ post.date }}</time>
+      </div>
+      <span class="post-row-title">{{ post.title }}</span>
+      {% if post.excerpt %}<p class="post-row-excerpt">{{ post.excerpt }}</p>{% endif %}
+      {% if post.tags %}
+      <div class="post-row-tags">
+        {% for tag in post.tags %}<span class="tag">{{ tag }}</span>{% endfor %}
+      </div>
+      {% endif %}
+    </a>
+    {% endfor %}
+  </div>
+
+</div>
+{% endblock %}
