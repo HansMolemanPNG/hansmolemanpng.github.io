@@ -12,8 +12,6 @@ Many legacy and modern applications rely on the XML format to consume, store and
 2. **Platform independence**: XML is based on plain text files which allows any operating system to support it. This makes it very convenient for cross-platform solutions in which the data must be accessed from different sources. Additionally, many programing languages support the XML format so the data can be transformed, edited and processed internally by the core of the applications.
 3. **Industry Adoption and Standardization**: The World Wide Web Consortium (W3C) has established standards for XML, ensuring consistent implementation and interoperability across different systems and platforms. This industry-wide standardization of XML further enhances its credibility and usability as a preferred choice for data storage interoperability.
 
----
-
 # What is it
 
 An XML External Entity attack is a type of attack against an application that parses non-validated XML input. This attack occurs when XML input containing a reference to an external entity is processed by a weakly configured XML parser. Those external entities are defined by the attacker and they can lead to several side effects like data exfiltration or DoS attacks.
@@ -32,13 +30,9 @@ An XML External Entity attack is a type of attack against an application that pa
 
 In this example the attacker is defining the entity "example", assigning the value "Doe" to it and then reflecting it in the "lastName" element.
 
----
-
 # Requirements
 
 The XXE attacks requires from the application to accept XML from uncontrolled sources and parse it in an insecure way. Many XML parser by default require the developer to limit their capabilities by setting different flags in the component that uses it.
-
----
 
 # Security risks and impacts
 
