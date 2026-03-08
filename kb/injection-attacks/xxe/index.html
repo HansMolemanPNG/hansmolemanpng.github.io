@@ -56,7 +56,6 @@
 <li><strong>Platform independence</strong>: XML is based on plain text files which allows any operating system to support it. This makes it very convenient for cross-platform solutions in which the data must be accessed from different sources. Additionally, many programing languages support the XML format so the data can be transformed, edited and processed internally by the core of the applications.</li>
 <li><strong>Industry Adoption and Standardization</strong>: The World Wide Web Consortium (W3C) has established standards for XML, ensuring consistent implementation and interoperability across different systems and platforms. This industry-wide standardization of XML further enhances its credibility and usability as a preferred choice for data storage interoperability.</li>
 </ol>
-<hr />
 <h1 id="what-is-it">What is it</h1>
 <p>An XML External Entity attack is a type of attack against an application that parses non-validated XML input. This attack occurs when XML input containing a reference to an external entity is processed by a weakly configured XML parser. Those external entities are defined by the attacker and they can lead to several side effects like data exfiltration or DoS attacks.</p>
 <p><strong>Example of external entity</strong>:</p>
@@ -68,10 +67,8 @@
   &lt;lastName&gt;&amp;example;&lt;/lastName&gt;
 &lt;/userInfo&gt;</code></pre>
 <p>In this example the attacker is defining the entity "example", assigning the value "Doe" to it and then reflecting it in the "lastName" element.</p>
-<hr />
 <h1 id="requirements">Requirements</h1>
 <p>The XXE attacks requires from the application to accept XML from uncontrolled sources and parse it in an insecure way. Many XML parser by default require the developer to limit their capabilities by setting different flags in the component that uses it.</p>
-<hr />
 <h1 id="security-risks-and-impacts">Security risks and impacts</h1>
 <p>The main impact of the XXE vulnerabilities is produced in the data stored in the server. XXE is a very common data exfiltration attack vector since not only it can read data stored in the affected server, the XXE attack vector can create connections to other systems and leak data to external sources, leading to internal fingerprinting and giving the attacker information to design more complex chained vectors that may impact other resources in the corporate
 ecosystem.</p>
