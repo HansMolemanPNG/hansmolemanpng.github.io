@@ -1,0 +1,43 @@
+{% extends "main.html" %}
+{% block content %}
+{% set parts = page.file.src_path.split('/') %}
+{% set cat_slug   = parts[1] %}
+{% set sheet_slug = parts[2].replace('.md', '') %}
+{% set cat   = kb_categories | selectattr('slug', 'equalto', cat_slug) | first %}
+{% set sheet = (cat.sheets | selectattr('slug', 'equalto', sheet_slug) | first) if cat else none %}
+
+<article class="article">
+
+  <a class="back-link" href="/kb/{{ cat_slug }}/">← {{ cat.title if cat else 'Knowledge Base' }}</a>
+
+  <h1 class="article-title">{{ page.title }}</h1>
+
+  {% if page.meta.tags %}
+  <div class="article-tags">
+    {% if page.meta.tags is string %}
+      {% for tag in page.meta.tags.split(',') %}<span class="tag">{{ tag.strip() }}</span>{% endfor %}
+    {% else %}
+      {% for tag in page.meta.tags %}<span class="tag">{{ tag }}</span>{% endfor %}
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <div class="article-content">
+    {{ page.content }}
+  </div>
+
+  {% if sheet and sheet.posts %}
+  <div class="related-posts">
+    <h2 class="related-title">Related posts</h2>
+    {% for post in sheet.posts %}
+    <a class="post-row" href="/{{ post.url }}">
+      <span class="badge badge--{{ post.type }}">{{ post.label }}</span>
+      <span class="post-row-title">{{ post.title }}</span>
+      <time class="post-row-date">{{ post.date }}</time>
+    </a>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+</article>
+{% endblock %}

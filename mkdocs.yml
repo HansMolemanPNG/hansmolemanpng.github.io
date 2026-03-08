@@ -2,38 +2,18 @@ site_name: Hans_Moleman.PNG
 site_url: https://hansmolemanpng.github.io/
 
 theme:
-  name: material
-  logo: assets/profile.jpeg
-  favicon: assets/profile.jpeg
-  custom_dir: overrides
-
-  palette:
-    - scheme: slate
-      primary: black
-      accent: orange
-
-  features: []
-
-plugins:
-  - search
-  - git-revision-date-localized:
-      type: iso_date
-      enable_creation_date: true
+  name: null
+  custom_dir: theme
 
 markdown_extensions:
   - attr_list
   - md_in_html
   - admonition
   - pymdownx.superfences
-  - pymdownx.highlight
+  - pymdownx.highlight:
+      use_pygments: false
   - toc:
-      permalink: true
-
-extra_css:
-  - assets/extra.css
-
-extra_javascript:
-  - assets/extra.js
+      permalink: false
 
 hooks:
   - hooks.py

@@ -1,5 +1,4 @@
 ---
 title: Hans_Moleman.PNG
+template: landing.html
 ---
-
-<!-- LANDING_OVERVIEW -->

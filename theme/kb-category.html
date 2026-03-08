@@ -1,0 +1,42 @@
+{% extends "main.html" %}
+{% block content %}
+{% set cat_slug = page.file.src_path.split('/')[1] %}
+{% set cat = kb_categories | selectattr('slug', 'equalto', cat_slug) | first %}
+
+<div class="page">
+
+  <a class="back-link" href="/kb/">← Knowledge Base</a>
+
+  <header class="page-hdr">
+    <h1 class="page-title" style="color: var(--col-{{ cat.color }})">
+      {{ cat.icon }} {{ cat.title }}
+    </h1>
+  </header>
+
+  <div class="sheet-list">
+    {% for sheet in cat.sheets %}
+    <a class="sheet-row" href="/{{ sheet.url }}" style="--cat-color: var(--col-{{ cat.color }})">
+      <span class="sheet-row-title">{{ sheet.title }}</span>
+      {% if sheet.excerpt %}<span class="sheet-row-excerpt">{{ sheet.excerpt }}</span>{% endif %}
+      {% if sheet.posts %}<span class="sheet-row-posts">● {{ sheet.posts | length }}</span>{% endif %}
+    </a>
+    {% endfor %}
+  </div>
+
+  {% set all_related = [] %}
+  {% for sheet in cat.sheets %}{% for post in sheet.posts %}{% set _ = all_related.append(post) %}{% endfor %}{% endfor %}
+  {% if all_related %}
+  <div class="related-posts">
+    <h2 class="related-title">Related posts</h2>
+    {% for post in all_related %}
+    <a class="post-row" href="/{{ post.url }}">
+      <span class="badge badge--{{ post.type }}">{{ post.label }}</span>
+      <span class="post-row-title">{{ post.title }}</span>
+      <time class="post-row-date">{{ post.date }}</time>
+    </a>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}
