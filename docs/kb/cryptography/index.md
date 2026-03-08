@@ -1,13 +1,6 @@
 ---
 title: Cryptography
-icon: 🔐
+icon: 🔒
 color: crypto
-tags: JWT, Hash, TLS, Crypto, Encoding, Encryption
-excerpt: Cryptographic attacks, weak implementations, token forgery, and encoding tricks.
+group: other
 ---
-
-# Cryptography
-
-Cryptographic attacks, weak implementations, token forgery, and encoding tricks.
-
-<!-- KB_SHEETS -->

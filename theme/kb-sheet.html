@@ -12,6 +12,16 @@
 
   <h1 class="article-title">{{ page.title }}</h1>
 
+  {% if page.meta.coming_soon %}
+  <div class="coming-soon-banner">
+    <span class="coming-soon-icon">🔒</span>
+    <div>
+      <strong>Coming Soon</strong>
+      <p>This cheat sheet is being written. Check back later.</p>
+    </div>
+  </div>
+  {% else %}
+
   {% if page.meta.tags %}
   <div class="article-tags">
     {% if page.meta.tags is string %}
@@ -37,6 +47,8 @@
     </a>
     {% endfor %}
   </div>
+  {% endif %}
+
   {% endif %}
 
 </article>
