@@ -77,10 +77,20 @@ img { max-width: 100%; display: block; }
   object-fit: cover;
   transition: border-color .15s, opacity .15s;
 }
+.topnav-home-name {
+  font-family: var(--font-mono);
+  font-size: .78rem;
+  font-weight: 500;
+  color: var(--muted);
+  margin-left: .55rem;
+  letter-spacing: 0.03em;
+  transition: color .15s;
+}
 .topnav-home:hover .topnav-avatar {
   border-color: var(--accent);
   opacity: .85;
 }
+.topnav-home:hover .topnav-home-name { color: var(--text); }
 
 .topnav-links {
   display: flex;
