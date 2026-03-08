@@ -11,7 +11,7 @@ Post frontmatter:
     type: writeup          # writeup | cve | research
     tags: Tag1, Tag2       # used for KB cross-linking
     excerpt: One line shown on the index card.
-    kb_ref: web-security   # optional: KB category slug this post belongs to
+    kb_ref: web-security/xss   # optional: KB category/sheet this post belongs to
     ---
 
 KB category index frontmatter:
@@ -115,25 +115,22 @@ def _get_kb_categories(docs_dir: Path, all_posts: list) -> list:
         cat_meta = _parse_frontmatter(cat_index.read_text(encoding='utf-8'))
         cat_slug = cat_dir.name
 
-        # Cheat sheets (flat .md files, not index.md)
+        # Cheat sheets (flat .md files, not index.md), with per-sheet post lists
         sheets = []
         for f in sorted(cat_dir.iterdir()):
             if f.name == 'index.md' or f.suffix != '.md':
                 continue
             sm = _parse_frontmatter(f.read_text(encoding='utf-8'))
+            sheet_ref = f'{cat_slug}/{f.stem}'
+            sheet_posts = [p for p in all_posts if p['kb_ref'] == sheet_ref]
             sheets.append({
                 'title': sm.get('title', f.stem.replace('-', ' ').title()),
                 'url':   f'kb/{cat_slug}/{f.stem}/',
                 'slug':  f.stem,
+                'posts': sheet_posts,
             })
 
-        # Count related blog posts (explicit kb_ref OR tag overlap)
-        cat_tags = {t.strip().lower() for t in cat_meta.get('tags', '').split(',') if t.strip()}
-        post_count = sum(
-            1 for p in all_posts
-            if p['kb_ref'] == cat_slug
-            or bool(cat_tags & set(p['tags']))
-        )
+        post_count = sum(len(s['posts']) for s in sheets)
 
         categories.append({
             'title':      cat_meta.get('title', cat_slug.replace('-', ' ').title()),
@@ -152,66 +149,52 @@ def _get_kb_categories(docs_dir: Path, all_posts: list) -> list:
 # ──────────────────────────────────────────────────────────
 
 def _build_landing(all_posts: list, categories: list) -> str:
-    """Generate the landing page overview cards (KB + Blog)."""
-    # KB stats
-    total_sheets = sum(len(cat['sheets']) for cat in categories)
-    cat_count = len(categories)
+    """Generate the KB content map for the landing page (categories + sheets + post counts)."""
+    if not categories:
+        return '<p>No content yet.</p>'
 
-    kb_rows = ''
+    cat_cards = []
     for cat in categories:
-        sc = len(cat['sheets'])
-        sheet_str = f'{sc} sheet{"s" if sc != 1 else ""}'
-        kb_rows += (
-            f'<li class="landing-list-item" style="--cat-color: var(--col-{cat["color"]})">'
-            f'<span class="landing-item-icon">{cat["icon"]}</span>'
-            f'<span class="landing-item-name">{cat["title"]}</span>'
-            f'<span class="landing-item-count">{sheet_str}</span>'
-            f'</li>'
+        color_var = f'var(--col-{cat["color"]})'
+        pc = cat['post_count']
+        count_html = (
+            f'<span class="kb-map-cat-count">{pc} post{"s" if pc != 1 else ""}</span>'
+            if pc else ''
         )
-    cat_label = f'{cat_count} categor{"ies" if cat_count != 1 else "y"}'
-    sheet_label = f'{total_sheets} cheat sheet{"s" if total_sheets != 1 else ""}'
-    kb_card = (
-        f'<a class="landing-card" href="/kb/">'
-        f'<div class="landing-card-hdr">'
-        f'<div class="landing-card-htitle">📚 Knowledge Base</div>'
-        f'<div class="landing-card-hsub">{cat_label} · {sheet_label}</div>'
-        f'</div>'
-        f'<ul class="landing-list">{kb_rows}</ul>'
-        f'</a>'
-    )
 
-    # Blog stats by type
-    type_counts: dict = {}
-    for p in all_posts:
-        t = p['type']
-        if t:
-            type_counts[t] = type_counts.get(t, 0) + 1
-    total_posts = len(all_posts)
-
-    blog_rows = ''
-    for t in ['writeup', 'cve', 'research']:
-        count = type_counts.get(t, 0)
-        if count == 0:
-            continue
-        label = _TYPE_LABELS.get(t, t.capitalize())
-        blog_rows += (
-            f'<li class="landing-list-item">'
-            f'<span class="post-badge post-badge--{t}">{label}</span>'
-            f'<span class="landing-item-count">{count}</span>'
-            f'</li>'
+        hdr = (
+            f'<a class="kb-map-cat-hdr" href="/{cat["url"]}">\n'
+            f'  <span class="kb-map-icon">{cat["icon"]}</span>\n'
+            f'  <span class="kb-map-title">{cat["title"]}</span>\n'
+            + (f'  {count_html}\n' if count_html else '')
+            + '</a>'
         )
-    post_label = f'{total_posts} post{"s" if total_posts != 1 else ""}'
-    blog_card = (
-        f'<a class="landing-card" href="/blog/">'
-        f'<div class="landing-card-hdr">'
-        f'<div class="landing-card-htitle">✏️ Blog</div>'
-        f'<div class="landing-card-hsub">{post_label}</div>'
-        f'</div>'
-        f'<ul class="landing-list">{blog_rows}</ul>'
-        f'</a>'
-    )
 
-    return f'<div class="landing-overview">\n{kb_card}\n{blog_card}\n</div>'
+        sheet_items = []
+        for sheet in cat['sheets']:
+            sc = len(sheet['posts'])
+            badge = f'<span class="kb-map-sheet-posts">● {sc}</span>' if sc else ''
+            sheet_items.append(
+                f'<a class="kb-map-sheet" href="/{sheet["url"]}">\n'
+                f'  <span class="kb-map-sheet-title">{sheet["title"]}</span>\n'
+                + (f'  {badge}\n' if badge else '')
+                + '</a>'
+            )
+
+        sheets_html = (
+            '<div class="kb-map-sheets">\n'
+            + '\n'.join(sheet_items)
+            + '\n</div>'
+        )
+
+        cat_cards.append(
+            f'<div class="kb-map-cat" style="--cat-color:{color_var}">\n'
+            + hdr + '\n'
+            + sheets_html + '\n'
+            + '</div>'
+        )
+
+    return '<div class="kb-map">\n\n' + '\n\n'.join(cat_cards) + '\n\n</div>'
 
 
 def _build_blog_output(posts: list) -> str:
