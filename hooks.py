@@ -40,6 +40,13 @@ _TYPE_LABELS = {
     'research': 'Research',
 }
 
+_GROUP_ORDER = ['web', 'lowlevel', 'other']
+_GROUP_LABELS = {
+    'web':      'Web Security',
+    'lowlevel': 'Low Level',
+    'other':    'General',
+}
+
 
 # ── Helpers ────────────────────────────────────────────────────
 
@@ -123,22 +130,27 @@ def _get_kb_categories(docs_dir: Path, all_posts: list) -> list:
             sm = _parse_frontmatter(f.read_text(encoding='utf-8'))
             sheet_ref = f'{cat_slug}/{f.stem}'
             sheet_posts = [p for p in all_posts if p['kb_ref'] == sheet_ref]
+            coming_soon = sm.get('coming_soon', '').lower() in ('true', '1', 'yes')
             sheets.append({
-                'title':   sm.get('title', f.stem.replace('-', ' ').title()),
-                'excerpt': sm.get('excerpt', ''),
-                'url':     f'kb/{cat_slug}/{f.stem}/',
-                'slug':    f.stem,
-                'posts':   sheet_posts,
+                'title':       sm.get('title', f.stem.replace('-', ' ').title()),
+                'excerpt':     sm.get('excerpt', ''),
+                'url':         f'kb/{cat_slug}/{f.stem}/',
+                'slug':        f.stem,
+                'posts':       sheet_posts,
+                'coming_soon': coming_soon,
             })
 
+        group_raw = cat_meta.get('group', 'other').lower().strip()
         categories.append({
-            'title':      cat_meta.get('title', cat_slug.replace('-', ' ').title()),
-            'slug':       cat_slug,
-            'icon':       cat_meta.get('icon', '◈'),
-            'color':      cat_meta.get('color', 'misc'),
-            'url':        f'kb/{cat_slug}/',
-            'sheets':     sheets,
-            'post_count': sum(len(s['posts']) for s in sheets),
+            'title':       cat_meta.get('title', cat_slug.replace('-', ' ').title()),
+            'slug':        cat_slug,
+            'icon':        cat_meta.get('icon', '◈'),
+            'color':       cat_meta.get('color', 'misc'),
+            'url':         f'kb/{cat_slug}/',
+            'sheets':      sheets,
+            'post_count':  sum(len(s['posts']) for s in sheets),
+            'group':       group_raw,
+            'group_label': _GROUP_LABELS.get(group_raw, group_raw.title()),
         })
 
     return categories
@@ -154,6 +166,8 @@ def on_env(env, config, **kwargs):
     kb_categories = _get_kb_categories(docs_dir, all_posts)
     env.globals['all_posts']     = all_posts
     env.globals['kb_categories'] = kb_categories
+    env.globals['kb_group_order']  = _GROUP_ORDER
+    env.globals['kb_group_labels'] = _GROUP_LABELS
     return env
 
 

@@ -6,6 +6,7 @@
     <h1 class="page-title">Blog</h1>
   </header>
 
+  {% if all_posts %}
   <div class="filter-bar">
     <button class="filter-btn active" data-filter="all">All</button>
     <button class="filter-btn" data-filter="writeup">Writeups</button>
@@ -30,6 +31,15 @@
     </a>
     {% endfor %}
   </div>
+  {% else %}
+  <div class="coming-soon-banner">
+    <span class="coming-soon-icon">✍️</span>
+    <div>
+      <strong>Coming Soon</strong>
+      <p>Posts are being written. The first ones will cover security research and vulnerability analysis.</p>
+    </div>
+  </div>
+  {% endif %}
 
 </div>
 {% endblock %}

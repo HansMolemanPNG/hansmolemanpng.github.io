@@ -437,6 +437,22 @@ img { max-width: 100%; display: block; }
    KB INDEX
    ================================================================ */
 
+.kb-group {
+  margin-bottom: 2.5rem;
+}
+
+.kb-group-label {
+  font-family: var(--font-mono);
+  font-size: .65rem;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: .85rem;
+  padding-bottom: .45rem;
+  border-bottom: 1px solid var(--border);
+}
+
 .kb-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -501,6 +517,27 @@ img { max-width: 100%; display: block; }
 
 .sheet-row-title { flex: 1; font-size: .875rem; }
 .sheet-row-excerpt { font-size: .78rem; color: var(--muted); }
+.sheet-row-soon-badge {
+  font-family: var(--font-mono);
+  font-size: .62rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: var(--surface2);
+  padding: .15em .45em;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+.sheet-row--soon {
+  opacity: .5;
+  pointer-events: none;
+  cursor: default;
+}
+.sheet-row--soon:hover {
+  border-left-color: transparent;
+  padding-left: 0;
+}
 .sheet-row-posts {
   font-family: var(--font-mono);
   font-size: .7rem;
@@ -701,6 +738,44 @@ img { max-width: 100%; display: block; }
 
 /* ── Back link generic ── */
 .back-link { display: inline-block; }
+
+/* ================================================================
+   COMING SOON
+   ================================================================ */
+
+.coming-soon-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--muted);
+  border-radius: var(--radius);
+  margin-top: 1.5rem;
+  color: var(--muted);
+}
+.coming-soon-icon { font-size: 1.4rem; line-height: 1; flex-shrink: 0; }
+.coming-soon-banner strong { display: block; font-family: var(--font-mono); font-size: .85rem; color: var(--text); margin-bottom: .3rem; }
+.coming-soon-banner p { font-size: .875rem; margin: 0; }
+
+.map-sheet--soon {
+  font-size: .78rem;
+  color: var(--muted);
+  opacity: .6;
+  font-style: italic;
+  padding: .35rem 0;
+  cursor: default;
+  pointer-events: none;
+  text-decoration: none;
+}
+
+.map-no-posts {
+  font-size: .875rem;
+  color: var(--muted);
+  padding: 1.25rem 0;
+  border-top: 1px solid var(--border);
+}
 
 /* ================================================================
    404

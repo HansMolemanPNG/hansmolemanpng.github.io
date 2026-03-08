@@ -7,19 +7,27 @@
     <p class="page-desc">Cheatsheets and references for CTFs, pentesting and bug bounty.</p>
   </header>
 
-  <div class="kb-grid">
-    {% for cat in kb_categories %}
-    <a class="kb-cat-card" href="/{{ cat.url }}" style="--cat-color: var(--col-{{ cat.color }})">
-      <span class="kb-cat-icon">{{ cat.icon }}</span>
-      <div class="kb-cat-body">
-        <div class="kb-cat-name">{{ cat.title }}</div>
-        <div class="kb-cat-meta">
-          {{ cat.sheets | length }} sheet{{ 's' if cat.sheets | length != 1 }}{% if cat.post_count %} · {{ cat.post_count }} post{{ 's' if cat.post_count != 1 }}{% endif %}
+  {% for group_key in kb_group_order %}
+  {% set group_cats = kb_categories | selectattr('group', 'equalto', group_key) | list %}
+  {% if group_cats %}
+  <div class="kb-group">
+    <h2 class="kb-group-label">{{ kb_group_labels[group_key] }}</h2>
+    <div class="kb-grid">
+      {% for cat in group_cats %}
+      <a class="kb-cat-card" href="/{{ cat.url }}" style="--cat-color: var(--col-{{ cat.color }})">
+        <span class="kb-cat-icon">{{ cat.icon }}</span>
+        <div class="kb-cat-body">
+          <div class="kb-cat-name">{{ cat.title }}</div>
+          <div class="kb-cat-meta">
+            {{ cat.sheets | length }} sheet{{ 's' if cat.sheets | length != 1 }}{% if cat.post_count %} · {{ cat.post_count }} post{{ 's' if cat.post_count != 1 }}{% endif %}
+          </div>
         </div>
-      </div>
-    </a>
-    {% endfor %}
+      </a>
+      {% endfor %}
+    </div>
   </div>
+  {% endif %}
+  {% endfor %}
 
 </div>
 {% endblock %}

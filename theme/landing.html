@@ -25,6 +25,7 @@
       <h2 class="map-label">Knowledge Base</h2>
       <div class="map-grid">
         {% for cat in kb_categories %}
+        {% set real_sheets = cat.sheets | rejectattr('coming_soon') | list %}
         <div class="map-cat" style="--cat-color: var(--col-{{ cat.color }})">
           <a class="map-cat-hdr" href="/{{ cat.url }}">
             <span class="map-cat-icon">{{ cat.icon }}</span>
@@ -34,14 +35,18 @@
             {% endif %}
           </a>
           <div class="map-sheets">
-            {% for sheet in cat.sheets %}
-            <a class="map-sheet" href="/{{ sheet.url }}">
-              <span class="map-sheet-title">{{ sheet.title }}</span>
-              {% if sheet.posts %}
-              <span class="map-sheet-dot">● {{ sheet.posts | length }}</span>
-              {% endif %}
-            </a>
-            {% endfor %}
+            {% if real_sheets %}
+              {% for sheet in real_sheets %}
+              <a class="map-sheet" href="/{{ sheet.url }}">
+                <span class="map-sheet-title">{{ sheet.title }}</span>
+                {% if sheet.posts %}
+                <span class="map-sheet-dot">● {{ sheet.posts | length }}</span>
+                {% endif %}
+              </a>
+              {% endfor %}
+            {% else %}
+              <span class="map-sheet map-sheet--soon">Content coming soon</span>
+            {% endif %}
           </div>
         </div>
         {% endfor %}
@@ -50,6 +55,7 @@
 
     <section class="map-block">
       <h2 class="map-label">Latest Posts <a class="map-label-all" href="/blog/">all →</a></h2>
+      {% if all_posts %}
       <div class="post-list">
         {% for post in all_posts[:5] %}
         <a class="post-row" href="/{{ post.url }}">
@@ -59,6 +65,9 @@
         </a>
         {% endfor %}
       </div>
+      {% else %}
+      <p class="map-no-posts">No posts yet — stay tuned.</p>
+      {% endif %}
     </section>
 
   </div>
