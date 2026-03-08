@@ -3,7 +3,7 @@ title: "JWT Algorithm Confusion Attacks"
 type: research
 tags: JWT, Auth, Cryptography, Web
 excerpt: How RS256 to HS256 algorithm confusion works, why it's still found in the wild, and how to test for it.
-kb_ref: cryptography
+kb_ref: cryptography/jwt
 ---
 
 # JWT Algorithm Confusion Attacks
