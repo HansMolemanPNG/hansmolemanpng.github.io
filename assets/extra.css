@@ -195,6 +195,72 @@ body { overflow-x: hidden; position: relative; }
 .landing-item-name  { flex: 1; color: var(--text); }
 .landing-item-count { color: var(--muted); font-size: .80rem; }
 
+/* ── KB content map (landing page) ── */
+.kb-map {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.1rem;
+}
+
+.kb-map-cat {
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, .09);
+  background: rgba(255, 255, 255, .03);
+  overflow: hidden;
+  transition: border-color .2s;
+}
+
+.kb-map-cat:hover {
+  border-color: var(--cat-color);
+}
+
+.kb-map-cat-hdr {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  padding: .9rem 1.1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, .06);
+  text-decoration: none;
+  color: var(--text);
+  transition: background .15s;
+}
+
+.kb-map-cat-hdr:hover {
+  background: rgba(255, 255, 255, .04);
+}
+
+.kb-map-icon  { font-size: 1.25rem; line-height: 1; flex-shrink: 0; }
+.kb-map-title { flex: 1; font-weight: 700; font-size: .95rem; color: var(--cat-color); }
+.kb-map-cat-count { font-size: .72rem; color: var(--accent); font-weight: 600; white-space: nowrap; }
+
+.kb-map-sheets {
+  padding: .4rem .45rem;
+  display: flex;
+  flex-direction: column;
+  gap: .1rem;
+}
+
+.kb-map-sheet {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .38rem .7rem;
+  border-radius: 7px;
+  text-decoration: none;
+  color: var(--text);
+  font-size: .875rem;
+  border-left: 2px solid transparent;
+  transition: background .15s, border-left-color .15s;
+}
+
+.kb-map-sheet:hover {
+  background: rgba(255, 255, 255, .05);
+  border-left-color: var(--cat-color);
+}
+
+.kb-map-sheet-title { flex: 1; }
+.kb-map-sheet-posts { font-size: .72rem; color: var(--accent); font-weight: 600; }
+
 /* ================================================================
    SIDEBAR
    ================================================================ */
@@ -785,6 +851,7 @@ body { overflow-x: hidden; position: relative; }
   .landing-hero { margin-bottom: 36px; }
   .landing-avatar { width: 80px; height: 80px; }
   .landing-overview { grid-template-columns: 1fr; }
+  .kb-map { grid-template-columns: 1fr; }
 
   /* Topnav */
   .topnav-links { height: 48px; gap: 2px; }
