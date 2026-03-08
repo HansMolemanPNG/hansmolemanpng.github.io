@@ -119,12 +119,16 @@ img { max-width: 100%; display: block; }
 }
 
 .hero-avatar {
+  display: block;
   width: 76px;
   height: 76px;
+  min-width: 76px;
   border-radius: 50%;
   border: 2px solid var(--border-hover);
   object-fit: cover;
+  flex-shrink: 0;
   margin-bottom: .4rem;
+  overflow: hidden;
 }
 
 .hero-name {
