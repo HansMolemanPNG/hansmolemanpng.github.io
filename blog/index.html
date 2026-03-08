@@ -15,6 +15,7 @@
   <nav class="topnav">
     <a class="topnav-home" href="/" aria-label="Home">
       <img class="topnav-avatar" src="/assets/profile.jpeg" alt="Hans_Moleman.PNG">
+      <span class="topnav-home-name">Home</span>
     </a>
     <div class="topnav-links">
       <a href="/kb/">KB</a>
@@ -31,72 +32,15 @@
     <h1 class="page-title">Blog</h1>
   </header>
 
-  <div class="filter-bar">
-    <button class="filter-btn active" data-filter="all">All</button>
-    <button class="filter-btn" data-filter="writeup">Writeups</button>
-    <button class="filter-btn" data-filter="cve">CVEs</button>
-    <button class="filter-btn" data-filter="research">Research</button>
+  
+  <div class="coming-soon-banner">
+    <span class="coming-soon-icon">✍️</span>
+    <div>
+      <strong>Coming Soon</strong>
+      <p>Posts are being written. The first ones will cover security research and vulnerability analysis.</p>
+    </div>
   </div>
-
-  <div class="post-list post-list--full">
-    
-    <a class="post-row post-row--full" href="/blog/jwt-alg-confusion/" data-type="research">
-      <div class="post-row-hdr">
-        <span class="badge badge--research">Research</span>
-        <time class="post-row-date">2026-03-06</time>
-      </div>
-      <span class="post-row-title">"JWT Algorithm Confusion Attacks"</span>
-      <p class="post-row-excerpt">How RS256 to HS256 algorithm confusion works, why it's still found in the wild, and how to test for it.</p>
-      
-      <div class="post-row-tags">
-        <span class="tag">JWT</span><span class="tag">Auth</span><span class="tag">Cryptography</span><span class="tag">Web</span>
-      </div>
-      
-    </a>
-    
-    <a class="post-row post-row--full" href="/blog/cve-2024-4577-php-cgi/" data-type="cve">
-      <div class="post-row-hdr">
-        <span class="badge badge--cve">CVE</span>
-        <time class="post-row-date">2026-03-06</time>
-      </div>
-      <span class="post-row-title">"CVE-2024-4577: PHP CGI Argument Injection on Windows"</span>
-      <p class="post-row-excerpt">Critical argument injection in PHP CGI mode on Windows allows unauthenticated RCE. CVSS 9.8.</p>
-      
-      <div class="post-row-tags">
-        <span class="tag">PHP</span><span class="tag">RCE</span><span class="tag">Windows</span><span class="tag">CVE</span>
-      </div>
-      
-    </a>
-    
-    <a class="post-row post-row--full" href="/blog/htb-boardlight/" data-type="writeup">
-      <div class="post-row-hdr">
-        <span class="badge badge--writeup">Writeup</span>
-        <time class="post-row-date">2026-03-06</time>
-      </div>
-      <span class="post-row-title">"HTB BoardLight — Writeup"</span>
-      <p class="post-row-excerpt">Easy Linux box. Initial access via Dolibarr ERP CVE, privesc via vulnerable SUID enlightenment_sys binary.</p>
-      
-      <div class="post-row-tags">
-        <span class="tag">HackTheBox</span><span class="tag">Linux</span><span class="tag">Dolibarr</span><span class="tag">CVE-2023-30253</span><span class="tag">SUID</span>
-      </div>
-      
-    </a>
-    
-    <a class="post-row post-row--full" href="/blog/xxe-deep-dive/" data-type="writeup">
-      <div class="post-row-hdr">
-        <span class="badge badge--writeup">Writeup</span>
-        <time class="post-row-date">2026-03-05</time>
-      </div>
-      <span class="post-row-title">XXE Injection Deep Dive</span>
-      <p class="post-row-excerpt">Attack surface, blind XXE, OOB exfil and mitigations.</p>
-      
-      <div class="post-row-tags">
-        <span class="tag">XXE</span><span class="tag">XML</span><span class="tag">Web</span>
-      </div>
-      
-    </a>
-    
-  </div>
+  
 
 </div>
 
