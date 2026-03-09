@@ -370,7 +370,8 @@
 <hr />
 <h1 id="xxe-exploitation-model">XXE Exploitation Model</h1>
 <p>The following diagram represents the full exploitation model for XXE attacks. It starts from initial detection and branches into different techniques based on what the application allows and how it responds. Use this as a decision map during testing.</p>
-<pre class="highlight"><code class="language-text">                            ┌─────────────────────────┐
+<pre>
+                            ┌─────────────────────────┐
                             │   APPLICATION ACCEPTS    │
                             │       XML INPUT?         │
                             └────────────┬────────────┘
@@ -444,7 +445,9 @@
     │  ├──────────────────────────────────────────────────┤
     │  │  Billion Laughs (recursive expansion)            │
     │  │  Quadratic Blowup (repeated references)          │
-    │  └──────────────────────────────────────────────────┘</code></pre>
+    │  └──────────────────────────────────────────────────┘
+</pre>
+
 <hr />
 <h1 id="identifying-xxe-on-rest-apis">Identifying XXE on REST APIs</h1>
 <p>The only way to properly identify if an application is vulnerable to XXE is by exploiting it. To minimize the risk of information leak and damage de server we can try to either reflect a string coming from external entity or read a harmless file like hosts file.</p>
