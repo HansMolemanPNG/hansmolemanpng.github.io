@@ -183,7 +183,7 @@ Java has the broadest protocol support which is why Java-specific techniques (ja
 
 The following diagram represents the full exploitation model for XXE attacks. It starts from initial detection and branches into different techniques based on what the application allows and how it responds. Use this as a decision map during testing.
 
-```text
+<pre>
                             ┌─────────────────────────┐
                             │   APPLICATION ACCEPTS    │
                             │       XML INPUT?         │
@@ -259,7 +259,7 @@ The following diagram represents the full exploitation model for XXE attacks. It
     │  │  Billion Laughs (recursive expansion)            │
     │  │  Quadratic Blowup (repeated references)          │
     │  └──────────────────────────────────────────────────┘
-```
+</pre>
 
 ---
 
