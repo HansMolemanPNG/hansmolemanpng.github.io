@@ -185,8 +185,8 @@ The following diagram represents the full exploitation model for XXE attacks. It
 
 ```
                             ┌─────────────────────────┐
-                            │   APPLICATION ACCEPTS    │
-                            │       XML INPUT?         │
+                            │   APPLICATION ACCEPTS   │
+                            │       XML INPUT?        │
                             └────────────┬────────────┘
                                          │ Yes
                             ┌────────────▼────────────┐
