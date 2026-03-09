@@ -247,9 +247,9 @@ Creating a working payload for local DTD-based XXE exploitation requires careful
 
 1. Valid DTD Structure
 
-- The injected payload must maintain a syntactically valid DTD.
-- All markup declarations (`<!ELEMENT>`, `<!ENTITY>`) must appear in a proper order.
-- If the included DTD (`%local_dtd;`) contains markup declarations, use a **dummy element** (e.g., `<!ELEMENT aa (bb'>`) to absorb conflicts and prevent parser errors.
++ The injected payload must maintain a syntactically valid DTD.
++ All markup declarations (`<!ELEMENT>`, `<!ENTITY>`) must appear in a proper order.
++ If the included DTD (`%local_dtd;`) contains markup declarations, use a **dummy element** (e.g., `<!ELEMENT aa (bb'>`) to absorb conflicts and prevent parser errors.
 
 2. Correct Entity Nesting and Escaping
 
