@@ -256,9 +256,11 @@ Creating a working payload for local DTD-based XXE exploitation requires careful
 - Nested entity declarations inside another entity must be properly escaped:
   - Use `&#x25;` for `%`, `&#x26;` for `&` and `&#x27;` for quotes.
   - Example: 
-    ```xml
-    <!ENTITY % eval "<!ENTITY &#x25; error SYSTEM 'file:///path/%file;'>">           
-    ```
+
+```xml
+<!ENTITY % eval "<!ENTITY &#x25; error SYSTEM 'file:///path/%file;'>">           
+```
+
 - Failure to escape these characters often results in **markup declaration errors**.
 
 1. Order of Expansion
