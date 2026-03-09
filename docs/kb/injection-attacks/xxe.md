@@ -257,7 +257,7 @@ Creating a working payload for local DTD-based XXE exploitation requires careful
   * Use `&#x25;` for `%`, `&#x26;` for `&` and `&#x27;for  quotes.
   * Example:
 
-  ```xml
+    ```xml
     <!ENTITY % eval "<!ENTITY &#x25; error SYSTEM 'file:///path/%file;'>">
     ```
 
