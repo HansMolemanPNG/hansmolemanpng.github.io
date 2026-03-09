@@ -638,6 +638,7 @@ img { max-width: 100%; display: block; }
   color: var(--accent);
   padding: .15em .38em;
   border-radius: 3px;
+  font-feature-settings: "liga" 0, "calt" 0;
 }
 
 .article-content pre {
