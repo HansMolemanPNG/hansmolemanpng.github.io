@@ -232,11 +232,11 @@ If the application returns error messages, the response will include something l
 <li>
 <p>Nested entity declarations inside another entity must be properly escaped:</p>
 </li>
-<li>Use <code>&amp;#x25;</code> for <code>%</code>, <code>&amp;#x26;</code> for <code>&amp;</code> and <code>&amp;#x27;</code> for quotes.</li>
-<li>Example: </li>
-</ol>
-<pre class="highlight"><code class="language-xml">&lt;!ENTITY % eval "&lt;!ENTITY &amp;#x25; error SYSTEM 'file:///path/%file;'&gt;"&gt;           </code></pre>
-<ul>
+<li>Use <code>&amp;#x25;</code> for <code>%</code>, <code>&amp;#x26;</code> for <code>&amp;</code> and `&#x27;for  quotes.</li>
+<li>
+<p>"Example"</p>
+<pre class="highlight"><code class="language-xml">&lt;!ENTITY % eval "&lt;!ENTITY &amp;#x25; error SYSTEM 'file:///path/%file;'&gt;"&gt;</code></pre>
+</li>
 <li>
 <p>Failure to escape these characters often results in <strong>markup declaration errors</strong>.</p>
 </li>
@@ -257,7 +257,7 @@ If the application returns error messages, the response will include something l
 <li>
 <p>When including external DTDs, add a placeholder declaration like:</p>
 </li>
-</ul>
+</ol>
 <pre class="highlight"><code class="language-xml">  &lt;!ELEMENT aa (bb'&gt;</code></pre>
 <ul>
 <li>
