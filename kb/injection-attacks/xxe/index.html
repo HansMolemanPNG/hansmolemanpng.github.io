@@ -198,14 +198,12 @@ We start by referencing the local DTD in our XML payload:</li>
 <ol>
 <li><code>%file</code> loads the contents of <code>/etc/passwd</code> from the local filesystem.</li>
 <li><code>%eval</code> creates a new parameter entity <code>%error</code> that references a non-existent file path concatenated with <code>%file</code> content.</li>
-<li>
-<p>When the parser expands <code>%error</code>, it attempts to resolve the invalid path, triggering an error message that includes the contents of <code>/etc/passwd</code>.</p>
-</li>
-<li>
-<p><strong>Step 3:</strong> Trigger Error-Based Exfiltration:
-If the application returns error messages, the response will include something like:</p>
-</li>
+<li>When the parser expands <code>%error</code>, it attempts to resolve the invalid path, triggering an error message that includes the contents of <code>/etc/passwd</code>.</li>
 </ol>
+<ul>
+<li><strong>Step 3:</strong> Trigger Error-Based Exfiltration:
+If the application returns error messages, the response will include something like:</li>
+</ul>
 <pre class="highlight"><code>errorMessage: "/nonexistent/root:x:0:0:root:/root:/bin/bash"</code></pre>
 <p>This leaks the contents of <code>/etc/passwd</code> through the error message.</p>
 <h3 id="why-this-works">Why This Works</h3>
@@ -216,79 +214,65 @@ If the application returns error messages, the response will include something l
 </ul>
 <p>Creating a working payload for local DTD-based XXE exploitation requires careful attention to XML and DTD parsing rules. Below are the key requirements:</p>
 <ol>
-<li>
-<p>Valid DTD Structure</p>
-</li>
-<li>
-<p>The injected payload must maintain a syntactically valid DTD.</p>
-</li>
+<li>Valid DTD Structure</li>
+</ol>
+<ul>
+<li>The injected payload must maintain a syntactically valid DTD.</li>
 <li>All markup declarations (<code>&lt;!ELEMENT&gt;</code>, <code>&lt;!ENTITY&gt;</code>) must appear in a proper order.</li>
-<li>
-<p>If the included DTD (<code>%local_dtd;</code>) contains markup declarations, use a <strong>dummy element</strong> (e.g., <code>&lt;!ELEMENT aa (bb'&gt;</code>) to absorb conflicts and prevent parser errors.</p>
-</li>
-<li>
-<p>Correct Entity Nesting and Escaping</p>
-</li>
-<li>
-<p>Nested entity declarations inside another entity must be properly escaped:</p>
-</li>
+<li>If the included DTD (<code>%local_dtd;</code>) contains markup declarations, use a <strong>dummy element</strong> (e.g., <code>&lt;!ELEMENT aa (bb'&gt;</code>) to absorb conflicts and prevent parser errors.</li>
+</ul>
+<ol start="2">
+<li>Correct Entity Nesting and Escaping</li>
+</ol>
+<ul>
+<li>Nested entity declarations inside another entity must be properly escaped:</li>
 <li>Use <code>&amp;#x25;</code> for <code>%</code>, <code>&amp;#x26;</code> for <code>&amp;</code> and `&#x27;for  quotes.</li>
 <li>"Example"</li>
-<li>
-<p>Failure to escape these characters often results in <strong>markup declaration errors</strong>.</p>
-</li>
-<li>
-<p>Order of Expansion</p>
-</li>
-<li>
-<p>Define and expand entities in the correct sequence:</p>
-</li>
+<li>Failure to escape these characters often results in <strong>markup declaration errors</strong>.</li>
+</ul>
+<ol start="3">
+<li>Order of Expansion</li>
+</ol>
+<ul>
+<li>Define and expand entities in the correct sequence:</li>
 <li>Override entities first.</li>
 <li>Expand <code>%eval;</code> and <code>%error;</code> before including <code>%local_dtd;</code>.</li>
-<li>
-<p>Incorrect ordering can cause the parser to reject the payload.</p>
-</li>
-<li>
-<p>Include a Structural Padding</p>
-</li>
-<li>
-<p>When including external DTDs, add a placeholder declaration like:</p>
-</li>
+<li>Incorrect ordering can cause the parser to reject the payload.</li>
+</ul>
+<ol start="4">
+<li>Include a Structural Padding</li>
 </ol>
+<ul>
+<li>When including external DTDs, add a placeholder declaration like:</li>
+</ul>
 <pre class="highlight"><code class="language-xml">  &lt;!ELEMENT aa (bb'&gt;</code></pre>
 <ul>
-<li>
-<p>This prevents syntax conflicts when the external DTD introduces new declarations.</p>
-</li>
-<li>
-<p>Use Parameter Entities for Injection</p>
-</li>
-<li>
-<p>Always use <strong>parameter entities</strong> (<code>%</code>) for overriding and chaining.</p>
-</li>
+<li>This prevents syntax conflicts when the external DTD introduces new declarations.</li>
+</ul>
+<ol start="5">
+<li>Use Parameter Entities for Injection</li>
+</ol>
+<ul>
+<li>Always use <strong>parameter entities</strong> (<code>%</code>) for overriding and chaining.</li>
 <li>Example:</li>
 </ul>
 <pre class="highlight"><code class="language-xml">  &lt;!ENTITY % file SYSTEM "file:///etc/passwd"&gt;</code></pre>
-<ol>
-<li>
-<p>Error-Based Exfiltration Logic</p>
-</li>
-<li>
-<p>Ensure the payload triggers an error that includes the file content:</p>
-</li>
+<ol start="6">
+<li>Error-Based Exfiltration Logic</li>
+</ol>
+<ul>
+<li>Ensure the payload triggers an error that includes the file content:</li>
 <li>Reference a non-existent file concatenated with the target file content.</li>
 <li>Example:</li>
-</ol>
+</ul>
 <pre class="highlight"><code class="language-xml">    &lt;!ENTITY % eval "&lt;!ENTITY &amp;#x25; error SYSTEM 'file:///nonexistent/%file;'&gt;"&gt;</code></pre>
-<ol>
-<li>
-<p>Compatibility with Target DTD</p>
-</li>
-<li>
-<p>The chosen local DTD must allow parameter entity overrides.</p>
-</li>
-<li>Common candidates: <code>fonts.dtd</code>, <code>docbook.dtd</code>, <code>jspxml.dtd</code></li>
+<ol start="7">
+<li>Compatibility with Target DTD</li>
 </ol>
+<ul>
+<li>The chosen local DTD must allow parameter entity overrides.</li>
+<li>Common candidates: <code>fonts.dtd</code>, <code>docbook.dtd</code>, <code>jspxml.dtd</code></li>
+</ul>
 <h3 id="bonus-track">Bonus track</h3>
 <p>The same way we can read files by attaching its content to the error message, we can twist the payload a little bit to enumerate other internal services. In stead of defining <code>file:///etc/passwd</code> we can define connections to internal resources and read the responses from it (for example an admin dashboard hosted in <a href="http://localhost:8080">http://localhost:8080</a>).</p>
 <h2 id="oob-lfi-using-malicious-dtds">OOB LFI using malicious DTDs</h2>
