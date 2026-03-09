@@ -251,19 +251,19 @@ Creating a working payload for local DTD-based XXE exploitation requires careful
 - All markup declarations (`<!ELEMENT>`, `<!ENTITY>`) must appear in a proper order.
 - If the included DTD (`%local_dtd;`) contains markup declarations, use a **dummy element** (e.g., `<!ELEMENT aa (bb'>`) to absorb conflicts and prevent parser errors.
 
-1. Correct Entity Nesting and Escaping
+2. Correct Entity Nesting and Escaping
 
 - Nested entity declarations inside another entity must be properly escaped:
-  - Use `&#x25;` for `%`, `&#x26;` for `&` and `&#x27;` for quotes.
-  - Example: 
-
-```xml
-<!ENTITY % eval "<!ENTITY &#x25; error SYSTEM 'file:///path/%file;'>">           
-```
+  * Use `&#x25;` for `%`, `&#x26;` for `&` and `&#x27;for  quotes.
+  * "Example"
+  
+    ```xml
+    <!ENTITY % eval "<!ENTITY &#x25; error SYSTEM 'file:///path/%file;'>">
+    ```
 
 - Failure to escape these characters often results in **markup declaration errors**.
 
-1. Order of Expansion
+3. Order of Expansion
 
 - Define and expand entities in the correct sequence:
 - Override entities first.
