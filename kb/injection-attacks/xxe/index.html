@@ -227,7 +227,11 @@ If the application returns error messages, the response will include something l
 <ul>
 <li>Nested entity declarations inside another entity must be properly escaped:</li>
 <li>Use <code>&amp;#x25;</code> for <code>%</code>, <code>&amp;#x26;</code> for <code>&amp;</code> and `&#x27;for  quotes.</li>
-<li>"Example"</li>
+<li>Example:</li>
+</ul>
+<p><code>xml
+    &lt;!ENTITY % eval "&lt;!ENTITY &amp;#x25; error SYSTEM 'file:///path/%file;'&gt;"&gt;</code></p>
+<ul>
 <li>Failure to escape these characters often results in <strong>markup declaration errors</strong>.</li>
 </ul>
 <ol start="3">
