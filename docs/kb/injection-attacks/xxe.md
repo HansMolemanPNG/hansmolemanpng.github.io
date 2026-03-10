@@ -121,21 +121,21 @@ This means the vulnerability is an opt-out problem in some stacks (Java) but clo
 
 Different parsers behave differently. Some are vulnerable by default, some require specific flags to become vulnerable, and some have been hardened over time:
 
-| Parser | Language | External Entities | Parameter Entities | DTD Processing | Risk Assessment |
-|--------|----------|------------------|--------------------|----------------|-----------------|
-| `DocumentBuilderFactory` | Java | ✅ On by default | ✅ On by default | ✅ On | Vulnerable by default — must be hardened explicitly |
-| `SAXParserFactory` | Java | ✅ On by default | ✅ On by default | ✅ On | Vulnerable by default — must be hardened explicitly |
-| `XMLReader` | Java | ✅ On by default | ✅ On by default | ✅ On | Vulnerable by default — must be hardened explicitly |
-| `lxml` (etree) | Python | ❌ Off by default | ❌ Off | ✅ On | Usually safe — secure defaults since 2.x |
-| `xml.etree.ElementTree` | Python | ❌ No DTD support | ❌ No | ❌ No | Usually safe — limited parser, relies on expat |
-| `xml.dom.minidom` | Python | ⚠️ Depends on SAX config | ❌ No | ⚠️ Partial | Version-dependent — underlying SAX parser behavior varies |
-| `SimpleXML` | PHP | ⚠️ Off unless `LIBXML_NOENT` | ❌ Off | ✅ On | Requires insecure flags — safe unless developer enables it |
-| `DOMDocument` | PHP | ⚠️ Off unless `LIBXML_NOENT` | ❌ Off | ✅ On | Requires insecure flags — safe unless developer enables it |
-| `XmlDocument` | .NET | ⚠️ Changed across versions | ⚠️ Varies | ✅ On | Version-dependent — < 4.5.2 vulnerable, ≥ 4.5.2 safe unless XmlResolver set |
-| `XDocument` | .NET | ❌ Off by default | ❌ Off | ✅ On | Usually safe — since .NET 4.5.2 |
-| `Nokogiri` | Ruby | ❌ Off by default | ❌ Off | ✅ On | Usually safe — treats documents as untrusted by default |
-| `REXML` | Ruby | ⚠️ Partial support | ❌ No | ⚠️ Partial | Version-dependent — partial and inconsistent support |
-| `libxml2` (C) | C/C++ | ⚠️ Off unless flags set | ⚠️ Off unless flags | ✅ On | Requires insecure flags — `XML_PARSE_NOENT` or similar |
+| Parser | Language | Ext. Entities | Param. Entities | DTD | Risk |
+|--------|----------|--------------|-----------------|-----|------|
+| `DocumentBuilderFactory` | Java | ✅ Default on | ✅ Default on | ✅ | Vulnerable by default |
+| `SAXParserFactory` | Java | ✅ Default on | ✅ Default on | ✅ | Vulnerable by default |
+| `XMLReader` | Java | ✅ Default on | ✅ Default on | ✅ | Vulnerable by default |
+| `lxml` (etree) | Python | ❌ Default off | ❌ Off | ✅ | Safe (secure defaults since 2.x) |
+| `xml.etree.ElementTree` | Python | ❌ No DTD | ❌ No | ❌ | Safe (limited parser, expat) |
+| `xml.dom.minidom` | Python | ⚠️ SAX-dependent | ❌ No | ⚠️ | Version-dependent |
+| `SimpleXML` | PHP | ⚠️ Needs `LIBXML_NOENT` | ❌ Off | ✅ | Safe unless flag enabled |
+| `DOMDocument` | PHP | ⚠️ Needs `LIBXML_NOENT` | ❌ Off | ✅ | Safe unless flag enabled |
+| `XmlDocument` | .NET | ⚠️ Version-dependent | ⚠️ Varies | ✅ | Vulnerable < 4.5.2 |
+| `XDocument` | .NET | ❌ Default off | ❌ Off | ✅ | Safe since .NET 4.5.2 |
+| `Nokogiri` | Ruby | ❌ Default off | ❌ Off | ✅ | Safe by default |
+| `REXML` | Ruby | ⚠️ Partial | ❌ No | ⚠️ | Version-dependent |
+| `libxml2` (C) | C/C++ | ⚠️ Needs flags | ⚠️ Needs flags | ✅ | Needs `XML_PARSE_NOENT` |
 
 Key observations from a pentesting perspective:
 
