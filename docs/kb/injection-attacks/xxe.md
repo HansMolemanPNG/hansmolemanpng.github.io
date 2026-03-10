@@ -4,6 +4,108 @@ excerpt: XXE attack taxonomy, parser behaviour, exploitation model, identificati
 tags: XXE, XML, SSRF, LFI, OOB, DTD, Blind XXE, SOAP
 ---
 
+# XML Fundamentals
+
+Before diving into XXE exploitation it is important to understand the basics of XML and how parsers work. If you are already familiar with XML, DTDs and entity resolution you can skip this section and go straight to the [XXE Taxonomy](#xxe-taxonomy).
+
+## What is XML
+
+XML (eXtensible Markup Language) is a format for storing and transporting structured data. It looks similar to HTML but unlike HTML, XML lets you define your own tags. Here is a simple XML document:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<user>
+  <name>John Doe</name>
+  <email>john@example.com</email>
+  <role>admin</role>
+</user>
+```
+
+The first line (`<?xml version="1.0"?>`) is the XML declaration. Everything else is structured data using custom tags. Applications use XML to exchange information between systems, store configuration files, define API requests and much more.
+
+## What is an XML Parser
+
+An XML parser is a piece of software that reads XML documents and makes their content available to the application. When a web application receives XML data (for example in an API request), it passes that data to the parser. The parser reads the XML structure, validates it and converts it into something the application can work with.
+
+The key thing to understand is that the parser does not just read the data — it also **processes instructions** embedded in the XML document. This is where the security problem begins, because some of those instructions can tell the parser to read files from the server or make network requests.
+
+## What is a DTD
+
+A DTD (Document Type Definition) is a set of rules that defines the structure of an XML document. DTDs are declared at the beginning of an XML document using the `<!DOCTYPE>` declaration. Inside the DTD you can define elements, attributes and **entities**.
+
+```xml
+<?xml version="1.0"?>
+<!DOCTYPE note [
+  <!ELEMENT note (to, from, message)>
+  <!ELEMENT to (#PCDATA)>
+  <!ELEMENT from (#PCDATA)>
+  <!ELEMENT message (#PCDATA)>
+]>
+<note>
+  <to>Alice</to>
+  <from>Bob</from>
+  <message>Hello</message>
+</note>
+```
+
+In this example the DTD defines that a `note` element must contain `to`, `from` and `message` elements, and each of those contains text data (`#PCDATA`).
+
+## What are Entities
+
+Entities are like variables in XML. You define them in the DTD and reference them in the document body. When the parser encounters an entity reference it replaces it with the entity's value.
+
+```xml
+<?xml version="1.0"?>
+<!DOCTYPE greeting [
+  <!ENTITY name "World">
+]>
+<greeting>Hello &name;!</greeting>
+```
+
+When parsed, `&name;` gets replaced with "World", so the result is "Hello World!".
+
+There are two types of entities that matter for XXE:
+
+**Internal entities** have their value defined directly in the DTD. The example above (`<!ENTITY name "World">`) is an internal entity. Nothing dangerous here.
+
+**External entities** tell the parser to fetch their value from an outside source using the `SYSTEM` keyword:
+
+```xml
+<!ENTITY xxe SYSTEM "file:///etc/passwd">
+```
+
+This tells the parser: "go read the file `/etc/passwd` and use its contents as the value of this entity". This is where XXE attacks come from. If the parser obeys this instruction, the attacker can read any file the server has access to.
+
+## What are Parameter Entities
+
+Parameter entities are a special type of entity that can only be used inside DTD declarations (not in the document body). They are declared with `%` instead of just a name:
+
+```xml
+<!ENTITY % filename SYSTEM "file:///etc/passwd">
+```
+
+And they are referenced with `%name;` instead of `&name;`:
+
+```xml
+%filename;
+```
+
+Why do they matter? Because parameter entities can define other entities. This creates a chain where one entity sets up another entity which sets up another. This chaining ability is what makes advanced XXE techniques (like blind exfiltration and OOB attacks) possible. We will see this in detail later.
+
+## How Entity Resolution Creates the Vulnerability
+
+When the parser encounters `<!ENTITY xxe SYSTEM "file:///etc/passwd">` followed by `&xxe;` in the document, it does the following:
+
+1. Reads the DOCTYPE and registers the entity `xxe` with its SYSTEM identifier
+2. When it encounters `&xxe;` in the document body, looks up the entity
+3. Sees the `SYSTEM` keyword and attempts to fetch `file:///etc/passwd`
+4. Reads the file content and substitutes it in place of `&xxe;`
+5. Continues parsing the document with the substituted content
+
+The vulnerability is at step 3. The parser fetches whatever resource the entity points to without questioning whether it should. If the attacker controls the XML input, they control what the parser fetches.
+
+---
+
 # Context of XXE
 
 Many legacy and modern applications rely on the XML format to consume, store and manage data from several sources. Nowadays we have other and more efficient ways of processing data like JSON, but due to the widespread adoption of XML many products still use it extensively. XML supports custom tags, DTD definitions and schema validation which makes it very flexible but also introduces attack surface through its entity resolution mechanism.
@@ -87,27 +189,17 @@ XXE ATTACK TAXONOMY
 
 # Parser Behaviour
 
-XXE exists because of how XML parsers handle entity resolution. Understanding parser internals is critical for both exploitation and defense since the vulnerability is not in the XML spec itself but in how parsers implement it.
+The [XML Fundamentals](#xml-fundamentals) section explains what entities are and how resolution works at a conceptual level. This section goes deeper into how different parsers implement entity resolution and why some are vulnerable while others are not.
 
-## How XML Entity Resolution Works
+## What Happens When Resolution Goes Wrong
 
-A useful way to think about it: the XML parser is an interpreter, entities are its variables, external entities are file and network I/O operations, and parameter entities are a meta-programming layer that lets you define new variables dynamically inside the DTD. When the parser encounters an entity reference like `&xxe;` it needs to resolve it. The resolution process follows these steps:
+As covered in the fundamentals, the parser resolves entities by fetching whatever resource the `SYSTEM` identifier points to. But what happens when the fetched content causes problems?
 
-1. Parser reads the DOCTYPE declaration and processes internal/external DTD subsets
-2. Entity declarations are registered (both general entities and parameter entities)
-3. When the parser encounters an entity reference in the document body, it looks up the registered entity
-4. If the entity has a `SYSTEM` identifier the parser attempts to fetch the resource (file, HTTP, FTP, etc)
-5. The fetched content replaces the entity reference in the document
+- If the file contains characters that are special in XML (`<`, `>`, `&`) the parser throws an error because the substituted content breaks the XML structure. This is why techniques like base64 encoding (php://filter) and error-based exfiltration exist — they work around this limitation.
+- If the entity points to an HTTP URL, the parser makes an actual HTTP request to that URL. The response body replaces the entity. This is the foundation of both SSRF and OOB exfiltration.
+- If the entity points to a resource that does not exist, the parser generates an error message that often includes the path it tried to resolve. Attackers exploit this behavior to leak data through error messages.
 
-The vulnerability happens at step 4. If the parser resolves external entities without restriction, the attacker controls what resources the server fetches.
-
-## Parameter Entities vs General Entities
-
-There are two types of entities and understanding the difference is important for payload crafting:
-
-**General entities** are declared with `<!ENTITY name "value">` and referenced with `&name;` in the document body. These are the most basic form of XXE.
-
-**Parameter entities** are declared with `<!ENTITY % name "value">` and referenced with `%name;` only within DTD declarations. These are critical for blind XXE because they allow chaining: one entity can define another entity which can define another. This chaining is what makes OOB exfiltration and error-based techniques possible.
+Understanding these failure modes is critical because many of the advanced techniques in this KB are built specifically to exploit them.
 
 ## Why Parsers Are (or Were) Vulnerable
 
@@ -171,19 +263,6 @@ Key observations from a pentesting perspective:
 - .NET changed defaults in version 4.5.2. Applications running on older .NET frameworks or using custom `XmlResolver` configurations are likely vulnerable.
 - Python's `lxml` has been safe by default for years but `xml.dom.minidom` behavior depends on the underlying SAX parser configuration which may vary.
 - Ruby's Nokogiri treats documents as untrusted by default, making XXE unlikely unless the developer overrides this behavior.
-
-## What Happens During Resolution
-
-When a parser resolves `<!ENTITY xxe SYSTEM "file:///etc/passwd">` the sequence is:
-
-1. Parser opens a stream to `file:///etc/passwd`
-2. Reads the file content into memory
-3. Substitutes the entity reference `&xxe;` with the file content
-4. Continues parsing the document with the substituted content
-
-If the file content contains characters that are special in XML (`<`, `>`, `&`) the parser may throw an error because the substituted content breaks the XML structure. This is why techniques like base64 encoding (php://filter), error-based exfiltration and CDATA wrappers exist.
-
-For external HTTP entities the parser makes an HTTP request to the specified URL. The response body replaces the entity. This is the foundation of both SSRF and OOB exfiltration.
 
 ## Protocols Supported by Parsers
 
@@ -562,9 +641,9 @@ Server-Side Request Forgery (SSRF) is a web security vulnerability that allows a
 
 ## Out-of-Band (OOB) Exfiltration via Malicious DTDs
 
-One variant of SSRF also leads into OOB attacks when the firewall protection of the affected application is poor. OOB allows the attacker to perform connections to third-party sources (mainly attacker-controlled servers) which allows the delivery of malicious content that can interact with the vulnerable server. In some cases where direct LFI is not possible, the attacker may use this technique to exfiltrate data to a controlled server.
+Up to this point, all techniques assume the server sends back the file content or error message in its response. But what happens when the application does not return anything useful? The response is a generic 200 OK or blank page, and nothing we inject shows up anywhere. This is called **blind XXE** — the vulnerability exists but we cannot see the output directly.
 
-When the application does not reflect XML entity content in its response, direct file inclusion fails. Instead, we leverage the XML parser's ability to fetch external resources and send sensitive data to an attacker-controlled endpoint. This works because many XML parsers allow external entity resolution by default, enabling them to retrieve additional DTDs or resources from remote servers.
+The solution is to make the server send the data somewhere else — to a server we control. This is the "out-of-band" part: instead of reading the data in the response, we receive it on a separate channel. The XML parser's ability to fetch external resources works in our favor here because we can make it send HTTP requests that contain the stolen data in the URL.
 
 **Key Concept:** The parser processes the XML input and resolves entities. If an entity points to an external resource (HTTP, HTTPS, or even FTP), the parser will attempt to fetch it. We exploit this behavior to send data out-of-band.
 
@@ -574,7 +653,19 @@ The core idea is simple:
 - Reference this DTD from the vulnerable XML payload.
 - Use parameter entities in the malicious DTD to read local files and send their contents via HTTP requests.
 
-**Why parameter entities?** Parameter entities (denoted by `%`) are special entities used in DTDs. They allow us to inject additional declarations dynamically. This is crucial because we need to define new entities that perform the exfiltration logic.
+**Why parameter entities?** This is where parameter entities (covered in [XML Fundamentals](#what-are-parameter-entities)) become essential. We need to chain multiple operations: first read a file, then embed the file contents into a URL, then make the parser visit that URL. Regular entities cannot do this because they only work in the document body. Parameter entities work inside DTD declarations so we can define one entity that reads a file, then define another entity that uses the first entity's value inside a URL.
+
+Think of it like a pipeline: `read file → put content in URL → send HTTP request`. Each step is a parameter entity that feeds into the next one.
+
+### Understanding the Escape Characters
+
+Before we look at the payload, there is one more concept to understand. When you define an entity inside another entity (which is what we need for chaining), the XML parser gets confused by the `%` character because it tries to resolve it immediately. To prevent this, we use **XML character references** — a way of writing special characters using their numeric code:
+
+- `&#x25;` = `%` (the percent sign)
+- `&#x26;` = `&` (the ampersand)
+- `&#x27;` = `'` (single quote)
+
+So when you see `&#x25;` in a payload, just read it as `%`. The parser will convert it back to `%` at the right moment during processing.
 
 ### Step 1: Create a Malicious DTD
 
@@ -642,7 +733,9 @@ When the parser processes this, you should see an HTTP request to your Collabora
 
 ## Error-Based Blind XXE
 
-There are many ways to exfiltrate data using **XXE (XML External Entity)** attacks. However, in some cases, the most common techniques, such as directly including file contents in the XML response, are not enough to successfully read sensitive files. This often happens when the application's default behavior only prints **error-related information** instead of the actual file content.
+OOB exfiltration requires the server to make outbound HTTP connections to our server. But what if the firewall blocks all outbound traffic? In that case, data cannot leave the network through HTTP requests. However, there is another channel we can use: **error messages**.
+
+Many applications return error details when something goes wrong during XML parsing. If we can force the parser to include file contents inside an error message, we can read the data without any outbound connection. The trick is to make the parser try to access a non-existent file path that contains the stolen data — the error message will include the full path, revealing the file contents.
 
 For example, if the application returns error messages like these:
 
