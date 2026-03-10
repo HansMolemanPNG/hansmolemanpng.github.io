@@ -6,11 +6,11 @@ tags: XXE, XML, SSRF, LFI, OOB, DTD, Blind XXE, SOAP
 
 # Context of XXE
 
-Many legacy and modern applications rely on the XML format to consume, store and manage data from several sources. Now a days we have other and more efficient ways of processing data as it may be JSON, but due to the inheritance of XML many products still use it extensively. XML supports custom tags, DTD definitions and schema validation which makes it very flexible but also introduces attack surface trough its entity resolution mechanism.
+Many legacy and modern applications rely on the XML format to consume, store and manage data from several sources. Nowadays we have other and more efficient ways of processing data like JSON, but due to the widespread adoption of XML many products still use it extensively. XML supports custom tags, DTD definitions and schema validation which makes it very flexible but also introduces attack surface through its entity resolution mechanism.
 
 ## What is it
 
-An XML External Entity attack is a type of attack against an application that parses non-validated XML input. This attack occurs when XML input containing a reference to an external entity is processed by a weakly configured XML parser. Those external entities are defined by the attacker and they can lead to several side effects like data exfiltration, Server-Side Request Forgery (SSRF), denial of service or even, in very specifc scenarios, Remote Code Execution (RCE).
+An XML External Entity attack is a type of attack against an application that parses non-validated XML input. This attack occurs when XML input containing a reference to an external entity is processed by a weakly configured XML parser. These external entities are defined by the attacker and they can lead to several side effects like data exfiltration, Server-Side Request Forgery (SSRF), denial of service or even, in very specific scenarios, Remote Code Execution (RCE).
 **Example of external entity**:
 
 ```XML
@@ -26,7 +26,7 @@ In this example the attacker is defining the entity "example", assigning the val
 
 ## Requirements
 
-The XXE attacks requires from the application to accept XML from uncontrolled sources and parse it in an insecure way. Many XML parser by default require the developer to limit their capabilities by setting different flags in the component that uses it.
+XXE attacks require the application to accept XML from uncontrolled sources and parse it in an insecure way. Many XML parsers by default require the developer to limit their capabilities by setting different flags in the component that uses it.
 
 ---
 
@@ -91,7 +91,7 @@ XXE exists because of how XML parsers handle entity resolution. Understanding pa
 
 ## How XML Entity Resolution Works
 
-When an XML parser encounters an entity reference like `&xxe;` it needs to resolve it. The resolution process follows these steps:
+A useful way to think about it: the XML parser is an interpreter, entities are its variables, external entities are file and network I/O operations, and parameter entities are a meta-programming layer that lets you define new variables dynamically inside the DTD. When the parser encounters an entity reference like `&xxe;` it needs to resolve it. The resolution process follows these steps:
 
 1. Parser reads the DOCTYPE declaration and processes internal/external DTD subsets
 2. Entity declarations are registered (both general entities and parameter entities)
@@ -128,7 +128,7 @@ Different parsers behave differently. Some are vulnerable by default, some requi
 | `XMLReader` | Java | ✅ On by default | ✅ On by default | ✅ On | Vulnerable by default — must be hardened explicitly |
 | `lxml` (etree) | Python | ❌ Off by default | ❌ Off | ✅ On | Usually safe — secure defaults since 2.x |
 | `xml.etree.ElementTree` | Python | ❌ No DTD support | ❌ No | ❌ No | Usually safe — limited parser, relies on expat |
-| `xml.dom.minidom` | Python | ⚠️ Depends on expat | ❌ No | ⚠️ Partial | Version-dependent — expat behavior varies |
+| `xml.dom.minidom` | Python | ⚠️ Depends on SAX config | ❌ No | ⚠️ Partial | Version-dependent — underlying SAX parser behavior varies |
 | `SimpleXML` | PHP | ⚠️ Off unless `LIBXML_NOENT` | ❌ Off | ✅ On | Requires insecure flags — safe unless developer enables it |
 | `DOMDocument` | PHP | ⚠️ Off unless `LIBXML_NOENT` | ❌ Off | ✅ On | Requires insecure flags — safe unless developer enables it |
 | `XmlDocument` | .NET | ⚠️ Changed across versions | ⚠️ Varies | ✅ On | Version-dependent — < 4.5.2 vulnerable, ≥ 4.5.2 safe unless XmlResolver set |
@@ -139,10 +139,10 @@ Different parsers behave differently. Some are vulnerable by default, some requi
 
 Key observations from a pentesting perspective:
 
-- Java parsers are the most consistently vulnerable out of the box. If the target runs Java, XXE should be high on the testing list.
+- Historically Java XML parsers have required explicit hardening and many frameworks still rely on insecure defaults. If the target runs Java, XXE should be high on the testing list.
 - PHP requires the `LIBXML_NOENT` flag to enable entity substitution. The vulnerability often comes from developers explicitly enabling it or from legacy code that predates current best practices.
 - .NET changed defaults in version 4.5.2. Applications running on older .NET frameworks or using custom `XmlResolver` configurations are likely vulnerable.
-- Python's `lxml` has been safe by default for years but `xml.dom.minidom` behavior depends on the underlying expat version and configuration.
+- Python's `lxml` has been safe by default for years but `xml.dom.minidom` behavior depends on the underlying SAX parser configuration which may vary.
 - Ruby's Nokogiri treats documents as untrusted by default, making XXE unlikely unless the developer overrides this behavior.
 
 ## What Happens During Resolution
@@ -263,11 +263,27 @@ The following diagram represents the full exploitation model for XXE attacks. It
 
 ---
 
-# Identifying XXE on REST APIs
+# Identifying XXE
 
-The only way to properly identify if an application is vulnerable to XXE is by exploiting it. To minimize the risk of information leak and damage de server we can try to either reflect a string coming from external entity or read a harmless file like hosts file.
+## When to Suspect XXE
 
-Some scenarios would require from further testing since the entry point of the attack would not properly reflect our payload in the response. In this kind of scenarios we can rely on errors coming from the application to identify the exploitability.
+Before diving into payloads, it helps to know when XXE testing is worth prioritizing. These are the most common real-world scenarios where XXE shows up:
+
+- APIs that accept structured data in XML format (REST, SOAP)
+- SAML-based authentication workflows (SSO implementations)
+- Document conversion pipelines (PDF generators, report engines)
+- File upload endpoints that process SVG, XLSX, DOCX or other XML-based formats
+- Configuration import features (XML config files, backup restores)
+- RSS/Atom feed aggregation systems
+- Any legacy enterprise system that predates JSON adoption
+
+If the target matches any of these patterns and especially if it runs Java, it is worth spending time on XXE testing.
+
+## Testing on REST APIs
+
+The most reliable way to confirm XXE is by triggering entity resolution. To minimize the risk of information leaks and damage to the server we can try to either reflect a string from an external entity or read a harmless file like the hosts file.
+
+Some scenarios would require further testing since the entry point of the attack would not properly reflect our payload in the response. In these cases we can rely on errors coming from the application to identify the exploitability.
 
 ### Test 1: Simple Entity Reflection
 
@@ -339,7 +355,7 @@ In this case we can see that the URL is malformed and in the same real exploitat
 
 ### Test 5: OOB Callback
 
-Another method that may worth trying (but is more noisy than the above mentioned) is to try a basic OOB connection to a server controlled by us. In this scenario we may face some limitations due to possible network restrictions (firewall blocking connections to external sources, SIEM detections, etc):
+Another method worth trying (but noisier than the ones above) is a basic OOB connection to a server controlled by us. In this scenario we may face some limitations due to possible network restrictions (firewall blocking connections to external sources, SIEM detections, etc):
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -351,7 +367,7 @@ Another method that may worth trying (but is more noisy than the above mentioned
 
 ### Behavioral Analysis (No Error Output)
 
-The last and most extreme case would be that the application target does not return any error information at all and it does not print the injected entities in the response. In this case we can either try an OOB connection or analyze the application behavior. Let say the target application returns 200 ok with the legitimate request and when trying to exfiltrate the /etc/passwd returns nothing but 200 ok. The most common behavior will be that if the malicious XML triggers an error we see a 500 error. At this step we have to be very careful to avoid errors resulting from XML syntax errors. With a well formed XML structure we can ensure that the errors come from the malicious actions we define.
+The last and most extreme case would be that the target application does not return any error information at all and does not print the injected entities in the response. In this case we can either try an OOB connection or analyze the application behavior. Let's say the target returns 200 OK with the legitimate request and when trying to exfiltrate `/etc/passwd` returns nothing but 200 OK. The most common behavior will be that if the malicious XML triggers an error we see a 500 error. At this step we have to be very careful to avoid errors resulting from XML syntax errors. With a well-formed XML structure we can ensure that the errors come from the malicious actions we define.
 
 Pattern to look for:
 
@@ -450,7 +466,7 @@ These are the standard XXE exploitation techniques. They work on most vulnerable
 
 ## Local File Inclusion (LFI)
 
-XML LFI payloads usually result on the application returning the contents of the file requested.
+XML LFI payloads usually result in the application returning the contents of the file requested.
 
 ```XML
 <?xml version="1.0" encoding="ISO-8859-1"?>
@@ -519,7 +535,7 @@ Server-Side Request Forgery (SSRF) is a web security vulnerability that allows a
 
 ## Out-of-Band (OOB) Exfiltration via Malicious DTDs
 
-One variant of SSRF also leads into OOB attacks when the firewall protection of the affected application is poor. OOB allows the attacker to perform connections to third-party sources (mainly attacker controlled servers) which allows the delivery of malicious content that can interact with the vulnerable server. In some cases where the direct LFI is not possible, the attacker may use this technique to exfiltrate data to some controlled server.
+One variant of SSRF also leads into OOB attacks when the firewall protection of the affected application is poor. OOB allows the attacker to perform connections to third-party sources (mainly attacker-controlled servers) which allows the delivery of malicious content that can interact with the vulnerable server. In some cases where direct LFI is not possible, the attacker may use this technique to exfiltrate data to a controlled server.
 
 When the application does not reflect XML entity content in its response, direct file inclusion fails. Instead, we leverage the XML parser's ability to fetch external resources and send sensitive data to an attacker-controlled endpoint. This works because many XML parsers allow external entity resolution by default, enabling them to retrieve additional DTDs or resources from remote servers.
 
@@ -640,7 +656,7 @@ errorMessage: "/nonexistent/root:x:0:0:root:/root:/bin/bash"
 
 ### Bonus track
 
-The same way we can read files by attaching its content to the error message, we can twist the payload a little bit to enumerate other internal services. In stead of defining `file:///etc/passwd` we can define connections to internal resources and read the responses from it (for example an admin dashboard hosted in <http://localhost:8080>):
+The same way we can read files by attaching their content to the error message, we can twist the payload a little bit to enumerate other internal services. Instead of defining `file:///etc/passwd` we can define connections to internal resources and read the responses from them (for example an admin dashboard hosted at <http://localhost:8080>):
 
 ```xml
 <!ENTITY % file SYSTEM "http://localhost:8080/admin/dashboard">
@@ -651,7 +667,7 @@ The same way we can read files by attaching its content to the error message, we
 
 ## Denial of Service
 
-XML has a feature that allows to expand entities in a recursive way by referencing them in loop. While this cannot be considered an external entity attack, worth mentioning it due to the impact that may cause in the application. If the parser is not well configured those entities will kept being called until the application consume their resources. The most famous resource exhaustion attack is the Billion Laughs DoS. While this attack is mostly mitigated in modern XML parsers, it provides very useful context on how XML works.
+XML has a feature that allows expanding entities in a recursive way by referencing them in a loop. While this cannot be considered an external entity attack, it is worth mentioning due to the impact it may cause in the application. If the parser is not well configured those entities will keep being called until the application consumes its resources. The most famous resource exhaustion attack is the Billion Laughs DoS. While this attack is mostly mitigated in modern XML parsers, it provides very useful context on how XML works.
 
 ```XML
 <?xml version="1.0" encoding="utf-8"?>
@@ -665,7 +681,7 @@ XML has a feature that allows to expand entities in a recursive way by referenci
 <laugh>&LOL3;</laugh>
 ```
 
-Above payload makes the XML parser to expands each of the entities, generating a large number of "LOLs". Above payload would generate hundred of thousands "LOL" strings but a full scale payload would generate literally "Billions" of "LOL" strings.
+The above payload makes the XML parser expand each of the entities, generating a large number of "LOLs". This payload would generate hundreds of thousands of "LOL" strings but a full scale payload would generate literally "Billions" of "LOL" strings.
 
 Simpler variant (Quadratic Blowup):
 
@@ -935,7 +951,7 @@ XInclude also supports fallback elements when the primary include fails:
 
 ## Content-Type Switching
 
-Some APIs accept multiple content types and internally convert between formats. Many parsers dont validate the actual content against the declared content-type so we can try submitting XML payloads with different headers.
+Some APIs accept multiple content types and internally convert between formats. Many parsers don't validate the actual content against the declared content-type so we can try submitting XML payloads with different headers.
 
 ### JSON to XML
 
@@ -1004,7 +1020,7 @@ The error message will contain the file contents including the special character
 
 # Advanced Techniques
 
-These techniques require specific technology stacks, rare configurations or complex payload crafting. They are not the first thing to try but can be critical when standard techniques fail. This section also includes environment-specific escalation paths (like RCE trough PHP expect:// or Java deserialization) which depend on very particular conditions in the target.
+These techniques require specific technology stacks, rare configurations or complex payload crafting. They are not the first thing to try but can be critical when standard techniques fail. This section also includes environment-specific escalation paths (like RCE through PHP expect:// or Java deserialization) which depend on very particular conditions in the target.
 
 ## Local System DTD Exploitation (Blind XXE)
 
@@ -1171,7 +1187,7 @@ PHP's XML functions support protocol wrappers that extend XXE capabilities beyon
 
 ### expect:// Wrapper (Environment-Specific RCE)
 
-The `expect://` wrapper executes system commands trough PHP. This is one of the few paths from XXE to RCE but it requires the PHP `expect` extension to be installed and enabled which is disabled by default in modern PHP. In practice this is rare but when present the impact is critical:
+The `expect://` wrapper executes system commands through PHP. This is one of the few paths from XXE to RCE but it requires the PHP `expect` extension to be installed and enabled which is disabled by default in modern PHP. In practice this is rare but when present the impact is critical:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -1268,13 +1284,15 @@ Some Java implementations support `netdoc://`:
 
 ### LDAP and RMI
 
-Can trigger LDAP queries for SSRF against internal LDAP servers:
+In Java environments, `ldap://` and `rmi://` URIs in entity declarations can trigger JNDI (Java Naming and Directory Interface) lookups. It is worth noting that in most cases it is not the XML parser itself that resolves these protocols directly — the resolution is delegated to JNDI, which then performs the actual LDAP or RMI lookup. This is an important distinction because it means the attack depends on the JNDI configuration and Java version, not just the XML parser settings.
+
+LDAP example:
 
 ```xml
 <!ENTITY xxe SYSTEM "ldap://ldap.example.com/cn=users,dc=example,dc=com?objectClass?sub">
 ```
 
-Java RMI registries:
+RMI example:
 
 ```xml
 <!ENTITY xxe SYSTEM "rmi://internal-server:1099/object_name">
@@ -1294,7 +1312,7 @@ Java RMI registries:
 | DOCTYPE not allowed error | DOCTYPE explicitly disabled | Use XInclude or file upload techniques |
 | Entity limit exceeded | Billion Laughs protection active | Use single entity; avoid recursive expansion |
 | 403/500 on OOB callback | WAF blocking the request | Obfuscate URL; use different protocols |
-| Parameter entities not expanding | Parser doesnt support them | Use general entities; try XInclude |
+| Parameter entities not expanding | Parser doesn't support them | Use general entities; try XInclude |
 | "Connection refused" on SSRF | Target port not open | Verify port; check firewall |
 | Base64 decoding shows garbage | Filter chain incorrect | Test php://filter chains individually |
 | No error message feedback | Application suppresses errors | Use blind XXE with OOB exfiltration |
