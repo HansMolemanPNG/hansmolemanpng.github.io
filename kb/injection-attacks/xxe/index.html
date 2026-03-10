@@ -134,11 +134,42 @@
 <p>This means the vulnerability is an opt-out problem in some stacks (Java) but closer to opt-in in others (modern PHP, Python, .NET). The practical implication for pentesting is that the technology stack matters a lot when assessing XXE likelihood. Legacy applications and older framework versions remain the most common targets.</p>
 <h2 id="parser-behaviour-by-language">Parser Behaviour by Language</h2>
 <p>Different parsers behave differently. Some are vulnerable by default, some require specific flags to become vulnerable, and some have been hardened over time:</p>
+<p><strong>Java</strong> — All parsers vulnerable by default, must be hardened explicitly.</p>
 <table>
 <thead>
 <tr>
 <th>Parser</th>
-<th>Language</th>
+<th>External Entities</th>
+<th>Parameter Entities</th>
+<th>DTD Processing</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>DocumentBuilderFactory</code></td>
+<td>✅ On by default</td>
+<td>✅ On by default</td>
+<td>✅ On</td>
+</tr>
+<tr>
+<td><code>SAXParserFactory</code></td>
+<td>✅ On by default</td>
+<td>✅ On by default</td>
+<td>✅ On</td>
+</tr>
+<tr>
+<td><code>XMLReader</code></td>
+<td>✅ On by default</td>
+<td>✅ On by default</td>
+<td>✅ On</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Python</strong> — Defaults vary significantly by parser.</p>
+<table>
+<thead>
+<tr>
+<th>Parser</th>
 <th>External Entities</th>
 <th>Parameter Entities</th>
 <th>DTD Processing</th>
@@ -147,32 +178,7 @@
 </thead>
 <tbody>
 <tr>
-<td><code>DocumentBuilderFactory</code></td>
-<td>Java</td>
-<td>✅ On by default</td>
-<td>✅ On by default</td>
-<td>✅ On</td>
-<td>Vulnerable by default — must be hardened explicitly</td>
-</tr>
-<tr>
-<td><code>SAXParserFactory</code></td>
-<td>Java</td>
-<td>✅ On by default</td>
-<td>✅ On by default</td>
-<td>✅ On</td>
-<td>Vulnerable by default — must be hardened explicitly</td>
-</tr>
-<tr>
-<td><code>XMLReader</code></td>
-<td>Java</td>
-<td>✅ On by default</td>
-<td>✅ On by default</td>
-<td>✅ On</td>
-<td>Vulnerable by default — must be hardened explicitly</td>
-</tr>
-<tr>
 <td><code>lxml</code> (etree)</td>
-<td>Python</td>
 <td>❌ Off by default</td>
 <td>❌ Off</td>
 <td>✅ On</td>
@@ -180,7 +186,6 @@
 </tr>
 <tr>
 <td><code>xml.etree.ElementTree</code></td>
-<td>Python</td>
 <td>❌ No DTD support</td>
 <td>❌ No</td>
 <td>❌ No</td>
@@ -188,31 +193,52 @@
 </tr>
 <tr>
 <td><code>xml.dom.minidom</code></td>
-<td>Python</td>
 <td>⚠️ Depends on SAX config</td>
 <td>❌ No</td>
 <td>⚠️ Partial</td>
 <td>Version-dependent — underlying SAX parser behavior varies</td>
 </tr>
+</tbody>
+</table>
+<p><strong>PHP</strong> — External entities require explicit opt-in via <code>LIBXML_NOENT</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Parser</th>
+<th>External Entities</th>
+<th>Parameter Entities</th>
+<th>DTD Processing</th>
+</tr>
+</thead>
+<tbody>
 <tr>
 <td><code>SimpleXML</code></td>
-<td>PHP</td>
 <td>⚠️ Off unless <code>LIBXML_NOENT</code></td>
 <td>❌ Off</td>
 <td>✅ On</td>
-<td>Requires insecure flags — safe unless developer enables it</td>
 </tr>
 <tr>
 <td><code>DOMDocument</code></td>
-<td>PHP</td>
 <td>⚠️ Off unless <code>LIBXML_NOENT</code></td>
 <td>❌ Off</td>
 <td>✅ On</td>
-<td>Requires insecure flags — safe unless developer enables it</td>
 </tr>
+</tbody>
+</table>
+<p><strong>.NET</strong> — Defaults changed in version 4.5.2.</p>
+<table>
+<thead>
+<tr>
+<th>Parser</th>
+<th>External Entities</th>
+<th>Parameter Entities</th>
+<th>DTD Processing</th>
+<th>Risk Assessment</th>
+</tr>
+</thead>
+<tbody>
 <tr>
 <td><code>XmlDocument</code></td>
-<td>.NET</td>
 <td>⚠️ Changed across versions</td>
 <td>⚠️ Varies</td>
 <td>✅ On</td>
@@ -220,15 +246,27 @@
 </tr>
 <tr>
 <td><code>XDocument</code></td>
-<td>.NET</td>
 <td>❌ Off by default</td>
 <td>❌ Off</td>
 <td>✅ On</td>
 <td>Usually safe — since .NET 4.5.2</td>
 </tr>
+</tbody>
+</table>
+<p><strong>Ruby</strong> — Both parsers default to safe behavior.</p>
+<table>
+<thead>
+<tr>
+<th>Parser</th>
+<th>External Entities</th>
+<th>Parameter Entities</th>
+<th>DTD Processing</th>
+<th>Risk Assessment</th>
+</tr>
+</thead>
+<tbody>
 <tr>
 <td><code>Nokogiri</code></td>
-<td>Ruby</td>
 <td>❌ Off by default</td>
 <td>❌ Off</td>
 <td>✅ On</td>
@@ -236,19 +274,29 @@
 </tr>
 <tr>
 <td><code>REXML</code></td>
-<td>Ruby</td>
 <td>⚠️ Partial support</td>
 <td>❌ No</td>
 <td>⚠️ Partial</td>
 <td>Version-dependent — partial and inconsistent support</td>
 </tr>
+</tbody>
+</table>
+<p><strong>C/C++</strong> — libxml2 requires explicit flags to enable entity resolution.</p>
+<table>
+<thead>
 <tr>
-<td><code>libxml2</code> (C)</td>
-<td>C/C++</td>
+<th>Parser</th>
+<th>External Entities</th>
+<th>Parameter Entities</th>
+<th>DTD Processing</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>libxml2</code></td>
 <td>⚠️ Off unless flags set</td>
 <td>⚠️ Off unless flags</td>
 <td>✅ On</td>
-<td>Requires insecure flags — <code>XML_PARSE_NOENT</code> or similar</td>
 </tr>
 </tbody>
 </table>
