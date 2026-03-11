@@ -129,7 +129,7 @@ In this example the attacker is defining the entity "example", assigning the val
 **Example of external entity**:
 ```XML
 <!--?xml version="1.0" ?-->
-<!DOCTYPE replace [<!ENTITY SYSTEM "file:///etc/passwd"> ]>
+<!DOCTYPE replace [<!ENTITY example SYSTEM "file:///etc/passwd"> ]>
  <userInfo>
   <firstName>John</firstName>
   <lastName>&example;</lastName>
