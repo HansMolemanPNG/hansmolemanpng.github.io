@@ -225,7 +225,7 @@ Different parsers behave differently. Some are vulnerable by default, some requi
 
 | Parser | External Entities | Parameter Entities | DTD Processing | Risk Assessment |
 |--------|------------------|--------------------|----------------|-----------------|
-| `lxml` (etree) | ❌ Off by default | ❌ Off | ✅ On | Usually safe — secure defaults since 2.x |
+| `lxml` (etree) | ❌ Off by default | ❌ Off | ✅ On | Usually safe — secure defaults since 5.x |
 | `xml.etree.ElementTree` | ❌ No DTD support | ❌ No | ❌ No | Usually safe — limited parser, relies on expat |
 | `xml.dom.minidom` | ⚠️ Depends on SAX config | ❌ No | ⚠️ Partial | Version-dependent — underlying SAX parser behavior varies |
 
