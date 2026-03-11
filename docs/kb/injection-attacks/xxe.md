@@ -113,7 +113,7 @@ Many legacy and modern applications rely on the XML format to consume, store and
 ## What is it
 
 An XML External Entity attack is a type of attack against an application that parses non-validated XML input. This attack occurs when XML input containing a reference to an external entity is processed by a weakly configured XML parser. These external entities are defined by the attacker and they can lead to several side effects like data exfiltration, Server-Side Request Forgery (SSRF), denial of service or even, in very specific scenarios, Remote Code Execution (RCE).
-**Example of external entity**:
+**Example of internal entity**:
 
 ```XML
 <!--?xml version="1.0" ?-->
@@ -125,6 +125,18 @@ An XML External Entity attack is a type of attack against an application that pa
 ```
 
 In this example the attacker is defining the entity "example", assigning the value "Doe" to it and then reflecting it in the "lastName" element.
+
+**Example of external entity**:
+```XML
+<!--?xml version="1.0" ?-->
+<!DOCTYPE replace [<!ENTITY SYSTEM "file:///etc/passwd"> ]>
+ <userInfo>
+  <firstName>John</firstName>
+  <lastName>&example;</lastName>
+ </userInfo>
+```
+
+In this example the attacker is defining "example" and assigning the content of "/etc/passwd" as the value. In an ideal situation the content of the file will be printed.
 
 ## Requirements
 
@@ -205,7 +217,7 @@ Understanding these failure modes is critical because many of the advanced techn
 
 Historically, many XML parsers shipped with external entity resolution enabled because the XML specification requires it for full DTD support. The spec was designed in an era where XML documents were trusted and the ability to include external resources was considered a feature not a risk.
 
-In some ecosystems this is still the case. Java parsers in particular remain insecure by default and OWASP still documents that most common Java XML parsers must be explicitly hardened. However, modern runtimes in other languages have improved their defaults considerably: Python's `lxml` has been safe since version 2.x, .NET changed to secure defaults in 4.5.2, PHP requires explicit `LIBXML_NOENT` flag to enable entity substitution, and Ruby's Nokogiri treats documents as untrusted by default.
+In some ecosystems this is still the case. Java parsers in particular remain insecure by default and OWASP still documents that most common Java XML parsers must be explicitly hardened. However, modern runtimes in other languages have improved their defaults considerably: Python's `lxml` has been safe since version 5.x, .NET changed to secure defaults in 4.5.2, PHP requires explicit `LIBXML_NOENT` flag to enable entity substitution, and Ruby's Nokogiri treats documents as untrusted by default.
 
 This means the vulnerability is an opt-out problem in some stacks (Java) but closer to opt-in in others (modern PHP, Python, .NET). The practical implication for pentesting is that the technology stack matters a lot when assessing XXE likelihood. Legacy applications and older framework versions remain the most common targets.
 
