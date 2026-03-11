@@ -122,7 +122,7 @@
 <p>In this example the attacker is defining the entity "example", assigning the value "Doe" to it and then reflecting it in the "lastName" element.</p>
 <p><strong>Example of external entity</strong>:
 <pre class="highlight"><code class="language-XML">&lt;!--?xml version="1.0" ?--&gt;
-&lt;!DOCTYPE replace [&lt;!ENTITY SYSTEM "file:///etc/passwd"&gt; ]&gt;
+&lt;!DOCTYPE replace [&lt;!ENTITY example SYSTEM "file:///etc/passwd"&gt; ]&gt;
  &lt;userInfo&gt;
   &lt;firstName&gt;John&lt;/firstName&gt;
   &lt;lastName&gt;&amp;example;&lt;/lastName&gt;
