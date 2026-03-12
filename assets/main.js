@@ -7,6 +7,17 @@ document.addEventListener('DOMContentLoaded', () => {
     hljs.highlightAll();
   }
 
+  /* ── KB technique tier labels ── */
+  const tierMap = {
+    'Core Techniques':         'tier--core',
+    'Intermediate Techniques': 'tier--intermediate',
+    'Advanced Techniques':     'tier--advanced',
+  };
+  document.querySelectorAll('.article-content h1').forEach(h1 => {
+    const cls = tierMap[h1.textContent.trim()];
+    if (cls) h1.classList.add(cls);
+  });
+
   /* ── Blog post type filter ── */
   const filterBtns = document.querySelectorAll('.filter-btn');
   const postRows   = document.querySelectorAll('.post-row--full');
