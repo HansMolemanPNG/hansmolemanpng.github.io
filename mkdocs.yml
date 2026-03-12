@@ -10,7 +10,11 @@ markdown_extensions:
   - md_in_html
   - sane_lists
   - admonition
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_div_format
   - pymdownx.highlight:
       use_pygments: false
   - def_list
