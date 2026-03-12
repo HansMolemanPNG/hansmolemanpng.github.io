@@ -1,8 +1,8 @@
------
-
-## title: XXE Exploitation Knowledge Base
+---
+title: XXE Exploitation Knowledge Base
 excerpt: XXE attack taxonomy, parser behaviour, exploitation model, identification, LFI, SSRF/OOB, error-based, blind XXE, SOAP, file upload, XInclude, PHP wrappers, Java protocols and advanced DTD techniques.
 tags: XXE, XML, SSRF, LFI, OOB, DTD, Blind XXE, SOAP
+---
 
 # XML Fundamentals
 
