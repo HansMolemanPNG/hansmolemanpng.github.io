@@ -13,9 +13,15 @@ document.addEventListener('DOMContentLoaded', () => {
     'Intermediate Techniques': 'tier--intermediate',
     'Advanced Techniques':     'tier--advanced',
   };
-  document.querySelectorAll('.article-content h1').forEach(h1 => {
-    const cls = tierMap[h1.textContent.trim()];
-    if (cls) h1.classList.add(cls);
+  const articleHeadings = document.querySelectorAll('.article-content h1, .article-content h2');
+  let activeTierCls = null;
+  articleHeadings.forEach(el => {
+    if (el.tagName === 'H1') {
+      activeTierCls = tierMap[el.textContent.trim()] || null;
+      if (activeTierCls) el.classList.add(activeTierCls);
+    } else if (activeTierCls) {
+      el.classList.add(activeTierCls);
+    }
   });
 
   /* ── Blog post type filter ── */
