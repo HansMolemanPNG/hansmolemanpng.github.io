@@ -663,6 +663,20 @@ img { max-width: 100%; display: block; }
   border-radius: calc(var(--radius) - 1px);
 }
 
+.article-content .mermaid {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  overflow-x: auto;
+  text-align: center;
+}
+.article-content .mermaid svg {
+  max-width: 100%;
+  height: auto;
+}
+
 .article-content blockquote {
   border-left: 3px solid var(--accent);
   padding: .25rem 0 .25rem 1rem;

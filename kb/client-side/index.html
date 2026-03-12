@@ -76,7 +76,27 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/http.min.js"></script>
   <script type="module">
     import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
-    mermaid.initialize({ startOnLoad: true });
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: 'base',
+      themeVariables: {
+        background:           '#161310',
+        mainBkg:              '#1d1a16',
+        primaryColor:         '#1d1a16',
+        primaryBorderColor:   '#f5a742',
+        primaryTextColor:     '#dfd4c7',
+        lineColor:            '#f5a742',
+        edgeLabelBackground:  '#1d1a16',
+        secondaryColor:       '#161310',
+        tertiaryColor:        '#0f0d0b',
+        clusterBkg:           '#161310',
+        clusterBorder:        'rgba(245,167,66,0.35)',
+        titleColor:           '#dfd4c7',
+        fontFamily:           'JetBrains Mono, monospace',
+        fontSize:             '13px',
+      }
+    });
+    mermaid.run({ querySelector: '.mermaid' });
   </script>
   <script src="/assets/main.js" defer></script>
 </body>
