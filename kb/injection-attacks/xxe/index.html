@@ -486,18 +486,16 @@
 <hr />
 <h1 id="xxe-exploitation-model">XXE Exploitation Model</h1>
 <p>The following diagram represents the full exploitation model for XXE attacks. It starts from initial detection and branches into different techniques based on what the application allows and how it responds. Use this as a decision map during testing.</p>
+<h2 id="application-accepts-xml">Application accepts XML?</h2>
 <div class="mermaid">%%{init: {'theme': 'base', 'flowchart': {'rankSpacing': 60, 'nodeSpacing': 40}}}%%
 graph LR
 
-    %% ROOT
     A[Application accepts XML?] --&gt;|Yes| B[Entity processing enabled?\nTest with basic entity]
 
-    %% THREE BRANCHES
     B --&gt;|Reflected| C[IN-BAND XXE]
     B --&gt;|Error only| D[ERROR-BASED XXE]
     B --&gt;|Nothing| E[BLIND XXE]
 
-    %% IN-BAND
     C --&gt; F[LFI\nfile://]
     C --&gt; G[SSRF\nhttp://internal]
     F --&gt; F1[Unix files]
@@ -507,38 +505,41 @@ graph LR
     F3 --&gt; F5[php://filter\nbase64]
     G --&gt; G1[Internal\nservices enum]
 
-    %% ERROR-BASED
     D --&gt; D1[Error msg\nhas file contents]
     D1 --&gt; D2[Local DTD override\nfonts.dtd · docbook.dtd]
     D --&gt; D3[SSRF via\nerror messages]
 
-    %% BLIND
     E --&gt; E1[OOB HTTP\nto own server]
     E --&gt; E2[OOB DNS\nif HTTP blocked]
     E --&gt; E3[Side-channel\ntiming / status]
     E1 --&gt; E1a[Burp Collaborator]
-    E1 --&gt; E1b[HTTP listener]
+    E1 --&gt; E1b[HTTP listener]</div>
+<h2 id="entry-points">Entry Points</h2>
+<div class="mermaid">%%{init: {'theme': 'base', 'flowchart': {'rankSpacing': 60, 'nodeSpacing': 40}}}%%
+graph LR
 
-    %% ENTRY POINTS — independent block
     EP[ENTRY POINTS]
     EP --&gt; EP1[REST API\ndirect XML]
     EP --&gt; EP2[File Upload\nSVG / XLSX / DOCX]
     EP --&gt; EP3[XInclude\nno DOCTYPE]
     EP --&gt; EP4[SOAP\nBody / Header]
     EP --&gt; EP5[Content-Type\nswitching]
-    EP --&gt; EP6[RSS / Atom\nfeeds]
+    EP --&gt; EP6[RSS / Atom\nfeeds]</div>
+<h2 id="language-specific">Language-Specific</h2>
+<div class="mermaid">%%{init: {'theme': 'base', 'flowchart': {'rankSpacing': 60, 'nodeSpacing': 40}}}%%
+graph LR
 
-    %% LANGUAGE-SPECIFIC — independent block
     LS[LANGUAGE-SPECIFIC]
     LS --&gt; LS1[PHP\nexpect:// · php://filter\ndata:// · zip://]
     LS --&gt; LS2[Java\njar:// · netdoc://\nLDAP · RMI]
-    LS --&gt; LS3[.NET\nUNC NTLM capture]
+    LS --&gt; LS3[.NET\nUNC NTLM capture]</div>
+<h2 id="denial-of-service">Denial of Service</h2>
+<div class="mermaid">%%{init: {'theme': 'base', 'flowchart': {'rankSpacing': 60, 'nodeSpacing': 40}}}%%
+graph LR
 
-    %% DoS — independent block
     DOS[DENIAL OF SERVICE]
     DOS --&gt; DOS1[Billion Laughs\nrecursive expansion]
-    DOS --&gt; DOS2[Quadratic Blowup\nrepeated references]
-</div>
+    DOS --&gt; DOS2[Quadratic Blowup\nrepeated references]</div>
 <hr />
 <h1 id="identifying-xxe">Identifying XXE</h1>
 <h2 id="when-to-suspect-xxe">When to Suspect XXE</h2>
@@ -845,7 +846,7 @@ graph LR
 &lt;!ENTITY % eval "&lt;!ENTITY &amp;#x25; error SYSTEM 'file:///nonexistent/&amp;#x25;file;'&gt;"&gt;
 %eval;
 %error;</code></pre>
-<h2 id="denial-of-service">Denial of Service</h2>
+<h2 id="denial-of-service_1">Denial of Service</h2>
 <p>XML has a feature that allows expanding entities in a recursive way by referencing them in a loop. While this cannot be considered an external entity attack, it is worth mentioning due to the impact it may cause in the application. If the parser is not well configured those entities will keep being called until the application consumes its resources. The most famous resource exhaustion attack is the Billion Laughs DoS. While this attack is mostly mitigated in modern XML parsers, it provides very useful context on how XML works.</p>
 <pre class="highlight"><code class="language-XML">&lt;?xml version="1.0" encoding="utf-8"?&gt;
 &lt;!DOCTYPE laugh [
