@@ -27,7 +27,7 @@
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
   --font-sans: 'Inter', -apple-system, system-ui, sans-serif;
   --radius: 8px;
-  --max-w: 780px;
+  --max-w: 70vw;
 }
 
 /* ── Reset ── */
@@ -887,7 +887,7 @@ img { max-width: 100%; display: block; }
   .topnav { padding: 0 1rem; }
   .topnav-links { gap: 1.25rem; }
 
-  .main { padding: 1.5rem 1rem 5rem; }
+  .main { padding: 1.5rem 1rem 5rem; max-width: 100%; }
 
   .hero { padding: 2rem 0 2.5rem; }
   .hero-name { font-size: 1.15rem; }
