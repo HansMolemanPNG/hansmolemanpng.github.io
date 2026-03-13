@@ -811,6 +811,12 @@ When the parser expands `%error` it attempts to resolve the invalid path trigger
 errorMessage: "/nonexistent/root:x:0:0:root:/root:/bin/bash"
 ```
 
+### ⚠️ A Note on Parser Strictness
+
+While the payload above is logically correct, it often fails in modern production environments. This is because the W3C XML Specification forbids the expansion of parameter entities (like %eval;) within the internal DTD subset (the part inside the [...] brackets) if they are used to define other markup.
+
+Many modern, spec-compliant parsers (like those in Java, .NET, or Libxml2) will throw an error as soon as they see %eval; used this way. If your payload is rejected with a "Parameter entity references are not allowed in internal DTD subsets" error, you will need to use other technices (like OOB exfiltration) to succesfully read the file contents.
+
 ### Bonus track
 
 The same way we can read files by attaching their content to the error message, we can twist the payload a little bit to enumerate other internal services. Instead of defining `file:///etc/passwd` we can define connections to internal resources and read the responses from them (for example an admin dashboard hosted at <http://localhost:8080>):
