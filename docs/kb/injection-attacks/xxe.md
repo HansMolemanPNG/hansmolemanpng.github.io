@@ -811,7 +811,7 @@ When the parser expands `%error` it attempts to resolve the invalid path trigger
 errorMessage: "/nonexistent/root:x:0:0:root:/root:/bin/bash"
 ```
 
-### ⚠️ A Note on Parser Strictness
+#### ⚠️ A Note on Parser Strictness
 
 While the payload above is logically correct, it often fails in modern production environments. This is because the W3C XML Specification forbids the expansion of parameter entities (like %eval;) within the internal DTD subset (the part inside the [...] brackets) if they are used to define other markup.
 
