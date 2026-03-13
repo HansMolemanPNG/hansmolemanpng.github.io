@@ -317,19 +317,18 @@ Java has the broadest protocol support which is why Java-specific techniques (ja
 
 The following diagram represents the full exploitation model for XXE attacks. It starts from initial detection and branches into different techniques based on what the application allows and how it responds. Use this as a decision map during testing.
 
+## Application accepts XML?
+
 ```mermaid
 %%{init: {'theme': 'base', 'flowchart': {'rankSpacing': 60, 'nodeSpacing': 40}}}%%
 graph LR
 
-    %% ROOT
     A[Application accepts XML?] -->|Yes| B[Entity processing enabled?\nTest with basic entity]
 
-    %% THREE BRANCHES
     B -->|Reflected| C[IN-BAND XXE]
     B -->|Error only| D[ERROR-BASED XXE]
     B -->|Nothing| E[BLIND XXE]
 
-    %% IN-BAND
     C --> F[LFI\nfile://]
     C --> G[SSRF\nhttp://internal]
     F --> F1[Unix files]
@@ -339,19 +338,23 @@ graph LR
     F3 --> F5[php://filter\nbase64]
     G --> G1[Internal\nservices enum]
 
-    %% ERROR-BASED
     D --> D1[Error msg\nhas file contents]
     D1 --> D2[Local DTD override\nfonts.dtd · docbook.dtd]
     D --> D3[SSRF via\nerror messages]
 
-    %% BLIND
     E --> E1[OOB HTTP\nto own server]
     E --> E2[OOB DNS\nif HTTP blocked]
     E --> E3[Side-channel\ntiming / status]
     E1 --> E1a[Burp Collaborator]
     E1 --> E1b[HTTP listener]
+```
 
-    %% ENTRY POINTS — independent block
+## Entry Points
+
+```mermaid
+%%{init: {'theme': 'base', 'flowchart': {'rankSpacing': 60, 'nodeSpacing': 40}}}%%
+graph LR
+
     EP[ENTRY POINTS]
     EP --> EP1[REST API\ndirect XML]
     EP --> EP2[File Upload\nSVG / XLSX / DOCX]
@@ -359,18 +362,29 @@ graph LR
     EP --> EP4[SOAP\nBody / Header]
     EP --> EP5[Content-Type\nswitching]
     EP --> EP6[RSS / Atom\nfeeds]
+```
 
-    %% LANGUAGE-SPECIFIC — independent block
+## Language-Specific
+
+```mermaid
+%%{init: {'theme': 'base', 'flowchart': {'rankSpacing': 60, 'nodeSpacing': 40}}}%%
+graph LR
+
     LS[LANGUAGE-SPECIFIC]
     LS --> LS1[PHP\nexpect:// · php://filter\ndata:// · zip://]
     LS --> LS2[Java\njar:// · netdoc://\nLDAP · RMI]
     LS --> LS3[.NET\nUNC NTLM capture]
+```
 
-    %% DoS — independent block
+## Denial of Service
+
+```mermaid
+%%{init: {'theme': 'base', 'flowchart': {'rankSpacing': 60, 'nodeSpacing': 40}}}%%
+graph LR
+
     DOS[DENIAL OF SERVICE]
     DOS --> DOS1[Billion Laughs\nrecursive expansion]
     DOS --> DOS2[Quadratic Blowup\nrepeated references]
-
 ```
 
 -----
