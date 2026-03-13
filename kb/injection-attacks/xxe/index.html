@@ -840,7 +840,7 @@ graph LR
 &lt;foo&gt;&lt;/foo&gt;</code></pre>
 <p>When the parser expands <code>%error</code> it attempts to resolve the invalid path triggering an error message that includes the contents of <code>/etc/passwd</code>:</p>
 <pre class="highlight"><code>errorMessage: "/nonexistent/root:x:0:0:root:/root:/bin/bash"</code></pre>
-<h3 id="a-note-on-parser-strictness">⚠️ A Note on Parser Strictness</h3>
+<h4 id="a-note-on-parser-strictness">⚠️ A Note on Parser Strictness</h4>
 <p>While the payload above is logically correct, it often fails in modern production environments. This is because the W3C XML Specification forbids the expansion of parameter entities (like %eval;) within the internal DTD subset (the part inside the [...] brackets) if they are used to define other markup.</p>
 <p>Many modern, spec-compliant parsers (like those in Java, .NET, or Libxml2) will throw an error as soon as they see %eval; used this way. If your payload is rejected with a "Parameter entity references are not allowed in internal DTD subsets" error, you will need to use other technices (like OOB exfiltration) to succesfully read the file contents.</p>
 <h3 id="bonus-track">Bonus track</h3>
