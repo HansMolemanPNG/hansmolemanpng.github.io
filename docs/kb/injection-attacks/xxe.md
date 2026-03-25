@@ -241,7 +241,7 @@ This means the vulnerability is an opt-out problem in some stacks (Java) but clo
 
 Different parsers behave differently. Some are vulnerable by default, some require specific flags to become vulnerable, and some have been hardened over time:
 
-**Java** — All parsers vulnerable by default, must be hardened explicitly.
+**Java** — All Java native (JAXP) parsers are vulnerable by default and must be hardened explicitly.
 
 |Parser                  |External Entities|Parameter Entities|DTD Processing|Risk Assessment                                      |
 |------------------------|-----------------|------------------|--------------|-----------------------------------------------------|
