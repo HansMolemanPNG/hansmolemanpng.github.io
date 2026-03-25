@@ -203,7 +203,7 @@
 <p>This means the vulnerability is an opt-out problem in some stacks (Java) but closer to opt-in in others (modern PHP, Python, .NET). The practical implication for pentesting is that the technology stack matters a lot when assessing XXE likelihood. Legacy applications and older framework versions remain the most common targets.</p>
 <h2 id="parser-behaviour-by-language">Parser Behaviour by Language</h2>
 <p>Different parsers behave differently. Some are vulnerable by default, some require specific flags to become vulnerable, and some have been hardened over time:</p>
-<p><strong>Java</strong> — All parsers vulnerable by default, must be hardened explicitly.</p>
+<p><strong>Java</strong> — All Java native (JAXP) parsers are vulnerable by default and must be hardened explicitly.</p>
 <table>
 <thead>
 <tr>
