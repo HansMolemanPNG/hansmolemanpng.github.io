@@ -1,6 +1,11 @@
 ---
 title: XXE Exploitation Knowledge Base
-excerpt: XXE attack taxonomy, parser behaviour, exploitation model, identification, LFI, SSRF/OOB, error-based, blind XXE, SOAP, file upload, XInclude, PHP wrappers, Java protocols and advanced DTD techniques.
+excerpt: This is not a payload list.
+
+This is a deep-dive into how XXE works internally, with the goal of:
+- Building a mental model of XML parsing
+- Understanding why payloads work (not just using them)
+- Covering both fundamentals (for juniors) and advanced techniques (for experienced testers)
 tags: XXE, XML, SSRF, LFI, OOB, DTD, Blind XXE, SOAP
 ---
 
