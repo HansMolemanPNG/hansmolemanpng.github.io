@@ -191,6 +191,14 @@ def on_env(env, config, **kwargs):
     env.globals['kb_categories'] = kb_categories
     env.globals['kb_group_order']  = _GROUP_ORDER
     env.globals['kb_group_labels'] = _GROUP_LABELS
+    try:
+        result = subprocess.run(
+            ['git', 'rev-parse', '--short', 'HEAD'],
+            capture_output=True, text=True, cwd=str(repo_root),
+        )
+        env.globals['cache_bust'] = result.stdout.strip() or 'v1'
+    except Exception:
+        env.globals['cache_bust'] = 'v1'
     return env
 
 
