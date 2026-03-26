@@ -9,7 +9,7 @@ Post frontmatter:
     title: My Post Title
     type: writeup | cve | research
     tags: Tag1, Tag2
-    excerpt: One-liner shown on index cards.
+    excerpt: Text shown on index cards. Supports multi-line (YAML block scalar |) and markdown.
     kb_ref: web-security/xss   # optional: links to a specific KB sheet
     ---
 
@@ -23,7 +23,7 @@ KB category index frontmatter (docs/kb/<category>/index.md):
 KB cheat sheet frontmatter (docs/kb/<category>/<sheet>.md):
     ---
     title: Cross-Site Scripting (XSS)
-    excerpt: Optional one-liner.
+    excerpt: Optional description. Supports multi-line (YAML block scalar |) and markdown.
     tags: XSS, Reflected, DOM
     ---
 """
@@ -31,6 +31,9 @@ KB cheat sheet frontmatter (docs/kb/<category>/<sheet>.md):
 import re
 import subprocess
 from pathlib import Path
+
+import markdown as _md_lib
+import yaml
 
 _FRONT_RE = re.compile(r'^---\s*\n(.*?)\n---\s*\n', re.DOTALL)
 
@@ -54,12 +57,17 @@ def _parse_frontmatter(content: str) -> dict:
     m = _FRONT_RE.match(content)
     if not m:
         return {}
-    meta = {}
-    for line in m.group(1).splitlines():
-        if ':' in line:
-            k, _, v = line.partition(':')
-            meta[k.strip().lower()] = v.strip()
-    return meta
+    try:
+        data = yaml.safe_load(m.group(1)) or {}
+    except yaml.YAMLError:
+        return {}
+    return {str(k).lower(): v for k, v in data.items()}
+
+
+def _excerpt_html(text) -> str:
+    if not text:
+        return ''
+    return _md_lib.markdown(str(text).strip(), extensions=['nl2br'])
 
 
 def _git_date(filepath: Path, repo_root: Path) -> str:
@@ -91,16 +99,20 @@ def _get_all_posts(docs_dir: Path, repo_root: Path) -> list:
             continue
         meta = _parse_frontmatter(index.read_text(encoding='utf-8'))
         slug = post_dir.name
-        t = meta.get('type', '').lower().strip()
+        t = str(meta.get('type', '')).lower().strip()
+        raw_tags = meta.get('tags', '')
+        tags = raw_tags if isinstance(raw_tags, list) else [s.strip() for s in str(raw_tags).split(',') if s.strip()]
+        excerpt = meta.get('excerpt', '')
         posts.append({
-            'title':   meta.get('title', slug.replace('-', ' ').title()),
-            'type':    t,
-            'label':   _TYPE_LABELS.get(t, t.capitalize()),
-            'date':    _git_date(index, repo_root),
-            'tags':    [s.strip() for s in meta.get('tags', '').split(',') if s.strip()],
-            'excerpt': meta.get('excerpt', ''),
-            'url':     f'blog/{slug}/',
-            'kb_ref':  meta.get('kb_ref', '').strip(),
+            'title':        meta.get('title', slug.replace('-', ' ').title()),
+            'type':         t,
+            'label':        _TYPE_LABELS.get(t, t.capitalize()),
+            'date':         _git_date(index, repo_root),
+            'tags':         tags,
+            'excerpt':      excerpt,
+            'excerpt_html': _excerpt_html(excerpt),
+            'url':          f'blog/{slug}/',
+            'kb_ref':       str(meta.get('kb_ref', '')).strip(),
         })
 
     posts.sort(key=lambda p: p['date'] or '0000-00-00', reverse=True)
@@ -130,14 +142,17 @@ def _get_kb_categories(docs_dir: Path, all_posts: list) -> list:
             sm = _parse_frontmatter(f.read_text(encoding='utf-8'))
             sheet_ref = f'{cat_slug}/{f.stem}'
             sheet_posts = [p for p in all_posts if p['kb_ref'] == sheet_ref]
-            coming_soon = sm.get('coming_soon', '').lower() in ('true', '1', 'yes')
+            cs = sm.get('coming_soon', False)
+            coming_soon = cs if isinstance(cs, bool) else str(cs).lower() in ('true', '1', 'yes')
+            excerpt = sm.get('excerpt', '')
             sheets.append({
-                'title':       sm.get('title', f.stem.replace('-', ' ').title()),
-                'excerpt':     sm.get('excerpt', ''),
-                'url':         f'kb/{cat_slug}/{f.stem}/',
-                'slug':        f.stem,
-                'posts':       sheet_posts,
-                'coming_soon': coming_soon,
+                'title':        sm.get('title', f.stem.replace('-', ' ').title()),
+                'excerpt':      excerpt,
+                'excerpt_html': _excerpt_html(excerpt),
+                'url':          f'kb/{cat_slug}/{f.stem}/',
+                'slug':         f.stem,
+                'posts':        sheet_posts,
+                'coming_soon':  coming_soon,
             })
 
         group_raw = cat_meta.get('group', 'other').lower().strip()

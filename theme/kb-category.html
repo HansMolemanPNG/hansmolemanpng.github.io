@@ -20,7 +20,7 @@
       {% if sheet.coming_soon %}
       <span class="sheet-row-soon-badge">soon</span>
       {% else %}
-        {% if sheet.excerpt %}<span class="sheet-row-excerpt">{{ sheet.excerpt }}</span>{% endif %}
+        {% if sheet.excerpt_html %}<div class="sheet-row-excerpt">{{ sheet.excerpt_html | safe }}</div>{% endif %}
         {% if sheet.posts %}<span class="sheet-row-posts">● {{ sheet.posts | length }}</span>{% endif %}
       {% endif %}
     </a>
