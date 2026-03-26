@@ -16,12 +16,23 @@
   <div class="sheet-list">
     {% for sheet in cat.sheets %}
     <a class="sheet-row{% if sheet.coming_soon %} sheet-row--soon{% endif %}" href="/{{ sheet.url }}" style="--cat-color: var(--col-{{ cat.color }})">
-      <span class="sheet-row-title">{{ sheet.title }}</span>
-      {% if sheet.coming_soon %}
-      <span class="sheet-row-soon-badge">soon</span>
-      {% else %}
-        {% if sheet.excerpt_html %}<div class="sheet-row-excerpt">{{ sheet.excerpt_html | safe }}</div>{% endif %}
-        {% if sheet.posts %}<span class="sheet-row-posts">● {{ sheet.posts | length }}</span>{% endif %}
+      <div class="sheet-row-header">
+        <span class="sheet-row-title">{{ sheet.title }}</span>
+        {% if sheet.coming_soon %}
+        <span class="sheet-row-soon-badge">soon</span>
+        {% elif sheet.posts %}
+        <span class="sheet-row-posts">● {{ sheet.posts | length }}</span>
+        {% endif %}
+      </div>
+      {% if not sheet.coming_soon %}
+        {% if sheet.tags %}
+        <div class="sheet-row-tags">
+          {% for tag in sheet.tags %}<span class="sheet-tag">{{ tag }}</span>{% endfor %}
+        </div>
+        {% endif %}
+        {% if sheet.excerpt_html %}
+        <div class="sheet-row-excerpt">{{ sheet.excerpt_html | safe }}</div>
+        {% endif %}
       {% endif %}
     </a>
     {% endfor %}

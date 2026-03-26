@@ -145,10 +145,13 @@ def _get_kb_categories(docs_dir: Path, all_posts: list) -> list:
             cs = sm.get('coming_soon', False)
             coming_soon = cs if isinstance(cs, bool) else str(cs).lower() in ('true', '1', 'yes')
             excerpt = sm.get('excerpt', '')
+            raw_tags = sm.get('tags', '')
+            tags = raw_tags if isinstance(raw_tags, list) else [s.strip() for s in str(raw_tags).split(',') if s.strip()]
             sheets.append({
                 'title':        sm.get('title', f.stem.replace('-', ' ').title()),
                 'excerpt':      excerpt,
                 'excerpt_html': _excerpt_html(excerpt),
+                'tags':         tags,
                 'url':          f'kb/{cat_slug}/{f.stem}/',
                 'slug':         f.stem,
                 'posts':        sheet_posts,
