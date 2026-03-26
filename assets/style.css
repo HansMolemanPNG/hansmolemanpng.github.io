@@ -617,12 +617,19 @@ img { max-width: 100%; display: block; }
   margin-bottom: .75rem;
 }
 
-.article-tags {
-  display: flex;
-  gap: .4rem;
-  flex-wrap: wrap;
-  margin-bottom: 1.5rem;
+.article-subtitle {
+  font-size: 1rem;
+  color: var(--muted);
+  line-height: 1.6;
+  margin-bottom: 2rem;
+  border-left: 2px solid var(--border-hover);
+  padding-left: .85rem;
 }
+.article-subtitle p        { margin: 0 0 .4rem; }
+.article-subtitle p:last-child { margin-bottom: 0; }
+.article-subtitle ul,
+.article-subtitle ol       { margin: .3rem 0; padding-left: 1.25rem; }
+.article-subtitle li       { margin-bottom: .2rem; }
 
 /* injected by hook: badge + date above article */
 .post-meta-hdr {
