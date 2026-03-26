@@ -1,8 +1,6 @@
 ---
 title: XXE Exploitation Knowledge Base
-excerpt: This is not a payload list.
-
-This is a deep-dive into how XXE works internally, with the goal of:
+excerpt: This is not a payload list. This is a deep-dive into how XXE works internally, with the goal of:
 - Building a mental model of XML parsing
 - Understanding why payloads work (not just using them)
 - Covering both fundamentals (for juniors) and advanced techniques (for experienced testers)
