@@ -51,7 +51,7 @@ _GROUP_LABELS = {
 }
 
 # Set to False to hide "coming soon" sheets from category pages.
-SHOW_COMING_SOON = True
+SHOW_COMING_SOON = False
 
 
 # ── Helpers ────────────────────────────────────────────────────
