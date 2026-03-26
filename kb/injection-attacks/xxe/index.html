@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Xxe · Hans_Moleman.PNG</title>
+  <title>XXE Exploitation Knowledge Base · Hans_Moleman.PNG</title>
   <link rel="icon" href="/assets/profile.jpeg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -36,22 +36,20 @@
 
   <a class="back-link" href="/kb/injection-attacks/">← Injection Attacks</a>
 
-  <h1 class="article-title">Xxe</h1>
+  <h1 class="article-title">XXE Exploitation Knowledge Base</h1>
 
   
 
+  
+  <div class="article-tags">
+    
+      <span class="tag">XXE</span><span class="tag">XML</span><span class="tag">SSRF</span><span class="tag">LFI</span><span class="tag">OOB</span><span class="tag">DTD</span><span class="tag">Blind XXE</span><span class="tag">SOAP</span>
+    
+  </div>
   
 
   <div class="article-content">
-    <hr />
-<p>title: XXE Exploitation Knowledge Base
-excerpt: This is not a payload list. This is a deep-dive into how XXE works internally, with the goal of:
-  - Building a mental model of XML parsing
-  - Understanding why payloads work (not just using them)
-  - Covering both fundamentals (for juniors) and advanced techniques (for experienced testers)
-tags: XXE, XML, SSRF, LFI, OOB, DTD, Blind XXE, SOAP</p>
-<hr />
-<h1 id="xml-fundamentals">XML Fundamentals</h1>
+    <h1 id="xml-fundamentals">XML Fundamentals</h1>
 <p>Before diving into XXE exploitation it is important to understand the basics of XML and how parsers work. If you are already familiar with XML, DTDs and entity resolution you can skip this section and go straight to the <a href="#xxe-taxonomy">XXE Taxonomy</a>.</p>
 <h2 id="what-is-xml">What is XML</h2>
 <p>XML (eXtensible Markup Language) is a format for storing and transporting structured data. It looks similar to HTML but unlike HTML, XML lets you define your own tags. Here is a simple XML document:</p>
