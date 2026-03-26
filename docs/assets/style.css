@@ -491,9 +491,8 @@ img { max-width: 100%; display: block; }
    ================================================================ */
 
 .sheet-list {
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-auto-rows: 1fr;
+  display: flex;
+  flex-direction: column;
   margin-bottom: 2.5rem;
 }
 
@@ -542,7 +541,8 @@ img { max-width: 100%; display: block; }
   font-weight: 600;
   letter-spacing: .04em;
   color: var(--cat-color, var(--accent));
-  border: 1px solid color-mix(in srgb, var(--cat-color, var(--accent)) 35%, transparent);
+  border: 1px solid currentColor;
+  opacity: .75;
   padding: .1em .45em;
   border-radius: 3px;
   white-space: nowrap;

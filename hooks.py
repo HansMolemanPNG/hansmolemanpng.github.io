@@ -50,6 +50,9 @@ _GROUP_LABELS = {
     'other':    'General',
 }
 
+# Set to False to hide "coming soon" sheets from category pages.
+SHOW_COMING_SOON = True
+
 
 # ── Helpers ────────────────────────────────────────────────────
 
@@ -144,6 +147,8 @@ def _get_kb_categories(docs_dir: Path, all_posts: list) -> list:
             sheet_posts = [p for p in all_posts if p['kb_ref'] == sheet_ref]
             cs = sm.get('coming_soon', False)
             coming_soon = cs if isinstance(cs, bool) else str(cs).lower() in ('true', '1', 'yes')
+            if coming_soon and not SHOW_COMING_SOON:
+                continue
             excerpt = sm.get('excerpt', '')
             raw_tags = sm.get('tags', '')
             tags = raw_tags if isinstance(raw_tags, list) else [s.strip() for s in str(raw_tags).split(',') if s.strip()]
