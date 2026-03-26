@@ -22,14 +22,8 @@
   </div>
   {% else %}
 
-  {% if page.meta.tags %}
-  <div class="article-tags">
-    {% if page.meta.tags is string %}
-      {% for tag in page.meta.tags.split(',') %}<span class="tag">{{ tag.strip() }}</span>{% endfor %}
-    {% else %}
-      {% for tag in page.meta.tags %}<span class="tag">{{ tag }}</span>{% endfor %}
-    {% endif %}
-  </div>
+  {% if sheet and sheet.excerpt_html %}
+  <div class="article-subtitle">{{ sheet.excerpt_html | safe }}</div>
   {% endif %}
 
   <div class="article-content">
