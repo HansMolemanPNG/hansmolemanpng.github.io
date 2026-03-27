@@ -177,7 +177,7 @@ XXE ATTACK TAXONOMY
 │   │   ├── [CORE]     Direct LFI ──────────────────── § Core Techniques > LFI
 │   │   ├── [CORE]     Error-based exfiltration ────── § Core Techniques > Error-Based Blind XXE
 │   │   ├── [CORE]     OOB via malicious DTD ───────── § Core Techniques > OOB Exfiltration
-│   │   ├── [ADV]      Local DTD override ──────────── § Advanced > Local System DTD Exploitation
+│   │   ├── [ADV]      Local DTD override ──────────── § Advanced > Repurposing Local DTDs
 │   │   ├── [ADV]      DNS-based exfiltration ──────── § Advanced > DNS-Based OOB
 │   │   └── [ADV]      PHP filter chains ───────────── § Advanced > PHP Wrappers
 │   │
@@ -1177,7 +1177,7 @@ The error message will contain the file contents including the special character
 
 These techniques require specific technology stacks, rare configurations or complex payload crafting. They are not the first thing to try but can be critical when standard techniques fail. This section also includes environment-specific escalation paths (like RCE through PHP expect:// or Java deserialization) which depend on very particular conditions in the target.
 
-## Local System DTD Exploitation (Blind XXE)
+## Repurposing Local DTDs (Blind XXE)
 
 When OOB connections are blocked and the application only returns errors, we can use pre-existing DTD files on the system to build our exfiltration chain without needing network access.
 
