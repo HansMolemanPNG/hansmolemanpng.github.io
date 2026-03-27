@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
-  <link rel="stylesheet" href="/assets/style.css?v=9c562bc">
+  <link rel="stylesheet" href="/assets/style.css?v=0eadd1a">
 </head>
 <body>
   <nav class="topnav">
@@ -148,7 +148,7 @@
 │   │   ├── [CORE]     Direct LFI ──────────────────── § Core Techniques &gt; LFI
 │   │   ├── [CORE]     Error-based exfiltration ────── § Core Techniques &gt; Error-Based Blind XXE
 │   │   ├── [CORE]     OOB via malicious DTD ───────── § Core Techniques &gt; OOB Exfiltration
-│   │   ├── [ADV]      Local DTD override ──────────── § Advanced &gt; Local System DTD Exploitation
+│   │   ├── [ADV]      Local DTD override ──────────── § Advanced &gt; Repurposing Local DTDs
 │   │   ├── [ADV]      DNS-based exfiltration ──────── § Advanced &gt; DNS-Based OOB
 │   │   └── [ADV]      PHP filter chains ───────────── § Advanced &gt; PHP Wrappers
 │   │
@@ -1078,7 +1078,7 @@ Content-Type: application/json
 <hr />
 <h1 id="advanced-techniques">Advanced Techniques</h1>
 <p>These techniques require specific technology stacks, rare configurations or complex payload crafting. They are not the first thing to try but can be critical when standard techniques fail. This section also includes environment-specific escalation paths (like RCE through PHP expect:// or Java deserialization) which depend on very particular conditions in the target.</p>
-<h2 id="local-system-dtd-exploitation-blind-xxe">Local System DTD Exploitation (Blind XXE)</h2>
+<h2 id="repurposing-local-dtds-blind-xxe">Repurposing Local DTDs (Blind XXE)</h2>
 <p>When OOB connections are blocked and the application only returns errors, we can use pre-existing DTD files on the system to build our exfiltration chain without needing network access.</p>
 <h3 id="why-enumerate-the-filesystem">Why Enumerate the Filesystem?</h3>
 <p>The goal of enumerating the filesystem is to locate <strong>default DTD files</strong> present on the system. These files can be leveraged to perform advanced XXE attacks because they often:</p>
@@ -1486,6 +1486,6 @@ unzip interactsh-client_1.0.0_linux_amd64.zip
     });
     mermaid.run({ querySelector: '.mermaid' });
   </script>
-  <script src="/assets/main.js?v=9c562bc" defer></script>
+  <script src="/assets/main.js?v=0eadd1a" defer></script>
 </body>
 </html>
