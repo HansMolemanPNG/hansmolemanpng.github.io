@@ -534,7 +534,7 @@ Does the application accept XML input?
          └─────────────────────────────────────┘
          │
          Does "value" appear in response?
-         ├─ Yes → Vulnerable to basic XXE → Proceed with LFI/SSRF
+         ├─ Yes → Application process untrested user input → Proceed with LFI/SSRF
          ├─ No → Go to Test 2
          └─ Error response → Vulnerable to error-based XXE
             │
