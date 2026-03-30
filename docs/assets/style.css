@@ -704,7 +704,7 @@ img { max-width: 100%; display: block; }
   background: none;
   color: inherit;
   padding: 0;
-  font-size: .84rem;
+  font-size: .75rem;
   line-height: 1.6;
   white-space: pre;
   overflow-wrap: normal;
@@ -1076,20 +1076,15 @@ img { max-width: 100%; display: block; }
    MOBILE
    ================================================================ */
 
-/* Tablet: collapse sidebar to toggle at 860px */
-@media (max-width: 860px) {
+/* KB sheet mobile: collapse TOC to toggle.
+   Breakpoint is 920px so it fires on mobile where the KB viewport is
+   fixed at width=900 (900 < 920 → breakpoint fires → accordion). */
+@media (max-width: 920px) {
   .page-kb-sheet .main { max-width: 100%; }
 
-  /* Clip any overflow at the body level;
-     safe here because position:sticky is already disabled on mobile */
+  /* Prevent any overflowing child from causing page-level horizontal scroll.
+     Safe here because position:sticky is already disabled on mobile. */
   body { overflow-x: hidden; }
-
-  /* Smaller monospace font so more chars fit per line before needing to scroll */
-  .article-content pre code { font-size: .68rem; }
-
-  /* Tables: tighter on mobile */
-  .article-content table { font-size: .78rem; }
-  .article-content th, .article-content td { padding: .35rem .5rem; }
 
   .kb-layout {
     flex-direction: column;
