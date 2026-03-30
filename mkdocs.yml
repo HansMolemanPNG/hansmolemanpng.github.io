@@ -22,6 +22,7 @@ markdown_extensions:
       custom_checkbox: true
   - toc:
       permalink: false
+      toc_depth: 2
 
 hooks:
   - hooks.py

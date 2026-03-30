@@ -1,4 +1,5 @@
 {% extends "main.html" %}
+{% block body_class %} class="page-kb-sheet"{% endblock %}
 {% block content %}
 {% set parts = page.file.src_path.split('/') %}
 {% set cat_slug   = parts[1] %}
@@ -6,44 +7,79 @@
 {% set cat   = kb_categories | selectattr('slug', 'equalto', cat_slug) | first %}
 {% set sheet = (cat.sheets | selectattr('slug', 'equalto', sheet_slug) | first) if cat else none %}
 
-<article class="article">
+<div class="kb-layout">
 
-  <a class="back-link" href="/kb/{{ cat_slug }}/">← {{ cat.title if cat else 'Knowledge Base' }}</a>
-
-  <h1 class="article-title">{{ page.title }}</h1>
-
-  {% if page.meta.coming_soon %}
-  <div class="coming-soon-banner">
-    <span class="coming-soon-icon">🔒</span>
-    <div>
-      <strong>Coming Soon</strong>
-      <p>This cheat sheet is being written. Check back later.</p>
+  {% if page.toc %}
+  <aside class="kb-toc" id="kb-toc">
+    <button class="kb-toc-toggle" aria-expanded="false" aria-controls="kb-toc-body">
+      <svg class="kb-toc-chevron" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>Contents</span>
+    </button>
+    <div class="kb-toc-body" id="kb-toc-body">
+      <div class="kb-toc-search-wrap">
+        <svg class="kb-toc-search-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.4"/><path d="M10 10l3.5 3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        <input class="kb-toc-search" type="search" placeholder="Filter sections…" aria-label="Filter sections" autocomplete="off" spellcheck="false">
+      </div>
+      <nav class="kb-toc-nav" aria-label="Table of contents">
+        {% for item in page.toc %}
+        <div class="kb-toc-section" data-h1="{{ item.title | lower }}">
+          <a class="kb-toc-h1" href="{{ item.url }}">{{ item.title }}</a>
+          {% if item.children %}
+          <ul class="kb-toc-children">
+            {% for child in item.children %}
+            <li class="kb-toc-child-item" data-h2="{{ child.title | lower }}">
+              <a class="kb-toc-h2" href="{{ child.url }}">{{ child.title }}</a>
+            </li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </nav>
     </div>
-  </div>
-  {% else %}
-
-  {% if sheet and sheet.excerpt_html %}
-  <div class="article-subtitle">{{ sheet.excerpt_html | safe }}</div>
+  </aside>
   {% endif %}
 
-  <div class="article-content">
-    {{ page.content }}
-  </div>
+  <article class="article">
 
-  {% if sheet and sheet.posts %}
-  <div class="related-posts">
-    <h2 class="related-title">Related posts</h2>
-    {% for post in sheet.posts %}
-    <a class="post-row" href="/{{ post.url }}">
-      <span class="badge badge--{{ post.type }}">{{ post.label }}</span>
-      <span class="post-row-title">{{ post.title }}</span>
-      <time class="post-row-date">{{ post.date }}</time>
-    </a>
-    {% endfor %}
-  </div>
-  {% endif %}
+    <a class="back-link" href="/kb/{{ cat_slug }}/">← {{ cat.title if cat else 'Knowledge Base' }}</a>
 
-  {% endif %}
+    <h1 class="article-title">{{ page.title }}</h1>
 
-</article>
+    {% if page.meta.coming_soon %}
+    <div class="coming-soon-banner">
+      <span class="coming-soon-icon">🔒</span>
+      <div>
+        <strong>Coming Soon</strong>
+        <p>This cheat sheet is being written. Check back later.</p>
+      </div>
+    </div>
+    {% else %}
+
+    {% if sheet and sheet.excerpt_html %}
+    <div class="article-subtitle">{{ sheet.excerpt_html | safe }}</div>
+    {% endif %}
+
+    <div class="article-content">
+      {{ page.content }}
+    </div>
+
+    {% if sheet and sheet.posts %}
+    <div class="related-posts">
+      <h2 class="related-title">Related posts</h2>
+      {% for post in sheet.posts %}
+      <a class="post-row" href="/{{ post.url }}">
+        <span class="badge badge--{{ post.type }}">{{ post.label }}</span>
+        <span class="post-row-title">{{ post.title }}</span>
+        <time class="post-row-date">{{ post.date }}</time>
+      </a>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% endif %}
+
+  </article>
+
+</div>
 {% endblock %}

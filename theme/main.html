@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
   <link rel="stylesheet" href="/assets/style.css?v={{ cache_bust }}">
 </head>
-<body>
+<body{% block body_class %}{% endblock %}>
   <nav class="topnav">
     <a class="topnav-home" href="/" aria-label="Home">
       <img class="topnav-avatar" src="/assets/profile.jpeg" alt="Hans_Moleman.PNG">
