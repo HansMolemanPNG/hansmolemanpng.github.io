@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
-  <link rel="stylesheet" href="/assets/style.css?v=edd07be">
+  <link rel="stylesheet" href="/assets/style.css?v=9eb531b">
 </head>
 <body>
   <nav class="topnav">
@@ -184,8 +184,18 @@
         fontSize:             '13px',
       }
     });
-    mermaid.run({ querySelector: '.mermaid' });
+    mermaid.run({ querySelector: '.mermaid' }).then(() => {
+      document.querySelectorAll('.mermaid svg').forEach(svg => {
+        const w = parseFloat(svg.getAttribute('width'));
+        const h = parseFloat(svg.getAttribute('height'));
+        if (!svg.getAttribute('viewBox') && w && h) {
+          svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+        }
+        svg.removeAttribute('width');
+        svg.removeAttribute('height');
+      });
+    });
   </script>
-  <script src="/assets/main.js?v=edd07be" defer></script>
+  <script src="/assets/main.js?v=9eb531b" defer></script>
 </body>
 </html>

@@ -1078,6 +1078,10 @@ img { max-width: 100%; display: block; }
 @media (max-width: 860px) {
   .page-kb-sheet .main { max-width: 100%; }
 
+  /* Clip any overflow (pre, table, mermaid) at the body level;
+     safe here because position:sticky is already disabled on mobile */
+  body { overflow-x: hidden; }
+
   .kb-layout {
     flex-direction: column;
     align-items: stretch;
