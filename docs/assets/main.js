@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Close sidebar when a TOC link is clicked on mobile
     toc.querySelectorAll('.kb-toc-h1, .kb-toc-h2').forEach(link => {
       link.addEventListener('click', () => {
-        if (window.innerWidth <= 860) {
+        if (window.innerWidth <= 920) {
           toc.classList.remove('is-open');
           if (toggle) toggle.setAttribute('aria-expanded', 'false');
         }

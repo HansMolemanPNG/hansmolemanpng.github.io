@@ -1,5 +1,4 @@
 {% extends "main.html" %}
-{% block viewport_meta %}<meta name="viewport" content="width=900">{% endblock %}
 {% block body_class %} class="page-kb-sheet"{% endblock %}
 {% block content %}
 {% set parts = page.file.src_path.split('/') %}
@@ -83,4 +82,26 @@
   </article>
 
 </div>
+
+<script>
+/* Adapt the viewport to the widest pre block so code/taxonomy lines
+   never wrap or scroll. Runs inline (end of body) before first paint
+   so there is no visible re-layout flicker.                           */
+(function () {
+  var maxW = 0;
+  document.querySelectorAll('.article-content pre').forEach(function (pre) {
+    maxW = Math.max(maxW, pre.scrollWidth);
+  });
+  if (maxW <= 0) return;
+  var main = document.querySelector('.main');
+  if (!main) return;
+  var cs   = getComputedStyle(main);
+  var hPad = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
+  var needed = Math.ceil(maxW + hPad);
+  /* Only widen the viewport if content is actually wider than the screen */
+  if (needed <= window.innerWidth) return;
+  var meta = document.querySelector('meta[name=viewport]');
+  if (meta) meta.content = 'width=' + needed;
+}());
+</script>
 {% endblock %}
