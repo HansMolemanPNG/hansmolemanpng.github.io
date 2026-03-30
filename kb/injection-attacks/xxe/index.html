@@ -9,9 +9,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
-  <link rel="stylesheet" href="/assets/style.css?v=0eadd1a">
+  <link rel="stylesheet" href="/assets/style.css?v=76a05a6">
 </head>
-<body>
+<body class="page-kb-sheet">
   <nav class="topnav">
     <a class="topnav-home" href="/" aria-label="Home">
       <img class="topnav-avatar" src="/assets/profile.jpeg" alt="Hans_Moleman.PNG">
@@ -32,25 +32,293 @@
 
 
 
-<article class="article">
-
-  <a class="back-link" href="/kb/injection-attacks/">← Injection Attacks</a>
-
-  <h1 class="article-title">XXE Exploitation Knowledge Base</h1>
+<div class="kb-layout">
 
   
-
+  <aside class="kb-toc" id="kb-toc">
+    <button class="kb-toc-toggle" aria-expanded="false" aria-controls="kb-toc-body">
+      <svg class="kb-toc-chevron" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>Contents</span>
+    </button>
+    <div class="kb-toc-body" id="kb-toc-body">
+      <div class="kb-toc-search-wrap">
+        <svg class="kb-toc-search-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.4"/><path d="M10 10l3.5 3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        <input class="kb-toc-search" type="search" placeholder="Filter sections…" aria-label="Filter sections" autocomplete="off" spellcheck="false">
+      </div>
+      <nav class="kb-toc-nav" aria-label="Table of contents">
+        
+        <div class="kb-toc-section" data-h1="xml fundamentals">
+          <a class="kb-toc-h1" href="#xml-fundamentals">XML Fundamentals</a>
+          
+          <ul class="kb-toc-children">
+            
+            <li class="kb-toc-child-item" data-h2="what is xml">
+              <a class="kb-toc-h2" href="#what-is-xml">What is XML</a>
+            </li>
+            
+            <li class="kb-toc-child-item" data-h2="what is an xml parser">
+              <a class="kb-toc-h2" href="#what-is-an-xml-parser">What is an XML Parser</a>
+            </li>
+            
+            <li class="kb-toc-child-item" data-h2="what is a dtd">
+              <a class="kb-toc-h2" href="#what-is-a-dtd">What is a DTD</a>
+            </li>
+            
+            <li class="kb-toc-child-item" data-h2="what are entities">
+              <a class="kb-toc-h2" href="#what-are-entities">What are Entities</a>
+            </li>
+            
+            <li class="kb-toc-child-item" data-h2="what are parameter entities">
+              <a class="kb-toc-h2" href="#what-are-parameter-entities">What are Parameter Entities</a>
+            </li>
+            
+            <li class="kb-toc-child-item" data-h2="how entity resolution creates the vulnerability">
+              <a class="kb-toc-h2" href="#how-entity-resolution-creates-the-vulnerability">How Entity Resolution Creates the Vulnerability</a>
+            </li>
+            
+          </ul>
+          
+        </div>
+        
+        <div class="kb-toc-section" data-h1="context of xxe">
+          <a class="kb-toc-h1" href="#context-of-xxe">Context of XXE</a>
+          
+          <ul class="kb-toc-children">
+            
+            <li class="kb-toc-child-item" data-h2="what is it">
+              <a class="kb-toc-h2" href="#what-is-it">What is it</a>
+            </li>
+            
+            <li class="kb-toc-child-item" data-h2="requirements">
+              <a class="kb-toc-h2" href="#requirements">Requirements</a>
+            </li>
+            
+          </ul>
+          
+        </div>
+        
+        <div class="kb-toc-section" data-h1="xxe taxonomy">
+          <a class="kb-toc-h1" href="#xxe-taxonomy">XXE Taxonomy</a>
+          
+        </div>
+        
+        <div class="kb-toc-section" data-h1="parser behaviour">
+          <a class="kb-toc-h1" href="#parser-behaviour">Parser Behaviour</a>
+          
+          <ul class="kb-toc-children">
+            
+            <li class="kb-toc-child-item" data-h2="what happens when resolution goes wrong">
+              <a class="kb-toc-h2" href="#what-happens-when-resolution-goes-wrong">What Happens When Resolution Goes Wrong</a>
+            </li>
+            
+            <li class="kb-toc-child-item" data-h2="why parsers are (or were) vulnerable">
+              <a class="kb-toc-h2" href="#why-parsers-are-or-were-vulnerable">Why Parsers Are (or Were) Vulnerable</a>
+            </li>
+            
+            <li class="kb-toc-child-item" data-h2="parser behaviour by language">
+              <a class="kb-toc-h2" href="#parser-behaviour-by-language">Parser Behaviour by Language</a>
+            </li>
+            
+            <li class="kb-toc-child-item" data-h2="protocols supported by parsers">
+              <a class="kb-toc-h2" href="#protocols-supported-by-parsers">Protocols Supported by Parsers</a>
+            </li>
+            
+          </ul>
+          
+        </div>
+        
+        <div class="kb-toc-section" data-h1="xxe exploitation model">
+          <a class="kb-toc-h1" href="#xxe-exploitation-model">XXE Exploitation Model</a>
+          
+          <ul class="kb-toc-children">
+            
+            <li class="kb-toc-child-item" data-h2="decision tree">
+              <a class="kb-toc-h2" href="#decision-tree">Decision Tree</a>
+            </li>
+            
+            <li class="kb-toc-child-item" data-h2="entry points">
+              <a class="kb-toc-h2" href="#entry-points">Entry Points</a>
+            </li>
+            
+            <li class="kb-toc-child-item" data-h2="language-specific">
+              <a class="kb-toc-h2" href="#language-specific">Language-Specific</a>
+            </li>
+            
+            <li class="kb-toc-child-item" data-h2="denial of service">
+              <a class="kb-toc-h2" href="#denial-of-service">Denial of Service</a>
+            </li>
+            
+          </ul>
+          
+        </div>
+        
+        <div class="kb-toc-section" data-h1="identifying xxe">
+          <a class="kb-toc-h1" href="#identifying-xxe">Identifying XXE</a>
+          
+          <ul class="kb-toc-children">
+            
+            <li class="kb-toc-child-item" data-h2="when to suspect xxe">
+              <a class="kb-toc-h2" href="#when-to-suspect-xxe">When to Suspect XXE</a>
+            </li>
+            
+            <li class="kb-toc-child-item" data-h2="testing on rest apis">
+              <a class="kb-toc-h2" href="#testing-on-rest-apis">Testing on REST APIs</a>
+            </li>
+            
+          </ul>
+          
+        </div>
+        
+        <div class="kb-toc-section" data-h1="core techniques">
+          <a class="kb-toc-h1" href="#core-techniques">Core Techniques</a>
+          
+          <ul class="kb-toc-children">
+            
+            <li class="kb-toc-child-item" data-h2="local file inclusion (lfi)">
+              <a class="kb-toc-h2" href="#local-file-inclusion-lfi">Local File Inclusion (LFI)</a>
+            </li>
+            
+            <li class="kb-toc-child-item" data-h2="server side request forgery (ssrf)">
+              <a class="kb-toc-h2" href="#server-side-request-forgery-ssrf">Server Side Request Forgery (SSRF)</a>
+            </li>
+            
+            <li class="kb-toc-child-item" data-h2="out-of-band (oob) exfiltration via malicious dtds">
+              <a class="kb-toc-h2" href="#out-of-band-oob-exfiltration-via-malicious-dtds">Out-of-Band (OOB) Exfiltration via Malicious DTDs</a>
+            </li>
+            
+            <li class="kb-toc-child-item" data-h2="error-based blind xxe">
+              <a class="kb-toc-h2" href="#error-based-blind-xxe">Error-Based Blind XXE</a>
+            </li>
+            
+            <li class="kb-toc-child-item" data-h2="denial of service">
+              <a class="kb-toc-h2" href="#denial-of-service_1">Denial of Service</a>
+            </li>
+            
+          </ul>
+          
+        </div>
+        
+        <div class="kb-toc-section" data-h1="intermediate techniques">
+          <a class="kb-toc-h1" href="#intermediate-techniques">Intermediate Techniques</a>
+          
+          <ul class="kb-toc-children">
+            
+            <li class="kb-toc-child-item" data-h2="xxe via file upload">
+              <a class="kb-toc-h2" href="#xxe-via-file-upload">XXE via File Upload</a>
+            </li>
+            
+            <li class="kb-toc-child-item" data-h2="xxe in soap">
+              <a class="kb-toc-h2" href="#xxe-in-soap">XXE in SOAP</a>
+            </li>
+            
+            <li class="kb-toc-child-item" data-h2="xxe via xinclude">
+              <a class="kb-toc-h2" href="#xxe-via-xinclude">XXE via XInclude</a>
+            </li>
+            
+            <li class="kb-toc-child-item" data-h2="content-type switching">
+              <a class="kb-toc-h2" href="#content-type-switching">Content-Type Switching</a>
+            </li>
+            
+            <li class="kb-toc-child-item" data-h2="handling files with xml-special characters">
+              <a class="kb-toc-h2" href="#handling-files-with-xml-special-characters">Handling Files with XML-Special Characters</a>
+            </li>
+            
+          </ul>
+          
+        </div>
+        
+        <div class="kb-toc-section" data-h1="advanced techniques">
+          <a class="kb-toc-h1" href="#advanced-techniques">Advanced Techniques</a>
+          
+          <ul class="kb-toc-children">
+            
+            <li class="kb-toc-child-item" data-h2="repurposing local dtds (blind xxe)">
+              <a class="kb-toc-h2" href="#repurposing-local-dtds-blind-xxe">Repurposing Local DTDs (Blind XXE)</a>
+            </li>
+            
+            <li class="kb-toc-child-item" data-h2="dns-based oob exfiltration">
+              <a class="kb-toc-h2" href="#dns-based-oob-exfiltration">DNS-Based OOB Exfiltration</a>
+            </li>
+            
+            <li class="kb-toc-child-item" data-h2="php wrappers">
+              <a class="kb-toc-h2" href="#php-wrappers">PHP Wrappers</a>
+            </li>
+            
+            <li class="kb-toc-child-item" data-h2="java protocol exploitation">
+              <a class="kb-toc-h2" href="#java-protocol-exploitation">Java Protocol Exploitation</a>
+            </li>
+            
+          </ul>
+          
+        </div>
+        
+        <div class="kb-toc-section" data-h1="troubleshooting guide">
+          <a class="kb-toc-h1" href="#troubleshooting-guide">Troubleshooting Guide</a>
+          
+        </div>
+        
+        <div class="kb-toc-section" data-h1="tools and resources">
+          <a class="kb-toc-h1" href="#tools-and-resources">Tools and Resources</a>
+          
+          <ul class="kb-toc-children">
+            
+            <li class="kb-toc-child-item" data-h2="security testing tools">
+              <a class="kb-toc-h2" href="#security-testing-tools">Security Testing Tools</a>
+            </li>
+            
+          </ul>
+          
+        </div>
+        
+        <div class="kb-toc-section" data-h1="references">
+          <a class="kb-toc-h1" href="#references">References</a>
+          
+          <ul class="kb-toc-children">
+            
+            <li class="kb-toc-child-item" data-h2="owasp">
+              <a class="kb-toc-h2" href="#owasp">OWASP</a>
+            </li>
+            
+            <li class="kb-toc-child-item" data-h2="portswigger web security academy">
+              <a class="kb-toc-h2" href="#portswigger-web-security-academy">PortSwigger Web Security Academy</a>
+            </li>
+            
+            <li class="kb-toc-child-item" data-h2="community">
+              <a class="kb-toc-h2" href="#community">Community</a>
+            </li>
+            
+            <li class="kb-toc-child-item" data-h2="papers">
+              <a class="kb-toc-h2" href="#papers">Papers</a>
+            </li>
+            
+          </ul>
+          
+        </div>
+        
+      </nav>
+    </div>
+  </aside>
   
-  <div class="article-subtitle"><p>This is not a payload list. This is a deep-dive into how XXE works internally, with the goal of:</p>
+
+  <article class="article">
+
+    <a class="back-link" href="/kb/injection-attacks/">← Injection Attacks</a>
+
+    <h1 class="article-title">XXE Exploitation Knowledge Base</h1>
+
+    
+
+    
+    <div class="article-subtitle"><p>This is not a payload list. This is a deep-dive into how XXE works internally, with the goal of:</p>
 <ul>
 <li>Building a mental model of XML parsing</li>
 <li>Understanding why payloads work (not just using them)</li>
 <li>Covering both fundamentals (for juniors) and advanced techniques (for experienced testers)</li>
 </ul></div>
-  
+    
 
-  <div class="article-content">
-    <h1 id="xml-fundamentals">XML Fundamentals</h1>
+    <div class="article-content">
+      <h1 id="xml-fundamentals">XML Fundamentals</h1>
 <p>Before diving into XXE exploitation it is important to understand the basics of XML and how parsers work. If you are already familiar with XML, DTDs and entity resolution you can skip this section and go straight to the <a href="#xxe-taxonomy">XXE Taxonomy</a>.</p>
 <h2 id="what-is-xml">What is XML</h2>
 <p>XML (eXtensible Markup Language) is a format for storing and transporting structured data. It looks similar to HTML but unlike HTML, XML lets you define your own tags. Here is a simple XML document:</p>
@@ -1450,13 +1718,15 @@ unzip interactsh-client_1.0.0_linux_amd64.zip
 <li><strong>XML External Entity (XXE) Processing</strong> - NIST Guidelines</li>
 <li><strong>DTD Security Considerations</strong> - W3C XML Specifications</li>
 </ul>
-  </div>
+    </div>
 
-  
+    
 
-  
+    
 
-</article>
+  </article>
+
+</div>
 
   </main>
 
@@ -1486,6 +1756,6 @@ unzip interactsh-client_1.0.0_linux_amd64.zip
     });
     mermaid.run({ querySelector: '.mermaid' });
   </script>
-  <script src="/assets/main.js?v=0eadd1a" defer></script>
+  <script src="/assets/main.js?v=76a05a6" defer></script>
 </body>
 </html>
