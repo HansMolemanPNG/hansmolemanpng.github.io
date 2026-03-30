@@ -1097,6 +1097,17 @@ img { max-width: 100%; display: block; }
 @media (max-width: 920px) {
   .page-kb-sheet .main { max-width: 100%; }
 
+  /* Article prose uses vw so physical text size stays constant even
+     when the viewport is dynamically widened to fit wide code blocks.
+     pre code intentionally stays at .75rem (not scaled). */
+  .article-content,
+  .article-subtitle   { font-size: 4.4vw; }
+  .article-title      { font-size: 5.8vw; }
+  .article-content h1 { font-size: 6vw; }
+  .article-content h2 { font-size: 5.2vw; }
+  .article-content h3 { font-size: 4.8vw; }
+  .article-content h4 { font-size: 4.4vw; }
+
   .kb-layout {
     flex-direction: column;
     align-items: stretch;
