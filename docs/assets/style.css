@@ -682,6 +682,9 @@ img { max-width: 100%; display: block; }
   padding-left: 1.5rem;
   margin-bottom: 1.1rem;
 }
+.article-content ul { list-style-type: disc; }
+.article-content ol { list-style-type: decimal; }
+.article-content ul ul { list-style-type: circle; }
 .article-content li { margin-bottom: .3rem; }
 
 .article-content code {
@@ -1081,10 +1084,6 @@ img { max-width: 100%; display: block; }
    fixed at width=900 (900 < 920 → breakpoint fires → accordion). */
 @media (max-width: 920px) {
   .page-kb-sheet .main { max-width: 100%; }
-
-  /* Prevent any overflowing child from causing page-level horizontal scroll.
-     Safe here because position:sticky is already disabled on mobile. */
-  body { overflow-x: hidden; }
 
   .kb-layout {
     flex-direction: column;
