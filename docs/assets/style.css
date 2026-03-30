@@ -933,8 +933,183 @@ img { max-width: 100%; display: block; }
 .not-found-link:hover { color: var(--accent); }
 
 /* ================================================================
+   KB SIDEBAR TOC
+   ================================================================ */
+
+.page-kb-sheet .main {
+  max-width: min(92vw, 1400px);
+}
+
+.kb-layout {
+  display: flex;
+  align-items: flex-start;
+  gap: 2.5rem;
+}
+
+/* ── Sidebar ── */
+.kb-toc {
+  width: 220px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 2rem;
+  max-height: calc(100vh - 4rem);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+.kb-toc::-webkit-scrollbar       { width: 3px; }
+.kb-toc::-webkit-scrollbar-track { background: transparent; }
+.kb-toc::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+/* Mobile-only toggle button (hidden on desktop) */
+.kb-toc-toggle {
+  display: none;
+}
+
+/* ── Search ── */
+.kb-toc-search-wrap {
+  position: relative;
+  margin-bottom: .85rem;
+}
+.kb-toc-search-icon {
+  position: absolute;
+  left: .55rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 12px;
+  height: 12px;
+  color: var(--muted);
+  pointer-events: none;
+}
+.kb-toc-search {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: .4rem .6rem .4rem 1.85rem;
+  font-family: var(--font-mono);
+  font-size: .7rem;
+  color: var(--text);
+  outline: none;
+  box-sizing: border-box;
+  -webkit-appearance: none;
+}
+.kb-toc-search::placeholder { color: var(--muted); }
+.kb-toc-search:focus         { border-color: var(--border-hover); }
+
+/* ── Nav tree ── */
+.kb-toc-nav {
+  display: flex;
+  flex-direction: column;
+}
+.kb-toc-section {
+  display: flex;
+  flex-direction: column;
+}
+.kb-toc-h1 {
+  font-family: var(--font-mono);
+  font-size: .65rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-decoration: none;
+  padding: .6rem 0 .3rem;
+  border-top: 1px solid var(--border);
+  margin-top: .1rem;
+  transition: color .15s;
+  line-height: 1.3;
+}
+.kb-toc-section:first-child .kb-toc-h1 {
+  border-top: none;
+  padding-top: 0;
+  margin-top: 0;
+}
+.kb-toc-h1:hover   { color: var(--text); }
+.kb-toc-h1.is-active { color: var(--accent); }
+
+.kb-toc-children {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 .35rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.kb-toc-h2 {
+  font-size: .73rem;
+  color: var(--muted);
+  text-decoration: none;
+  display: block;
+  padding: .22rem 0 .22rem .7rem;
+  border-left: 2px solid transparent;
+  line-height: 1.35;
+  transition: color .15s, border-color .15s;
+}
+.kb-toc-h2:hover    { color: var(--text); border-left-color: var(--border-hover); }
+.kb-toc-h2.is-active { color: var(--accent); border-left-color: var(--accent); }
+
+/* Hidden by search */
+.kb-toc-section.is-hidden     { display: none; }
+.kb-toc-child-item.is-hidden  { display: none; }
+
+/* ================================================================
    MOBILE
    ================================================================ */
+
+/* Tablet: collapse sidebar to toggle at 860px */
+@media (max-width: 860px) {
+  .page-kb-sheet .main { max-width: 100%; }
+
+  .kb-layout {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .kb-toc {
+    width: 100%;
+    position: static;
+    max-height: none;
+    overflow: visible;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: .6rem .85rem;
+    margin-bottom: 1.5rem;
+    box-sizing: border-box;
+  }
+
+  .kb-toc-toggle {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    width: 100%;
+  }
+  .kb-toc-toggle:hover { color: var(--text); }
+  .kb-toc-chevron {
+    width: 10px;
+    height: 6px;
+    transition: transform .2s;
+    flex-shrink: 0;
+  }
+  .kb-toc[aria-expanded="true"] .kb-toc-chevron,
+  .kb-toc.is-open .kb-toc-chevron { transform: rotate(180deg); }
+
+  .kb-toc-body {
+    display: none;
+    padding-top: .75rem;
+  }
+  .kb-toc.is-open .kb-toc-body { display: block; }
+}
 
 @media (max-width: 600px) {
   .topnav { padding: 0 1rem; }
