@@ -2,14 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=900">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Static Analysis · Hans_Moleman.PNG</title>
   <link rel="icon" href="/assets/profile.jpeg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
-  <link rel="stylesheet" href="/assets/style.css?v=c971ae5">
+  <link rel="stylesheet" href="/assets/style.css?v=d421e6f">
 </head>
 <body class="page-kb-sheet">
   <nav class="topnav">
@@ -56,6 +56,28 @@
 
 </div>
 
+<script>
+/* Adapt the viewport to the widest pre block so code/taxonomy lines
+   never wrap or scroll. Runs inline (end of body) before first paint
+   so there is no visible re-layout flicker.                           */
+(function () {
+  var maxW = 0;
+  document.querySelectorAll('.article-content pre').forEach(function (pre) {
+    maxW = Math.max(maxW, pre.scrollWidth);
+  });
+  if (maxW <= 0) return;
+  var main = document.querySelector('.main');
+  if (!main) return;
+  var cs   = getComputedStyle(main);
+  var hPad = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
+  var needed = Math.ceil(maxW + hPad);
+  /* Only widen the viewport if content is actually wider than the screen */
+  if (needed <= window.innerWidth) return;
+  var meta = document.querySelector('meta[name=viewport]');
+  if (meta) meta.content = 'width=' + needed;
+}());
+</script>
+
   </main>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
@@ -94,6 +116,6 @@
       });
     });
   </script>
-  <script src="/assets/main.js?v=c971ae5" defer></script>
+  <script src="/assets/main.js?v=d421e6f" defer></script>
 </body>
 </html>
