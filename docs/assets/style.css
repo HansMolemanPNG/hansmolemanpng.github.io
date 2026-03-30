@@ -946,6 +946,12 @@ img { max-width: 100%; display: block; }
   max-width: min(92vw, 1400px);
 }
 
+/* Mermaid diagrams: scale to container width without overflowing */
+.article-content .mermaid svg {
+  max-width: 100%;
+  height: auto;
+}
+
 .kb-layout {
   display: flex;
   align-items: flex-start;
@@ -1071,10 +1077,6 @@ img { max-width: 100%; display: block; }
 /* Tablet: collapse sidebar to toggle at 860px */
 @media (max-width: 860px) {
   .page-kb-sheet .main { max-width: 100%; }
-
-  /* Prevent any overflowing child (pre, table, mermaid) from causing
-     page-level horizontal scroll. Safe here because sticky is off on mobile. */
-  body { overflow-x: hidden; }
 
   .kb-layout {
     flex-direction: column;

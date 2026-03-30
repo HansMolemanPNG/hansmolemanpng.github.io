@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  {% block viewport_meta %}<meta name="viewport" content="width=device-width, initial-scale=1">{% endblock %}
   <title>{% if page.title and page.title != 'Hans_Moleman.PNG' %}{{ page.title }} · {% endif %}Hans_Moleman.PNG</title>
   <link rel="icon" href="/assets/profile.jpeg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
