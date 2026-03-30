@@ -1101,12 +1101,12 @@ img { max-width: 100%; display: block; }
      when the viewport is dynamically widened to fit wide code blocks.
      pre code intentionally stays at .75rem (not scaled). */
   .article-content,
-  .article-subtitle   { font-size: 4.4vw; }
-  .article-title      { font-size: 5.8vw; }
-  .article-content h1 { font-size: 6vw; }
-  .article-content h2 { font-size: 5.2vw; }
-  .article-content h3 { font-size: 4.8vw; }
-  .article-content h4 { font-size: 4.4vw; }
+  .article-subtitle   { font-size: 4.2vw; }
+  .article-title      { font-size: 5.4vw; }
+  .article-content h1 { font-size: 5.6vw; }
+  .article-content h2 { font-size: 4.9vw; }
+  .article-content h3 { font-size: 4.5vw; }
+  .article-content h4 { font-size: 4.2vw; }
 
   .kb-layout {
     flex-direction: column;
