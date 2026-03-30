@@ -790,6 +790,12 @@ img { max-width: 100%; display: block; }
   margin: 1.25rem 0;
 }
 
+.article-content .table-wrapper,
+.article-content table {
+  display: block;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
 .article-content table {
   width: 100%;
   border-collapse: collapse;
@@ -1065,6 +1071,10 @@ img { max-width: 100%; display: block; }
 /* Tablet: collapse sidebar to toggle at 860px */
 @media (max-width: 860px) {
   .page-kb-sheet .main { max-width: 100%; }
+
+  /* Prevent any overflowing child (pre, table, mermaid) from causing
+     page-level horizontal scroll. Safe here because sticky is off on mobile. */
+  body { overflow-x: hidden; }
 
   .kb-layout {
     flex-direction: column;
