@@ -31,7 +31,7 @@
 }
 
 /* ── Reset ── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; padding-inline: 0; padding-block: 0; margin-inline: 0; margin-block: 0; }
 html { font-size: 16px; -webkit-text-size-adjust: 100%; }
 
 body {
@@ -679,14 +679,21 @@ img { max-width: 100%; display: block; }
 
 .article-content ul,
 .article-content ol {
-  padding-left: 1.5rem;
-  padding-inline-start: 1.5rem;
+  padding-left: 2rem;
+  padding-inline-start: 2rem;
   margin-bottom: 1.1rem;
-  list-style-position: outside;
 }
 .article-content ul { list-style-type: disc; }
 .article-content ol { list-style-type: decimal; }
 .article-content ul ul { list-style-type: circle; }
+.article-content ul ul,
+.article-content ol ol,
+.article-content ul ol,
+.article-content ol ul {
+  padding-left: 1.5rem;
+  padding-inline-start: 1.5rem;
+  margin-bottom: 0;
+}
 .article-content li {
   display: list-item;
   margin-bottom: .3rem;
