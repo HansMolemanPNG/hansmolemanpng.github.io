@@ -945,6 +945,11 @@ img { max-width: 100%; display: block; }
   align-items: flex-start;
   gap: 2.5rem;
 }
+/* Prevent the article from expanding the flex container (e.g. wide code blocks) */
+.kb-layout > .article {
+  flex: 1;
+  min-width: 0;
+}
 
 /* ── Sidebar ── */
 .kb-toc {
@@ -1063,6 +1068,7 @@ img { max-width: 100%; display: block; }
 
   .kb-layout {
     flex-direction: column;
+    align-items: stretch;
     gap: 0;
   }
 
