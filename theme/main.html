@@ -52,7 +52,17 @@
         fontSize:             '13px',
       }
     });
-    mermaid.run({ querySelector: '.mermaid' });
+    mermaid.run({ querySelector: '.mermaid' }).then(() => {
+      document.querySelectorAll('.mermaid svg').forEach(svg => {
+        const w = parseFloat(svg.getAttribute('width'));
+        const h = parseFloat(svg.getAttribute('height'));
+        if (!svg.getAttribute('viewBox') && w && h) {
+          svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+        }
+        svg.removeAttribute('width');
+        svg.removeAttribute('height');
+      });
+    });
   </script>
   <script src="/assets/main.js?v={{ cache_bust }}" defer></script>
 </body>
