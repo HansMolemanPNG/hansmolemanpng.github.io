@@ -697,7 +697,7 @@ img { max-width: 100%; display: block; }
 .article-content pre {
   margin: 1.5rem 0;
   border-radius: var(--radius);
-  overflow: hidden;
+  overflow-x: auto;
   border: 1px solid var(--border);
 }
 .article-content pre code {
@@ -706,9 +706,9 @@ img { max-width: 100%; display: block; }
   padding: 0;
   font-size: .84rem;
   line-height: 1.6;
-  white-space: pre-wrap;
-  overflow-wrap: break-word;
-  word-break: break-all;
+  white-space: pre;
+  overflow-wrap: normal;
+  word-break: normal;
 }
 /* ── KB technique tier markers ── */
 .article-content h1.tier--core,
@@ -790,14 +790,14 @@ img { max-width: 100%; display: block; }
   margin: 1.25rem 0;
 }
 
-.article-content .table-wrapper,
-.article-content table {
-  display: block;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
+.article-content a {
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
+
 .article-content table {
   width: 100%;
+  table-layout: fixed;
   border-collapse: collapse;
   margin: 1.5rem 0;
   font-size: .875rem;
@@ -807,6 +807,8 @@ img { max-width: 100%; display: block; }
   text-align: left;
   padding: .5rem .75rem;
   border-bottom: 1px solid var(--border);
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 .article-content th {
   font-family: var(--font-mono);
@@ -1078,9 +1080,16 @@ img { max-width: 100%; display: block; }
 @media (max-width: 860px) {
   .page-kb-sheet .main { max-width: 100%; }
 
-  /* Clip any overflow (pre, table, mermaid) at the body level;
+  /* Clip any overflow at the body level;
      safe here because position:sticky is already disabled on mobile */
   body { overflow-x: hidden; }
+
+  /* Smaller monospace font so more chars fit per line before needing to scroll */
+  .article-content pre code { font-size: .68rem; }
+
+  /* Tables: tighter on mobile */
+  .article-content table { font-size: .78rem; }
+  .article-content th, .article-content td { padding: .35rem .5rem; }
 
   .kb-layout {
     flex-direction: column;
