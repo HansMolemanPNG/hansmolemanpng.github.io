@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
-  <link rel="stylesheet" href="/assets/style.css?v=f4471c8">
+  <link rel="stylesheet" href="/assets/style.css?v=22e4631">
 </head>
 <body class="page-kb-sheet">
   <nav class="topnav">
@@ -1746,7 +1746,13 @@ unzip interactsh-client_1.0.0_linux_amd64.zip
   var main = document.querySelector('.main');
   if (!main) return;
   var cs   = getComputedStyle(main);
-  var hPad = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
+  /* At the initial (narrow) viewport the 600 px breakpoint is active and
+     gives 1rem side padding. Once widened past 600 px the base rule of
+     1.5 rem takes over. Use the larger value so the code always fits. */
+  var hPad = Math.max(
+    parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight),
+    48   /* 2 × 1.5rem at 16 px base font = base .main padding */
+  );
   var needed = Math.ceil(maxW + hPad);
 
   /* Only widen if content is actually wider than the current viewport */
@@ -1797,6 +1803,6 @@ unzip interactsh-client_1.0.0_linux_amd64.zip
       });
     });
   </script>
-  <script src="/assets/main.js?v=f4471c8" defer></script>
+  <script src="/assets/main.js?v=22e4631" defer></script>
 </body>
 </html>
