@@ -1095,11 +1095,11 @@ img { max-width: 100%; display: block; }
    Breakpoint is 920px so it fires on mobile where the KB viewport is
    fixed at width=900 (900 < 920 → breakpoint fires → accordion). */
 @media (max-width: 920px) {
- /* .page-kb-sheet .main { max-width: 100%; } */
+  .main { max-width: 100%; }
 
   /* Article prose uses vw so physical text size stays constant even
      when the viewport is dynamically widened to fit wide code blocks.
-     pre code intentionally stays at .75rem (not scaled). */
+     pre code scales with vw so it grows in proportion to the container. */
   .article-content,
   .article-subtitle   { font-size: 4.2vw; }
   .article-title      { font-size: 5.4vw; }
