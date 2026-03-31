@@ -101,7 +101,13 @@
   var main = document.querySelector('.main');
   if (!main) return;
   var cs   = getComputedStyle(main);
-  var hPad = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
+  /* At the initial (narrow) viewport the 600 px breakpoint is active and
+     gives 1rem side padding. Once widened past 600 px the base rule of
+     1.5 rem takes over. Use the larger value so the code always fits. */
+  var hPad = Math.max(
+    parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight),
+    48   /* 2 × 1.5rem at 16 px base font = base .main padding */
+  );
   var needed = Math.ceil(maxW + hPad);
 
   /* Only widen if content is actually wider than the current viewport */
