@@ -32,7 +32,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/http.min.js"></script>
   <script type="module">
     import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
-    import Panzoom from 'https://cdn.jsdelivr.net/npm/@panzoom/panzoom@4/dist/panzoom.esm.js';
     mermaid.initialize({
       startOnLoad: false,
       theme: 'base',
@@ -63,18 +62,22 @@
         svg.removeAttribute('width');
         svg.removeAttribute('height');
 
-        /* Pan / zoom */
+        /* Pan / zoom — loaded dynamically so a CDN failure never blocks mermaid */
         const container = svg.closest('.mermaid');
         if (!container) return;
-        const pz = Panzoom(svg, { maxScale: 10, minScale: 0.2 });
-        container.addEventListener('wheel', pz.zoomWithWheel, { passive: false });
+        import('https://cdn.jsdelivr.net/npm/@panzoom/panzoom@4/dist/panzoom.esm.js')
+          .then(({ default: Panzoom }) => {
+            const pz = Panzoom(svg, { maxScale: 10, minScale: 0.2 });
+            container.addEventListener('wheel', pz.zoomWithWheel, { passive: false });
 
-        const resetBtn = document.createElement('button');
-        resetBtn.className = 'mermaid-reset';
-        resetBtn.textContent = '⟳ reset';
-        resetBtn.title = 'Reset zoom';
-        container.appendChild(resetBtn);
-        resetBtn.addEventListener('click', () => pz.reset());
+            const resetBtn = document.createElement('button');
+            resetBtn.className = 'mermaid-reset';
+            resetBtn.textContent = '⟳ reset';
+            resetBtn.title = 'Reset zoom';
+            container.appendChild(resetBtn);
+            resetBtn.addEventListener('click', () => pz.reset());
+          })
+          .catch(() => { /* Panzoom unavailable — diagram still displays */ });
       });
     });
   </script>
