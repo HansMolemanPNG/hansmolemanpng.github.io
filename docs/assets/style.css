@@ -651,6 +651,7 @@ img { max-width: 100%; display: block; }
 .article-content {
   font-size: .9375rem;
   line-height: 1.8;
+  overflow-wrap: break-word;
 }
 
 .article-content h1,
