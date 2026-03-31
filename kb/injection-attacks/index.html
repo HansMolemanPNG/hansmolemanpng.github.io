@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
-  <link rel="stylesheet" href="/assets/style.css?v=969d3d2">
+  <link rel="stylesheet" href="/assets/style.css?v=8e53b92">
 </head>
 <body>
   <nav class="topnav">
@@ -77,6 +77,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/http.min.js"></script>
   <script type="module">
     import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    import Panzoom from 'https://cdn.jsdelivr.net/npm/@panzoom/panzoom@4/dist/panzoom.esm.js';
     mermaid.initialize({
       startOnLoad: false,
       theme: 'base',
@@ -106,9 +107,22 @@
         }
         svg.removeAttribute('width');
         svg.removeAttribute('height');
+
+        /* Pan / zoom */
+        const container = svg.closest('.mermaid');
+        if (!container) return;
+        const pz = Panzoom(svg, { maxScale: 10, minScale: 0.2 });
+        container.addEventListener('wheel', pz.zoomWithWheel, { passive: false });
+
+        const resetBtn = document.createElement('button');
+        resetBtn.className = 'mermaid-reset';
+        resetBtn.textContent = '⟳ reset';
+        resetBtn.title = 'Reset zoom';
+        container.appendChild(resetBtn);
+        resetBtn.addEventListener('click', () => pz.reset());
       });
     });
   </script>
-  <script src="/assets/main.js?v=969d3d2" defer></script>
+  <script src="/assets/main.js?v=8e53b92" defer></script>
 </body>
 </html>
