@@ -81,7 +81,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function setActive(id) {
       tocLinks.forEach(link => {
-        link.classList.toggle('is-active', link.getAttribute('href') === '#' + id);
+        const active = link.getAttribute('href') === '#' + id;
+        link.classList.toggle('is-active', active);
+        if (active && window.innerWidth > 920) {
+          link.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        }
       });
     }
 
