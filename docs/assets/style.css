@@ -791,13 +791,67 @@ img { max-width: 100%; display: block; }
   border-radius: var(--radius);
   padding: 1.5rem;
   margin: 1.5rem 0;
-  overflow-x: auto;
+  overflow: hidden;
+  position: relative;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
   text-align: center;
 }
+.article-content .mermaid:active { cursor: grabbing; }
 .article-content .mermaid svg {
   max-width: 100%;
   height: auto;
+  display: block;
+  margin: 0 auto;
 }
+
+/* Reset zoom button inside mermaid diagrams */
+.mermaid-reset {
+  position: absolute;
+  top: .5rem;
+  right: .5rem;
+  background: var(--surface2);
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: .2rem .45rem;
+  font-size: .65rem;
+  font-family: var(--font-mono);
+  cursor: pointer;
+  line-height: 1;
+  opacity: .6;
+  transition: opacity .15s, color .15s;
+  z-index: 1;
+}
+.mermaid-reset:hover { opacity: 1; color: var(--text); }
+
+/* ── Code copy button ── */
+.code-wrap {
+  position: relative;
+  margin: 1.5rem 0;
+}
+/* pre inside code-wrap loses its own margin (wrap provides it) */
+.code-wrap pre { margin: 0; }
+
+.copy-btn {
+  position: absolute;
+  top: .5rem;
+  right: .5rem;
+  background: var(--surface2);
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: .2rem .5rem;
+  font-family: var(--font-mono);
+  font-size: .65rem;
+  cursor: pointer;
+  opacity: .5;
+  transition: opacity .15s, color .15s;
+  line-height: 1.4;
+}
+.copy-btn:hover    { opacity: 1; color: var(--text); }
+.copy-btn.is-copied { opacity: 1; color: var(--accent); }
 
 .article-content blockquote {
   border-left: 3px solid var(--accent);
@@ -964,11 +1018,6 @@ img { max-width: 100%; display: block; }
   max-width: min(92vw, 1400px);
 }
 
-/* Mermaid diagrams: scale to container width without overflowing */
-.article-content .mermaid svg {
-  max-width: 100%;
-  height: auto;
-}
 
 .kb-layout {
   display: flex;

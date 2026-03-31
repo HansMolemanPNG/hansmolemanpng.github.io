@@ -114,6 +114,34 @@ document.addEventListener('DOMContentLoaded', () => {
     if (max > 0) rows.forEach(r => r.style.minHeight = max + 'px');
   });
 
+  /* ── Code block copy button ── */
+  document.querySelectorAll('.article-content pre').forEach(pre => {
+    // Wrap pre in a relative container so the button stays at viewport-right
+    const wrap = document.createElement('div');
+    wrap.className = 'code-wrap';
+    pre.parentNode.insertBefore(wrap, pre);
+    wrap.appendChild(pre);
+
+    const btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = 'Copy';
+    btn.setAttribute('aria-label', 'Copy code');
+    wrap.appendChild(btn);
+
+    btn.addEventListener('click', () => {
+      const code = pre.querySelector('code');
+      const text = code ? code.innerText : pre.innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        btn.textContent = 'Copied ✓';
+        btn.classList.add('is-copied');
+        setTimeout(() => {
+          btn.textContent = 'Copy';
+          btn.classList.remove('is-copied');
+        }, 2000);
+      }).catch(() => {});
+    });
+  });
+
   /* ── Blog post type filter ── */
   const filterBtns = document.querySelectorAll('.filter-btn');
   const postRows   = document.querySelectorAll('.post-row--full');
