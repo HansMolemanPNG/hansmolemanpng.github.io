@@ -1103,7 +1103,7 @@ img { max-width: 100%; display: block; }
      when the viewport is dynamically widened to fit wide code blocks.
      pre code scales with vw so it grows in proportion to the container. */
   .article-content,
-  .article-subtitle   { font-size: 4.2vw; }
+  .article-subtitle   { font-size: 3.5vw; }
   .article-title      { font-size: 5.4vw; }
   .article-content h1 { font-size: 5.6vw; }
   .article-content h2 { font-size: 4.9vw; }
