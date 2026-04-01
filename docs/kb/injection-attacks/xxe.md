@@ -259,7 +259,7 @@ Different parsers behave differently. Some are vulnerable by default, some requi
 
 |Parser                 |External Entities      |Parameter Entities|DTD Processing|Risk Assessment                                          |
 |-----------------------|-----------------------|------------------|--------------|---------------------------------------------------------|
-|`lxml` (etree)         |❌ Off by default       |❌ Off             |✅ On          |Usually safe — secure defaults since 5.x                 |
+|`lxml` (etree)         |❌ Off by default       |❌ Off             |✅ On          |Usually safe — secure defaults since 5.0                 |
 |`xml.etree.ElementTree`|❌ No DTD support       |❌ No              |❌ No          |Usually safe — limited parser, relies on expat           |
 |`xml.dom.minidom`      |⚠️ Depends on SAX config|❌ No              |⚠️ Partial     |Version-dependent — underlying SAX parser behavior varies|
 
@@ -309,13 +309,20 @@ Not all parsers support the same protocols. This directly affects what technique
 |`https://` |✅     |✅             |✅   |✅     |✅   |
 |`ftp://`   |✅     |✅             |⚠️   |❌     |❌   |
 |`jar://`   |✅     |❌             |❌   |❌     |❌   |
-|`netdoc://`|⚠️ Some|❌             |❌   |❌     |❌   |
+|`netdoc://`|⚠️ Old JDKs |❌             |❌   |❌     |❌   |
 |`php://`   |❌     |✅             |❌   |❌     |❌   |
 |`expect://`|❌     |⚠️ Extension   |❌   |❌     |❌   |
 |`data://`  |❌     |✅             |❌   |❌     |❌   |
 |`gopher://`|❌     |⚠️ Old versions|❌   |❌     |❌   |
 
 Java has the broadest protocol support which is why Java-specific techniques (jar://, netdoc://, LDAP, RMI) exist. PHP has its own set of wrappers (php://, expect://, data://) that are unique to that ecosystem.
+
+### Notes on protocols
+
+- ftp:// : Modern .NET does not include native FTP support, as the built-in classes (`FtpWebRequest` and `WebClient`) have been deprecated from the core framework. Third-party libraries like `FluentFTP` can be used as a full-featured replacement for FTP communication. Regarding XXE exploitation, leveraging the FTP protocol is extremely difficult in modern .NET. However, legacy .NET (**.NET Framework 4.x** and **.NET Core 3.1** and earlier) internally uses `WebRequest` inside `XmlUrlResolver`, which can successfully resolve FTP URLs and therefore makes FTP-based XXE attacks feasible in those environments.
+- gopher:// : Modern PHP (7.4.0 and later) does not include native Gopher protocol support, as it was officially removed from the core. Regarding XXE exploitation, leveraging the Gopher protocol is therefore not feasible in modern PHP. However, legacy PHP **prior to 7.4.0** natively supports the Gopher protocol, which makes Gopher-based XXE attacks feasible in those environments.
+- netdoc:// : The `netdoc://` protocol is a Java-internal alternative to `file://`, functionally equivalent for reading local files and occasionally used in XXE payloads to bypass WAF rules that block `file://` patterns. However, the `netdoc` protocol handler was officially removed in **JDK 9**. As a result, leveraging `netdoc://` in XXE exploitation is only feasible in legacy Java environments running **JDK 8 and earlier**.
+- expect:// : The `expect://` wrapper is not a built-in PHP feature but part of the **PECL expect extension**, which must be explicitly installed and is disabled by default. When active, it allows executing system commands directly from an XML entity, making it a particularly dangerous vector that can escalate XXE to **Remote Code Execution (RCE)**. Due to its non-default nature, this attack surface is rare in practice and fully dependent on whether the target environment has the extension installed.
 
 -----
 
@@ -378,7 +385,7 @@ graph LR
 
     LS[LANGUAGE-SPECIFIC]
     LS --> LS1[PHP\nexpect:// · php://filter\ndata:// · zip://]
-    LS --> LS2[Java\njar:// · netdoc://\nLDAP · RMI]
+    LS --> LS2[Java\njar:// · ://\nLDAP · RMI]
     LS --> LS3[.NET\nUNC NTLM capture]
 ```
 
@@ -1490,7 +1497,7 @@ Accesses files within Java archives. In very specific scenarios where the applic
 Some Java implementations support `netdoc://`:
 
 ```xml
-<!ENTITY xxe SYSTEM "netdoc:file:///etc/passwd">
+<!ENTITY xxe SYSTEM "netdoc:///etc/passwd">
 ```
 
 ### LDAP and RMI
