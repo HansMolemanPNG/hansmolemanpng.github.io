@@ -1028,6 +1028,9 @@ img { max-width: 100%; display: block; }
 .kb-layout > .article {
   flex: 1;
   min-width: 0;
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 2rem 2.5rem;
 }
 
 /* ── Sidebar ── */
@@ -1163,6 +1166,11 @@ img { max-width: 100%; display: block; }
     flex-direction: column;
     align-items: stretch;
     gap: 0;
+  }
+
+  .kb-layout > .article {
+    padding: 1.25rem 1rem;
+    border-radius: 6px;
   }
 
   .kb-toc {
