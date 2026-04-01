@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
-  <link rel="stylesheet" href="/assets/style.css?v=be5443d">
+  <link rel="stylesheet" href="/assets/style.css?v=9b8b51c">
 </head>
 <body class="page-kb-sheet">
   <nav class="topnav">
@@ -524,7 +524,7 @@
 <td>❌ Off by default</td>
 <td>❌ Off</td>
 <td>✅ On</td>
-<td>Usually safe — secure defaults since 5.x</td>
+<td>Usually safe — secure defaults since 5.0</td>
 </tr>
 <tr>
 <td><code>xml.etree.ElementTree</code></td>
@@ -711,7 +711,7 @@
 </tr>
 <tr>
 <td><code>netdoc://</code></td>
-<td>⚠️ Some</td>
+<td>⚠️ Old JDKs</td>
 <td>❌</td>
 <td>❌</td>
 <td>❌</td>
@@ -752,6 +752,13 @@
 </tbody>
 </table>
 <p>Java has the broadest protocol support which is why Java-specific techniques (jar://, netdoc://, LDAP, RMI) exist. PHP has its own set of wrappers (php://, expect://, data://) that are unique to that ecosystem.</p>
+<h3 id="notes-on-protocols">Notes on protocols</h3>
+<ul>
+<li>ftp:// : Modern .NET does not include native FTP support, as the built-in classes (<code>FtpWebRequest</code> and <code>WebClient</code>) have been deprecated from the core framework. Third-party libraries like <code>FluentFTP</code> can be used as a full-featured replacement for FTP communication. Regarding XXE exploitation, leveraging the FTP protocol is extremely difficult in modern .NET. However, legacy .NET (<strong>.NET Framework 4.x</strong> and <strong>.NET Core 3.1</strong> and earlier) internally uses <code>WebRequest</code> inside <code>XmlUrlResolver</code>, which can successfully resolve FTP URLs and therefore makes FTP-based XXE attacks feasible in those environments.</li>
+<li>gopher:// : Modern PHP (7.4.0 and later) does not include native Gopher protocol support, as it was officially removed from the core. Regarding XXE exploitation, leveraging the Gopher protocol is therefore not feasible in modern PHP. However, legacy PHP <strong>prior to 7.4.0</strong> natively supports the Gopher protocol, which makes Gopher-based XXE attacks feasible in those environments.</li>
+<li>netdoc:// : The <code>netdoc://</code> protocol is a Java-internal alternative to <code>file://</code>, functionally equivalent for reading local files and occasionally used in XXE payloads to bypass WAF rules that block <code>file://</code> patterns. However, the <code>netdoc</code> protocol handler was officially removed in <strong>JDK 9</strong>. As a result, leveraging <code>netdoc://</code> in XXE exploitation is only feasible in legacy Java environments running <strong>JDK 8 and earlier</strong>.</li>
+<li>expect:// : The <code>expect://</code> wrapper is not a built-in PHP feature but part of the <strong>PECL expect extension</strong>, which must be explicitly installed and is disabled by default. When active, it allows executing system commands directly from an XML entity, making it a particularly dangerous vector that can escalate XXE to <strong>Remote Code Execution (RCE)</strong>. Due to its non-default nature, this attack surface is rare in practice and fully dependent on whether the target environment has the extension installed.</li>
+</ul>
 <hr />
 <h1 id="xxe-exploitation-model">XXE Exploitation Model</h1>
 <p>The following diagram represents the full exploitation model for XXE attacks. It starts from initial detection and branches into different techniques based on what the application allows and how it responds. Use this as a decision map during testing.</p>
@@ -800,7 +807,7 @@ graph LR
 
     LS[LANGUAGE-SPECIFIC]
     LS --&gt; LS1[PHP\nexpect:// · php://filter\ndata:// · zip://]
-    LS --&gt; LS2[Java\njar:// · netdoc://\nLDAP · RMI]
+    LS --&gt; LS2[Java\njar:// · ://\nLDAP · RMI]
     LS --&gt; LS3[.NET\nUNC NTLM capture]</div>
 <h2 id="denial-of-service">Denial of Service</h2>
 <div class="mermaid">%%{init: {'theme': 'base', 'flowchart': {'rankSpacing': 60, 'nodeSpacing': 40}}}%%
@@ -1555,7 +1562,7 @@ C:\Program Files\IBM\SQLLIB\bin\dtds\*.dtd</code></pre>
 &lt;foo&gt;&amp;xxe;&lt;/foo&gt;</code></pre>
 <h3 id="netdoc-protocol">netdoc:// Protocol</h3>
 <p>Some Java implementations support <code>netdoc://</code>:</p>
-<pre class="highlight"><code class="language-xml">&lt;!ENTITY xxe SYSTEM "netdoc:file:///etc/passwd"&gt;</code></pre>
+<pre class="highlight"><code class="language-xml">&lt;!ENTITY xxe SYSTEM "netdoc:///etc/passwd"&gt;</code></pre>
 <h3 id="ldap-and-rmi">LDAP and RMI</h3>
 <p>In Java environments, <code>ldap://</code> and <code>rmi://</code> URIs in entity declarations can trigger JNDI (Java Naming and Directory Interface) lookups. It is worth noting that in most cases it is not the XML parser itself that resolves these protocols directly — the resolution is delegated to JNDI, which then performs the actual LDAP or RMI lookup. This is an important distinction because it means the attack depends on the JNDI configuration and Java version, not just the XML parser settings.</p>
 <p>LDAP example:</p>
@@ -1820,6 +1827,6 @@ unzip interactsh-client_1.0.0_linux_amd64.zip
       });
     });
   </script>
-  <script src="/assets/main.js?v=be5443d" defer></script>
+  <script src="/assets/main.js?v=9b8b51c" defer></script>
 </body>
 </html>
