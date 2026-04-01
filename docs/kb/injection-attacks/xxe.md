@@ -1526,7 +1526,7 @@ RMI example:
 |"Unknown protocol: X"             |Typo in protocol name           |Use valid protocols: `file://`, `http://`, `ftp://`|
 |No entity expansion in output     |Entity expansion disabled       |Try XInclude or wrapper techniques                 |
 |No callback received from OOB     |Firewall blocking outbound      |Use DNS-based OOB; test from DMZ if possible       |
-|File contents show only first line|Binary/special characters       |Use error-based or OOB exfiltration; use php://filter for encoding|
+|File contents show only first line|Binary/special characters or file contains several lines       |Use error-based or OOB exfiltration; use php://filter for encoding|
 |DOCTYPE not allowed error         |DOCTYPE explicitly disabled     |Use XInclude or file upload techniques             |
 |Entity limit exceeded             |Billion Laughs protection active|Use single entity; avoid recursive expansion       |
 |403/500 on OOB callback           |WAF blocking the request        |Obfuscate URL; use different protocols             |
