@@ -389,7 +389,7 @@ graph LR
 
     LS[LANGUAGE-SPECIFIC]
     LS --> LS1[PHP\nexpect:// · php://filter\ndata:// · zip://]
-    LS --> LS2[Java\njar:// · ://\nLDAP · RMI]
+    LS --> LS2[Java\njar:// · netdoc://\nLDAP · RMI]
     LS --> LS3[.NET\nUNC NTLM capture]
 ```
 
