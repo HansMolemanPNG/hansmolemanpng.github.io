@@ -623,6 +623,10 @@ XML LFI payloads usually result in the application returning the contents of the
 
 In this payload, the entity "xxe" will return the content of the file `/etc/passwd` since it is referenced below the definition in the element foo. Depending on the context this may not result in data exfiltration since it depends on how the application returns data.
 
+#### Note on encoding
+The payload above uses `ISO-8859-1` instead of `UTF-8`. This is intentional — some system files contain characters outside the ASCII range but within the Latin-1 charset. Declaring `ISO-8859-1` prevents the parser from failing when it encounters those characters during entity substitution. For files that are pure ASCII, `UTF-8` works equally well.
+
+
 ### Common Unix/Linux files
 
 ```xml
@@ -665,6 +669,10 @@ Windows specific files:
 ```
 
 Some notes on Windows paths: use forward slashes even on Windows (`file:///C:/path/to/file`) since backslashes are interpreted as escape characters in XML. UNC paths use `file:///\\server\share\file`. Some parsers also support alternate data streams: `file:///C:/path/file.txt:zone.identifier`.
+
+#### Note on UNC path syntax
+The forward slash rule applies to local Windows file paths (`file:///C:/path/to/file`). UNC paths are an exception — they require the double backslash notation (`\\server\share\file`) because that is how the UNC convention is defined. Some parsers also accept forward slash equivalents (`file:////server/share/file`), but backslash notation is more broadly supported for UNC across Java-based parsers.
+
 
 ## Server Side Request Forgery (SSRF)
 
@@ -873,7 +881,7 @@ Simpler variant (Quadratic Blowup):
 <foo>&a;&a;&a;&a;&a;&a;&a;&a;&a;&a;&a;&a;&a;&a;&a;&a;&a;&a;&a;&a;</foo>
 ```
 
-Both attacks cause memory exhaustion, CPU exhaustion, disk exhaustion and denial of service.
+Both attacks cause memory exhaustion, CPU exhaustion, disk exhaustion (in some cases) and denial of service.
 
 -----
 
