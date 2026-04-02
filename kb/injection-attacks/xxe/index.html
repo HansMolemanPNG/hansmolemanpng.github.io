@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
-  <link rel="stylesheet" href="/assets/style.css?v=e287e78">
+  <link rel="stylesheet" href="/assets/style.css?v=22260e0">
 </head>
 <body class="page-kb-sheet">
   <nav class="topnav">
@@ -330,7 +330,7 @@
 &lt;/user&gt;</code></pre>
 <p>The first line (<code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;</code>) is the XML declaration. Everything else is structured data using custom tags. Applications use XML to exchange information between systems, store configuration files, define API requests and much more.</p>
 <h2 id="what-is-an-xml-parser">What is an XML Parser</h2>
-<p>An XML parser is a piece of software that reads XML documents and makes their content available to the application. When a web application receives XML data (for example in an API request), it passes that data to the parser. The parser reads the XML structure, validates it and converts it into something the application can work with. For instance, when a Java server receives a POST request with <code>Content-Type: application/xml</code>, it typically passes the body to a parser like <code>DocumentBuilderFactory</code> to extract the data.</p>
+<p>An XML parser is a piece of software that reads XML documents and makes their content available to the application. When a web application receives XML data (for example in an API request), it passes that data to the parser. The parser reads the XML document, checks its syntax and converts it into something the application can work with. For instance, when a Java server receives a POST request with <code>Content-Type: application/xml</code>, it typically passes the body to a parser like <code>DocumentBuilderFactory</code> to extract the data.</p>
 <p>The key thing to understand is that the parser does not just read the data — it also <strong>processes instructions</strong> embedded in the XML document. This is where the security problem begins, because some of those instructions can tell the parser to read files from the server or make network requests. These instructions are called <strong>entity declarations</strong>, covered in the next sections.</p>
 <h2 id="what-is-a-dtd">What is a DTD</h2>
 <p>A DTD (Document Type Definition) is a set of rules that defines the structure of an XML document. DTDs are declared at the beginning of an XML document using the <code>&lt;!DOCTYPE&gt;</code> declaration. Inside the DTD you can define elements, attributes and <strong>entities</strong>.</p>
@@ -347,6 +347,7 @@
   &lt;message&gt;Hello&lt;/message&gt;
 &lt;/note&gt;</code></pre>
 <p>In this example the DTD defines that a <code>note</code> element must contain <code>to</code>, <code>from</code> and <code>message</code> elements, and each of those contains text data (<code>#PCDATA</code>).</p>
+<p>DTDs can be defined inline within the document or loaded from an external source — a distinction that becomes important when we explore advanced exploitation techniques.</p>
 <h2 id="what-are-entities">What are Entities</h2>
 <p>Entities are like variables in XML. You define them in the DTD and reference them in the document body. When the parser encounters an entity reference it replaces it with the entity's value.</p>
 <pre class="highlight"><code class="language-xml">&lt;?xml version="1.0"?&gt;
@@ -360,6 +361,7 @@
 <p><strong>External entities</strong> tell the parser to fetch their value from an outside source using the <code>SYSTEM</code> keyword:</p>
 <pre class="highlight"><code class="language-xml">&lt;!ENTITY xxe SYSTEM "file:///etc/passwd"&gt;</code></pre>
 <p>This tells the parser: "go read the file <code>/etc/passwd</code> and use its contents as the value of this entity". This is where XXE attacks come from. If the parser obeys this instruction, the attacker can read any file the server has access to.</p>
+<p>In XML, you can also declare external entities using the <code>PUBLIC</code> keyword instead of <code>SYSTEM</code>. The difference is that <code>PUBLIC</code> includes a formal public identifier that the parser can use to look up the resource in a local catalog, followed optionally by a URI as fallback — making it functionally equivalent to <code>SYSTEM</code> for XXE purposes. In practice, all XXE payloads use <code>SYSTEM</code> because it is simpler and more universally supported.</p>
 <h2 id="what-are-parameter-entities">What are Parameter Entities</h2>
 <p>Parameter entities are a special type of entity that can only be used inside DTD declarations (not in the document body). They are declared with <code>%</code> instead of just a name:</p>
 <pre class="highlight"><code class="language-xml">&lt;!ENTITY % filename SYSTEM "file:///etc/passwd"&gt;</code></pre>
@@ -1827,6 +1829,6 @@ unzip interactsh-client_1.0.0_linux_amd64.zip
       });
     });
   </script>
-  <script src="/assets/main.js?v=e287e78" defer></script>
+  <script src="/assets/main.js?v=22260e0" defer></script>
 </body>
 </html>
