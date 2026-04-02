@@ -1312,7 +1312,7 @@ To check if a DTD exists we load it and check the parser response:
 <message></message>
 ```
 
-Error-based feedback indicates successful DTD loading. If we get a different error or no error at all we know the file exists.
+Error-based feedback indicates successful DTD loading. If we get a different error than "No such file or directory" or no error at all we know the file exists.
 
 ### Exploitation Using fonts.dtd
 
