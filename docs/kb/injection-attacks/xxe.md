@@ -31,7 +31,7 @@ The first line (`<?xml version="1.0" encoding="UTF-8"?>`) is the XML declaration
 
 ## What is an XML Parser
 
-An XML parser is a piece of software that reads XML documents and makes their content available to the application. When a web application receives XML data (for example in an API request), it passes that data to the parser. The parser reads the XML structure, validates it and converts it into something the application can work with. For instance, when a Java server receives a POST request with `Content-Type: application/xml`, it typically passes the body to a parser like `DocumentBuilderFactory` to extract the data.
+An XML parser is a piece of software that reads XML documents and makes their content available to the application. When a web application receives XML data (for example in an API request), it passes that data to the parser. The parser reads the XML document, checks its syntax and converts it into something the application can work with. For instance, when a Java server receives a POST request with `Content-Type: application/xml`, it typically passes the body to a parser like `DocumentBuilderFactory` to extract the data.
 
 The key thing to understand is that the parser does not just read the data — it also **processes instructions** embedded in the XML document. This is where the security problem begins, because some of those instructions can tell the parser to read files from the server or make network requests. These instructions are called **entity declarations**, covered in the next sections.
 
@@ -55,6 +55,8 @@ A DTD (Document Type Definition) is a set of rules that defines the structure of
 ```
 
 In this example the DTD defines that a `note` element must contain `to`, `from` and `message` elements, and each of those contains text data (`#PCDATA`).
+
+DTDs can be defined inline within the document or loaded from an external source — a distinction that becomes important when we explore advanced exploitation techniques.
 
 ## What are Entities
 
@@ -81,6 +83,8 @@ There are two types of entities that matter for XXE:
 ```
 
 This tells the parser: "go read the file `/etc/passwd` and use its contents as the value of this entity". This is where XXE attacks come from. If the parser obeys this instruction, the attacker can read any file the server has access to.
+
+In XML, you can also declare external entities using the `PUBLIC` keyword instead of `SYSTEM`. The difference is that `PUBLIC` includes a formal public identifier that the parser can use to look up the resource in a local catalog, followed optionally by a URI as fallback — making it functionally equivalent to `SYSTEM` for XXE purposes. In practice, all XXE payloads use `SYSTEM` because it is simpler and more universally supported.
 
 ## What are Parameter Entities
 
