@@ -869,7 +869,7 @@ XML has a feature that allows expanding entities in a recursive way by referenci
 <laugh>&LOL3;</laugh>
 ```
 
-The above payload makes the XML parser expand each of the entities, generating a large number of "LOLs". This payload would generate hundreds of thousands of "LOL" strings but a full scale payload would generate literally "Billions" of "LOL" strings.
+The above payload makes the XML parser expand each of the entities, generating a large number of "LOLs". This payload would generate a significant number of "LOL" strings but a full scale payload would generate literally "Billions" of "LOL" strings.
 
 Simpler variant (Quadratic Blowup):
 
