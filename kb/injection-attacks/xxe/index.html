@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
-  <link rel="stylesheet" href="/assets/style.css?v=78507ca">
+  <link rel="stylesheet" href="/assets/style.css?v=5092c4f">
 </head>
 <body class="page-kb-sheet">
   <nav class="topnav">
@@ -470,7 +470,7 @@
 <p>Understanding these failure modes is critical because many of the advanced techniques in this KB are built specifically to exploit them.</p>
 <h2 id="why-parsers-are-or-were-vulnerable">Why Parsers Are (or Were) Vulnerable</h2>
 <p>Historically, many XML parsers shipped with external entity resolution enabled because the XML specification requires it for full DTD support. The spec was designed in an era where XML documents were trusted and the ability to include external resources was considered a feature not a risk.</p>
-<p>In some ecosystems this is still the case. Java parsers in particular remain insecure by default and OWASP still documents that most common Java XML parsers must be explicitly hardened. However, modern runtimes in other languages have improved their defaults considerably: Python's <code>lxml</code> has been safe since version 5.x, .NET changed to secure defaults in 4.5.2, PHP requires explicit <code>LIBXML_NOENT</code> flag to enable entity substitution, and Ruby's Nokogiri treats documents as untrusted by default.</p>
+<p>In some ecosystems this is still the case. Java parsers in particular remain insecure by default and OWASP still documents that most common Java XML parsers must be explicitly hardened. However, modern runtimes in other languages have improved their defaults considerably: Python's <code>lxml</code> has been safe since version 5.0, .NET changed to secure defaults in 4.5.2, PHP requires explicit <code>LIBXML_NOENT</code> flag to enable entity substitution, and Ruby's Nokogiri treats documents as untrusted by default.</p>
 <p>This means the vulnerability is an opt-out problem in some stacks (Java) but closer to opt-in in others (modern PHP, Python, .NET). The practical implication for pentesting is that the technology stack matters a lot when assessing XXE likelihood. Legacy applications and older framework versions remain the most common targets.</p>
 <h2 id="parser-behaviour-by-language">Parser Behaviour by Language</h2>
 <p>Different parsers behave differently. Some are vulnerable by default, some require specific flags to become vulnerable, and some have been hardened over time:</p>
@@ -758,7 +758,7 @@
 <ul>
 <li>ftp:// : Modern .NET does not include native FTP support, as the built-in classes (<code>FtpWebRequest</code> and <code>WebClient</code>) have been deprecated from the core framework. Third-party libraries like <code>FluentFTP</code> can be used as a full-featured replacement for FTP communication. Regarding XXE exploitation, leveraging the FTP protocol is extremely difficult in modern .NET. However, legacy .NET (<strong>.NET Framework 4.x</strong> and <strong>.NET Core 3.1</strong> and earlier) internally uses <code>WebRequest</code> inside <code>XmlUrlResolver</code>, which can successfully resolve FTP URLs and therefore makes FTP-based XXE attacks feasible in those environments.</li>
 <li>gopher:// : Modern PHP (7.4.0 and later) does not include native Gopher protocol support, as it was officially removed from the core. Regarding XXE exploitation, leveraging the Gopher protocol is therefore not feasible in modern PHP. However, legacy PHP <strong>prior to 7.4.0</strong> natively supports the Gopher protocol, which makes Gopher-based XXE attacks feasible in those environments.</li>
-<li>netdoc:// : The <code>netdoc://</code> protocol is a Java-internal alternative to <code>file://</code>, functionally equivalent for reading local files and occasionally used in XXE payloads to bypass WAF rules that block <code>file://</code> patterns. However, the <code>netdoc</code> protocol handler was officially removed in <strong>JDK 9</strong>. As a result, leveraging <code>netdoc://</code> in XXE exploitation is only feasible in legacy Java environments running <strong>JDK 8 and earlier</strong>.</li>
+<li>netdoc:// : The <code>netdoc://</code> protocol is a Java-internal alternative to <code>file://</code>, functionally equivalent for reading local files and occasionally used in XXE payloads to bypass WAF rules that block <code>file://</code> patterns. Oracle states that <code>netdoc</code> protocol is designed to handle network documents, but it can access local files like <code>/etc/passwd</code>. However, the <code>netdoc</code> protocol handler was officially removed in <strong>JDK 9</strong>. As a result, leveraging <code>netdoc://</code> in XXE exploitation is only feasible in legacy Java environments running <strong>JDK 8 and earlier</strong>.</li>
 <li>expect:// : The <code>expect://</code> wrapper is not a built-in PHP feature but part of the <strong>PECL expect extension</strong>, which must be explicitly installed and is disabled by default. When active, it allows executing system commands directly from an XML entity, making it a particularly dangerous vector that can escalate XXE to <strong>Remote Code Execution (RCE)</strong>. Due to its non-default nature, this attack surface is rare in practice and fully dependent on whether the target environment has the extension installed.</li>
 </ul>
 <hr />
@@ -1829,6 +1829,6 @@ unzip interactsh-client_1.0.0_linux_amd64.zip
       });
     });
   </script>
-  <script src="/assets/main.js?v=78507ca" defer></script>
+  <script src="/assets/main.js?v=5092c4f" defer></script>
 </body>
 </html>
