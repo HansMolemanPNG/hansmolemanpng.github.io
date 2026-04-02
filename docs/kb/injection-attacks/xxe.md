@@ -1237,7 +1237,7 @@ These techniques require specific technology stacks, rare configurations or comp
 
 ## Repurposing Local DTDs (Blind XXE)
 
-When OOB connections are blocked and the application only returns errors, we can use pre-existing DTD files on the system to build our exfiltration chain without needing network access.
+When OOB connections are blocked and the application only returns errors, we can use pre-existing DTD files on the system to build our exfiltration chain without needing network access. 
 
 ### Why Enumerate the Filesystem?
 
@@ -1410,6 +1410,14 @@ Creating a working payload for local DTD-based XXE exploitation requires careful
 
 - The chosen local DTD must allow parameter entity overrides.
 - Common candidates: `fonts.dtd`, `docbook.dtd`, `jspxml.dtd`
+
+### Why This Technique Works
+
+The W3C XML specification forbids parameter entity chaining within the internal DTD subset — this is the restriction that makes the basic error-based payload unreliable in spec-compliant parsers, as explained in the [Error-Based Blind XXE](#error-based-blind-xxe) section.
+
+This technique sidesteps that restriction entirely. Rather than chaining parameter entities inside the internal subset, we use the internal subset only to **redefine** an entity that already exists in the local DTD. Because entity declarations follow a first-definition-wins rule, our override takes effect before the original declaration in the DTD is reached.
+
+When `%local_dtd;` is then expanded, execution moves into the external DTD context — where parameter entity chaining is explicitly permitted by the spec. The malicious logic embedded inside `%expr` executes there, not in the internal subset, which is why spec-compliant parsers do not reject it.
 
 ## DNS-Based OOB Exfiltration
 
