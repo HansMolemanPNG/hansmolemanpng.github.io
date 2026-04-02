@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
-  <link rel="stylesheet" href="/assets/style.css?v=22260e0">
+  <link rel="stylesheet" href="/assets/style.css?v=78507ca">
 </head>
 <body class="page-kb-sheet">
   <nav class="topnav">
@@ -386,9 +386,9 @@
 <p>The vulnerability is at step 3. The parser fetches whatever resource the entity points to without questioning whether it should. If the attacker controls the XML input, they control what the parser fetches.</p>
 <hr />
 <h1 id="context-of-xxe">Context of XXE</h1>
-<p>Many legacy and modern applications rely on the XML format to consume, store and manage data from several sources. Nowadays we have other and more efficient ways of processing data like JSON, but due to the widespread adoption of XML many products still use it extensively. XML supports custom tags, DTD definitions and schema validation which makes it very flexible but also introduces attack surface through its entity resolution mechanism.</p>
+<p>Many legacy and modern applications rely on the XML format to consume, store and manage data from several sources. Nowadays we have other and lighter ways of processing data like JSON, but due to the widespread adoption of XML many products still use it extensively. XML supports custom tags, DTD definitions and schema validation which makes it very flexible but also introduces attack surface through its entity resolution mechanism.</p>
 <h2 id="what-is-it">What is it</h2>
-<p>An XML External Entity attack is a type of attack against an application that parses non-validated XML input. This attack occurs when XML input containing a reference to an external entity is processed by a weakly configured XML parser. These external entities are defined by the attacker and they can lead to several side effects like data exfiltration, Server-Side Request Forgery (SSRF), denial of service or even, in very specific scenarios, Remote Code Execution (RCE).</p>
+<p>An XML External Entity attack is a type of attack against an application that parses XML input containing external entity references processed by a weakly configured XML parser. These external entities are defined by the attacker and they can lead to several side effects like data exfiltration, Server-Side Request Forgery (SSRF), denial of service or even, in very specific scenarios, Remote Code Execution (RCE).</p>
 <p>To understand the difference between a harmless entity and a dangerous one, compare these two examples:</p>
 <p><strong>Internal entity (harmless):</strong></p>
 <pre class="highlight"><code class="language-XML">&lt;?xml version="1.0" ?&gt;
@@ -407,7 +407,7 @@
  &lt;/userInfo&gt;</code></pre>
 <p>Here the attacker is defining "example" and assigning the content of "/etc/passwd" as the value. In an ideal situation the content of the file will be printed in the response. If the application does not return the content directly, other exfiltration techniques covered later in this KB can be used.</p>
 <h2 id="requirements">Requirements</h2>
-<p>XXE attacks require the application to accept XML from uncontrolled sources and parse it in an insecure way. Many XML parsers by default require the developer to limit their capabilities by setting different flags in the component that uses it.</p>
+<p>XXE attacks require the application to accept XML from uncontrolled sources and parse it in an insecure way. Many XML parsers by default require the developer to limit their capabilities by setting different flags in the component that uses it in order to make them secure. </p>
 <hr />
 <h1 id="xxe-taxonomy">XXE Taxonomy</h1>
 <p>The following taxonomy classifies all XXE attack techniques covered in this KB. It serves both as a mental model for understanding how XXE exploitation works and as a navigational index. Techniques are grouped by their primary objective and sorted by difficulty/rarity within each category.</p>
@@ -1829,6 +1829,6 @@ unzip interactsh-client_1.0.0_linux_amd64.zip
       });
     });
   </script>
-  <script src="/assets/main.js?v=22260e0" defer></script>
+  <script src="/assets/main.js?v=78507ca" defer></script>
 </body>
 </html>
