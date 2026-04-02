@@ -129,11 +129,11 @@ The vulnerability is at step 3. The parser fetches whatever resource the entity 
 
 # Context of XXE
 
-Many legacy and modern applications rely on the XML format to consume, store and manage data from several sources. Nowadays we have other and more efficient ways of processing data like JSON, but due to the widespread adoption of XML many products still use it extensively. XML supports custom tags, DTD definitions and schema validation which makes it very flexible but also introduces attack surface through its entity resolution mechanism.
+Many legacy and modern applications rely on the XML format to consume, store and manage data from several sources. Nowadays we have other and lighter ways of processing data like JSON, but due to the widespread adoption of XML many products still use it extensively. XML supports custom tags, DTD definitions and schema validation which makes it very flexible but also introduces attack surface through its entity resolution mechanism.
 
 ## What is it
 
-An XML External Entity attack is a type of attack against an application that parses non-validated XML input. This attack occurs when XML input containing a reference to an external entity is processed by a weakly configured XML parser. These external entities are defined by the attacker and they can lead to several side effects like data exfiltration, Server-Side Request Forgery (SSRF), denial of service or even, in very specific scenarios, Remote Code Execution (RCE).
+An XML External Entity attack is a type of attack against an application that parses XML input containing external entity references processed by a weakly configured XML parser. These external entities are defined by the attacker and they can lead to several side effects like data exfiltration, Server-Side Request Forgery (SSRF), denial of service or even, in very specific scenarios, Remote Code Execution (RCE).
 
 To understand the difference between a harmless entity and a dangerous one, compare these two examples:
 
@@ -165,7 +165,7 @@ Here the attacker is defining "example" and assigning the content of "/etc/passw
 
 ## Requirements
 
-XXE attacks require the application to accept XML from uncontrolled sources and parse it in an insecure way. Many XML parsers by default require the developer to limit their capabilities by setting different flags in the component that uses it.
+XXE attacks require the application to accept XML from uncontrolled sources and parse it in an insecure way. Many XML parsers by default require the developer to limit their capabilities by setting different flags in the component that uses it in order to make them secure. 
 
 -----
 
