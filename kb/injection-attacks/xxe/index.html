@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
-  <link rel="stylesheet" href="/assets/style.css?v=89d865c">
+  <link rel="stylesheet" href="/assets/style.css?v=7e122f0">
 </head>
 <body class="page-kb-sheet">
   <nav class="topnav">
@@ -1444,6 +1444,7 @@ C:\Program Files\IBM\SQLLIB\bin\dtds\*.dtd</code></pre>
 <li><code>%file</code> loads the contents of <code>/etc/passwd</code> from the local filesystem.</li>
 <li><code>%eval</code> creates a new parameter entity <code>%error</code> that references a non-existent file path concatenated with <code>%file</code> content.</li>
 <li>When the parser expands <code>%error</code>, it attempts to resolve the invalid path, triggering an error message that includes the contents of <code>/etc/passwd</code>.</li>
+<li>Note the <code>&lt;!ELEMENT aa (bb'&gt;</code> declaration at the end of the override — <strong>this is the structural padding</strong> that makes the payload syntactically valid when assembled with fonts.dtd. The mechanics behind it and how to derive equivalent padding for other DTDs are covered in 4th point of <a href="### Requirements for Robust Payloads">Requirements for Robust Payloads</a>.</li>
 </ol>
 <ul>
 <li><strong>Step 3:</strong> Trigger Error-Based Exfiltration:
@@ -1849,6 +1850,6 @@ unzip interactsh-client_1.0.0_linux_amd64.zip
       });
     });
   </script>
-  <script src="/assets/main.js?v=89d865c" defer></script>
+  <script src="/assets/main.js?v=7e122f0" defer></script>
 </body>
 </html>
