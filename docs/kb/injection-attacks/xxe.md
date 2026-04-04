@@ -1185,7 +1185,7 @@ CDATA sections theoretically allow inclusion of raw content without XML interpre
 
 The entity `&xxe;` inside the CDATA block is treated as literal text, not resolved.
 
-### Workaround 1: CDATA via External DTD
+### Workaround: CDATA via External DTD
 
 The correct way to use CDATA wrapping is to construct it dynamically using parameter entities in an external DTD. Because parameter entity chaining is allowed in external DTDs — unlike in the internal subset — we can build the CDATA wrapper around the file content before it reaches the document body:
 
@@ -1211,23 +1211,6 @@ Then send this payload to the vulnerable application:
 ```
 
 When the parser loads the external DTD, `%all` defines the general entity `&content;` whose value is `<![CDATA[<file contents>]]>`. The CDATA wrapper neutralises the special characters before the parser sees them in the document body. This technique requires the parser to be able to reach your server — the same network condition as OOB exfiltration.
-
-### Workaround 2: OOB or Error-Based Exfiltration
-
-When the external DTD approach is not viable, OOB and error-based techniques bypass the special characters problem through a different mechanism. For OOB, the file contents are embedded in a URL query string where special characters get automatically URL-encoded during the HTTP request. For error-based, the content is embedded in a file path where the parser includes it verbatim in the error message regardless of XML validity:
-
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE foo [
-  <!ENTITY % file SYSTEM "file:///path/to/file/with/special/chars.xml">
-  <!ENTITY % eval "<!ENTITY &#x25; error SYSTEM 'file:///nonexistent/&#x25;file;'>">
-  %eval;
-  %error;
-]>
-<foo></foo>
-```
-
-The error message will contain the file contents including the special characters.
 
 -----
 
