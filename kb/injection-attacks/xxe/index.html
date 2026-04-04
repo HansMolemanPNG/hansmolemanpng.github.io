@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
-  <link rel="stylesheet" href="/assets/style.css?v=7e122f0">
+  <link rel="stylesheet" href="/assets/style.css?v=2baeb7d">
 </head>
 <body class="page-kb-sheet">
   <nav class="topnav">
@@ -1451,6 +1451,54 @@ C:\Program Files\IBM\SQLLIB\bin\dtds\*.dtd</code></pre>
   If the application returns error messages, the response will include something like:</li>
 </ul>
 <pre class="highlight"><code>errorMessage: "/nonexistent/root:x:0:0:root:/root:/bin/bash"</code></pre>
+<h3 id="dissecting-the-structural-padding">Dissecting the Structural Padding</h3>
+<p>The structural padding — <code>&lt;!ELEMENT aa (bb'&gt;</code> — is not an arbitrary placeholder. Its exact form is derived from the DTD being exploited, and understanding why it looks the way it does is essential for adapting this technique to other DTDs.</p>
+<h4 id="the-injection-point-in-fontsdtd">The Injection Point in fonts.dtd</h4>
+<p>When analysing <code>fonts.dtd</code>, the relevant declaration is:</p>
+<pre class="highlight"><code>&lt;!ELEMENT matrix ((%expr;), (%expr;), (%expr;), (%expr;))&gt;</code></pre>
+<p>This is the declaration that <code>%expr;</code> appears inside of, making it the injection point. When we override <code>%expr;</code>, the parser substitutes our value in place of every <code>%expr;</code> reference — including the first one in this declaration.</p>
+<h4 id="how-the-parser-assembles-the-payload">How the Parser Assembles the Payload</h4>
+<p>Stripping out the exfiltration logic and focusing purely on structure, our override of <code>%expr;</code> looks like this:</p>
+<pre class="highlight"><code>aaa)&gt;
+    [exfiltration logic]
+    &lt;!ELEMENT aa (bb'</code></pre>
+<p>When the parser expands the first <code>%expr;</code> inside the <code>matrix</code> declaration, the assembled result is:</p>
+<pre class="highlight"><code class="language-xml">&lt;!ELEMENT matrix ((aaa)&gt;
+[exfiltration logic]
+&lt;!ELEMENT aa (bb', (%expr;), (%expr;), (%expr;))&gt;</code></pre>
+<p>Three things happen here:</p>
+<ol>
+<li>
+<p><strong><code>&lt;!ELEMENT matrix ((aaa)&gt;</code></strong> — the <code>aaa)&gt;</code> from our override closes the <code>matrix</code> declaration prematurely. The parser sees a valid (if meaningless) element declaration and moves on.</p>
+</li>
+<li>
+<p><strong>Exfiltration logic</strong> — now sitting outside any enclosing declaration, the parser processes our injected <code>%file</code>, <code>%eval</code>, and <code>%error</code> entities as independent DTD declarations. This is exactly where we need them.</p>
+</li>
+<li>
+<p><strong><code>&lt;!ELEMENT aa (bb', (%expr;), (%expr;), (%expr;))&gt;</code></strong> — the <code>&lt;!ELEMENT aa (bb'</code> from our padding combines with the <em>remainder</em> of the original <code>matrix</code> declaration (<code>, (%expr;), (%expr;), (%expr;))&gt;</code>) to form a new, syntactically valid element declaration. Without the padding, the parser would encounter <code>, (%expr;)...</code> with no opening context and reject it as malformed.</p>
+</li>
+</ol>
+<p>The padding's job is therefore twofold: introduce a new element name (<code>aa</code>) to give the leftover tokens a valid home, and open a content model parenthesis <code>(</code> that the remainder of the original declaration closes.</p>
+<p>The <code>bb'</code> is simply a placeholder element name that precedes the <code>, (%expr;)</code> tokens from the original declaration. The single quote has no special meaning inside a DTD content model and is tolerated by the parser.</p>
+<h4 id="deriving-the-padding-for-other-dtds">Deriving the Padding for Other DTDs</h4>
+<p>The process is the same regardless of which DTD you are targeting:</p>
+<ol>
+<li>
+<p><strong>Find the injection point.</strong> Locate the declaration where <code>%name;</code> appears inside a <code>&lt;!ELEMENT&gt;</code> or <code>&lt;!ATTLIST&gt;</code> body. This is the declaration your override will break open.</p>
+</li>
+<li>
+<p><strong>Identify what precedes <code>%name;</code> in that declaration.</strong> This tells you what your override needs to close. In <code>fonts.dtd</code> the context is <code>((%expr;)</code> — a double open parenthesis. The override closes the inner one with <code>aaa)&gt;</code>, terminating the declaration.</p>
+</li>
+<li>
+<p><strong>Identify what follows <code>%name;</code> in that declaration.</strong> This is the leftover content your padding needs to absorb. In <code>fonts.dtd</code> the remainder is <code>, (%expr;), (%expr;), (%expr;))&gt;</code>. The padding opens a new <code>&lt;!ELEMENT name (placeholder</code> so those tokens attach to a valid declaration.</p>
+</li>
+<li>
+<p><strong>Construct the padding.</strong> The padding must open a new element declaration and a content model that the leftover tokens will close. The placeholder name (<code>aa</code>, <code>bb</code>, or any valid XML name) is irrelevant — it just needs to exist.</p>
+</li>
+<li>
+<p><strong>Verify the assembled output is valid DTD.</strong> Mentally substitute your override into the original declaration and check that every <code>&lt;!ELEMENT&gt;</code> and <code>&lt;!ENTITY&gt;</code> that results is syntactically complete.</p>
+</li>
+</ol>
 <h3 id="requirements-for-robust-payloads">Requirements for Robust Payloads</h3>
 <p>Creating a working payload for local DTD-based XXE exploitation requires careful attention to XML and DTD parsing rules. Below are the key requirements:</p>
 <ol>
@@ -1470,7 +1518,7 @@ C:\Program Files\IBM\SQLLIB\bin\dtds\*.dtd</code></pre>
 <li>
 <p><strong>Example</strong>:</p>
 <p><pre class="highlight"><code class="language-xml">&lt;!ENTITY % eval "&lt;!ENTITY &amp;#x25; error SYSTEM 'file:///path/%file;'&gt;"&gt;</code></pre>
-- Failure to escape these characters often results in <strong>markup declaration errors</strong>.</p>
+  - Failure to escape these characters often results in <strong>markup declaration errors</strong>.</p>
 </li>
 </ul>
 <ol start="3">
@@ -1850,6 +1898,6 @@ unzip interactsh-client_1.0.0_linux_amd64.zip
       });
     });
   </script>
-  <script src="/assets/main.js?v=7e122f0" defer></script>
+  <script src="/assets/main.js?v=2baeb7d" defer></script>
 </body>
 </html>
