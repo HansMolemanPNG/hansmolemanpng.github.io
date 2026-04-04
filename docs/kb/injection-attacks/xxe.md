@@ -623,7 +623,7 @@ XML LFI payloads usually result in the application returning the contents of the
 
 In this payload, the entity "xxe" will return the content of the file `/etc/passwd` since it is referenced below the definition in the element foo. Depending on the context this may not result in data exfiltration since it depends on how the application returns data.
 
-#### Note on encoding
+##### Note on encoding
 The payload above uses `ISO-8859-1` instead of `UTF-8`. This is intentional — some system files contain characters outside the ASCII range but within the Latin-1 charset. Declaring `ISO-8859-1` prevents the parser from failing when it encounters those characters during entity substitution. For files that are pure ASCII, `UTF-8` works equally well.
 
 
@@ -670,7 +670,7 @@ Windows specific files:
 
 Some notes on Windows paths: use forward slashes even on Windows (`file:///C:/path/to/file`) since backslashes are interpreted as escape characters in XML. UNC paths use `file:///\\server\share\file`. Some parsers also support alternate data streams: `file:///C:/path/file.txt:zone.identifier`.
 
-#### Note on UNC path syntax
+##### Note on UNC path syntax
 The forward slash rule applies to local Windows file paths (`file:///C:/path/to/file`). UNC paths are an exception — they require the double backslash notation (`\\server\share\file`) because that is how the UNC convention is defined. Some parsers also accept forward slash equivalents (`file:////server/share/file`), but backslash notation is more broadly supported for UNC across Java-based parsers.
 
 
@@ -836,7 +836,7 @@ When the parser expands `%error` it attempts to resolve the invalid path trigger
 errorMessage: "/nonexistent/root:x:0:0:root:/root:/bin/bash"
 ```
 
-#### ⚠️ A Note on Parser Strictness
+##### ⚠️ A Note on Parser Strictness
 
 While the payload above is logically correct, it often fails in modern production environments. This is because the W3C XML Specification forbids the expansion of parameter entities (like %eval;) within the internal DTD subset (the part inside the [...] brackets) if they are used to define other markup.
 
@@ -1051,7 +1051,7 @@ SOAP returns SOAP Fault messages on errors which are useful for blind XXE:
 </soap:Envelope>
 ```
 
-#### ⚠️ A Note on Parser Strictness (again)
+##### ⚠️ A Note on Parser Strictness (again)
 
 While the payload above is logically correct, it often fails in modern production environments. This is because the W3C XML Specification forbids the expansion of parameter entities (like %eval;) within the internal DTD subset (the part inside the [...] brackets) if they are used to define other markup.
 
@@ -1330,7 +1330,7 @@ Error-based feedback indicates successful DTD loading. If we get a different err
 1. `%file` loads the contents of `/etc/passwd` from the local filesystem.
 2. `%eval` creates a new parameter entity `%error` that references a non-existent file path concatenated with `%file` content.
 3. When the parser expands `%error`, it attempts to resolve the invalid path, triggering an error message that includes the contents of `/etc/passwd`.
-4. Note the `<!ELEMENT aa (bb'>` declaration at the end of the override — **this is the structural padding** that makes the payload syntactically valid when assembled with fonts.dtd. The mechanics behind it and how to derive equivalent padding for other DTDs are covered in 4th point of [Requirements for Robust Payloads](### Requirements for Robust Payloads).
+4. Note the `<!ELEMENT aa (bb'>` declaration at the end of the override — **this is the structural padding** that makes the payload syntactically valid when assembled with fonts.dtd. The mechanics behind it and how to derive equivalent padding for other DTDs are covered in 4th point of [Dissecting the Structural Padding](### Dissecting the Structural Padding).
 
 - **Step 3:** Trigger Error-Based Exfiltration:
   If the application returns error messages, the response will include something like:
@@ -1342,59 +1342,77 @@ errorMessage: "/nonexistent/root:x:0:0:root:/root:/bin/bash"
 ### Dissecting the Structural Padding
 
 The structural padding — `<!ELEMENT aa (bb'>` — is not an arbitrary placeholder. Its exact form is derived from the DTD being exploited, and understanding why it looks the way it does is essential for adapting this technique to other DTDs.
- 
+
 #### The Injection Point in fonts.dtd
- 
+
 When analysing `fonts.dtd`, the relevant declaration is:
- 
+
 ```
 <!ELEMENT matrix ((%expr;), (%expr;), (%expr;), (%expr;))>
 ```
- 
+
 This is the declaration that `%expr;` appears inside of, making it the injection point. When we override `%expr;`, the parser substitutes our value in place of every `%expr;` reference — including the first one in this declaration.
- 
+
 #### How the Parser Assembles the Payload
- 
+
 Stripping out the exfiltration logic and focusing purely on structure, our override of `%expr;` looks like this:
- 
+
 ```
 aaa)>
     [exfiltration logic]
     <!ELEMENT aa (bb'
 ```
- 
+
 When the parser expands the first `%expr;` inside the `matrix` declaration, the assembled result is:
- 
+
 ```xml
 <!ELEMENT matrix ((aaa)>
 [exfiltration logic]
 <!ELEMENT aa (bb', (%expr;), (%expr;), (%expr;))>
 ```
- 
+
 Three things happen here:
- 
+
 1. **`<!ELEMENT matrix ((aaa)>`** — the `aaa)>` from our override closes the `matrix` declaration prematurely. The parser sees a valid (if meaningless) element declaration and moves on.
- 
+
 2. **Exfiltration logic** — now sitting outside any enclosing declaration, the parser processes our injected `%file`, `%eval`, and `%error` entities as independent DTD declarations. This is exactly where we need them.
- 
+
 3. **`<!ELEMENT aa (bb', (%expr;), (%expr;), (%expr;))>`** — the `<!ELEMENT aa (bb'` from our padding combines with the *remainder* of the original `matrix` declaration (`, (%expr;), (%expr;), (%expr;))>`) to form a new, syntactically valid element declaration. Without the padding, the parser would encounter `, (%expr;)...` with no opening context and reject it as malformed.
- 
+
 The padding's job is therefore twofold: introduce a new element name (`aa`) to give the leftover tokens a valid home, and open a content model parenthesis `(` that the remainder of the original declaration closes.
- 
+
 The `bb'` is simply a placeholder element name that precedes the `, (%expr;)` tokens from the original declaration. The single quote has no special meaning inside a DTD content model and is tolerated by the parser.
- 
+
 #### Deriving the Padding for Other DTDs
- 
-The process is the same regardless of which DTD you are targeting:
- 
+
+The shape of the padding depends entirely on what the remainder of the original declaration looks like after the first `%name;` reference. The two most common cases are:
+
+**Case 1: Rich remainder** — the declaration contains additional tokens after `%name;`, such as further `(%expr;)` references, commas, or nested parentheses. This is the `matrix` case. The remainder `, (%expr;), (%expr;), (%expr;))>` is rich enough that the padding needs to open a content model with a placeholder element to give those tokens a valid home:
+
+```
+<!ELEMENT aa (bb'
+```
+
+The single quote is tolerated by the parser and the remainder closes the parenthesis correctly.
+
+**Case 2: Minimal remainder** — the declaration uses a quantifier like `*`, `+`, or `?` directly after `%name;`, leaving only `)*>`, `)+>`, or `)?>`  as the remainder. This is the case for `test` and `edit` in `fonts.dtd`, both declared as `(%expr;)*`. Here the remainder is simply `)*>`, which closes a single open parenthesis and applies the quantifier. The padding only needs to open a content model with a placeholder:
+
+```
+<!ELEMENT aa (bb
+```
+
+The assembled result is `<!ELEMENT aa (bb)*>` — a valid element declaration with a `*` quantifier. The remainder in this case is minimal enough that no single quote or additional tokens are needed — the padding is simpler than in Case 1.
+
+**The general process** for any DTD is:
+
 1. **Find the injection point.** Locate the declaration where `%name;` appears inside a `<!ELEMENT>` or `<!ATTLIST>` body. This is the declaration your override will break open.
- 
-2. **Identify what precedes `%name;` in that declaration.** This tells you what your override needs to close. In `fonts.dtd` the context is `((%expr;)` — a double open parenthesis. The override closes the inner one with `aaa)>`, terminating the declaration.
- 
-3. **Identify what follows `%name;` in that declaration.** This is the leftover content your padding needs to absorb. In `fonts.dtd` the remainder is `, (%expr;), (%expr;), (%expr;))>`. The padding opens a new `<!ELEMENT name (placeholder` so those tokens attach to a valid declaration.
- 
-4. **Construct the padding.** The padding must open a new element declaration and a content model that the leftover tokens will close. The placeholder name (`aa`, `bb`, or any valid XML name) is irrelevant — it just needs to exist.
- 
+
+2. **Identify what precedes `%name;` in that declaration.** This tells you what your override needs to close. Count open parentheses and determine the minimum tokens needed to terminate the declaration with `>`.
+
+3. **Identify what follows `%name;` in that declaration.** This is the leftover content your padding needs to absorb. Note whether the remainder is rich (multiple tokens) or minimal (just a quantifier and `>`).
+
+4. **Construct the padding.** Open a new `<!ELEMENT name (placeholder` where `placeholder` is any valid XML name. If the remainder is minimal (Case 2), a bare placeholder is sufficient. If the remainder is rich (Case 1), you may need an additional character such as a single quote to separate your placeholder from the incoming tokens.
+
 5. **Verify the assembled output is valid DTD.** Mentally substitute your override into the original declaration and check that every `<!ELEMENT>` and `<!ENTITY>` that results is syntactically complete.
 
 ### Requirements for Robust Payloads
