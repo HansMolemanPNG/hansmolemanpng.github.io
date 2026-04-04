@@ -671,7 +671,7 @@ img { max-width: 100%; display: block; }
   border-bottom: 1px solid var(--border);
 }
 .article-content h3 { font-size: 1.05rem; }
-.article-content h4 { font-size: .9375rem; color: var(--muted); }
+.article-content h4 { font-size: .9375rem; }
 
 .article-content p { margin-bottom: 1.1rem; }
 
