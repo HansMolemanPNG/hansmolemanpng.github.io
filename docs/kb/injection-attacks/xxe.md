@@ -1330,6 +1330,7 @@ Error-based feedback indicates successful DTD loading. If we get a different err
 1. `%file` loads the contents of `/etc/passwd` from the local filesystem.
 2. `%eval` creates a new parameter entity `%error` that references a non-existent file path concatenated with `%file` content.
 3. When the parser expands `%error`, it attempts to resolve the invalid path, triggering an error message that includes the contents of `/etc/passwd`.
+4. Note the `<!ELEMENT aa (bb'>` declaration at the end of the override — **this is the structural padding** that makes the payload syntactically valid when assembled with fonts.dtd. The mechanics behind it and how to derive equivalent padding for other DTDs are covered in 4th point of [Requirements for Robust Payloads](### Requirements for Robust Payloads).
 
 - **Step 3:** Trigger Error-Based Exfiltration:
   If the application returns error messages, the response will include something like:
