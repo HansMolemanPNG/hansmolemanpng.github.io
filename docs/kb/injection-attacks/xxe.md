@@ -1484,14 +1484,14 @@ Creating a working payload for local DTD-based XXE exploitation requires careful
     ```xml
     <!ENTITY % eval "<!ENTITY &#x25; error SYSTEM 'file:///path/%file;'>">
     ```
+
   - Failure to escape these characters often results in **markup declaration errors**.
 
 3. **Order of Expansion**
 
-- Define and expand entities in the correct sequence:
-- Override entities first.
-- Expand `%eval;` and `%error;` before including `%local_dtd;`.
-- Incorrect ordering can cause the parser to reject the payload.
+  - Override entities must be declared before `%local_dtd;` is expanded — the internal subset is processed first, so any overrides must be in place before the external DTD is loaded.
+  - Once `%local_dtd;` is expanded, the parser reaches the first relevant use site of `%expr;` and injects the exfiltration chain into the DTD. Within that injected text, `%eval;` is expanded inline — its expansion produces the declaration of `%error`. Immediately after, `%error;` is expanded, triggering the URI resolution that leaks the file contents.
+  - The entire chain executes automatically as part of `%local_dtd;` processing. Explicitly expanding `%eval;` or `%error;` in the internal subset is neither possible nor necessary — and attempting to do so would cause the parser to reject the payload due to the parameter entity chaining restriction in the internal subset.
 
 4. **Include a Structural Padding**
 
