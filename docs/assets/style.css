@@ -657,7 +657,8 @@ img { max-width: 100%; display: block; }
 .article-content h1,
 .article-content h2,
 .article-content h3,
-.article-content h4 {
+.article-content h4,
+.article-content h5 {
   font-family: var(--font-mono);
   font-weight: 700;
   color: var(--text);
@@ -672,6 +673,7 @@ img { max-width: 100%; display: block; }
 }
 .article-content h3 { font-size: 1.05rem; }
 .article-content h4 { font-size: .9375rem; }
+.article-content h5 { font-size: .9375rem; color: var(--muted); }
 
 .article-content p { margin-bottom: 1.1rem; }
 
