@@ -1339,6 +1339,64 @@ Error-based feedback indicates successful DTD loading. If we get a different err
 errorMessage: "/nonexistent/root:x:0:0:root:/root:/bin/bash"
 ```
 
+### Dissecting the Structural Padding
+
+The structural padding — `<!ELEMENT aa (bb'>` — is not an arbitrary placeholder. Its exact form is derived from the DTD being exploited, and understanding why it looks the way it does is essential for adapting this technique to other DTDs.
+ 
+#### The Injection Point in fonts.dtd
+ 
+When analysing `fonts.dtd`, the relevant declaration is:
+ 
+```
+<!ELEMENT matrix ((%expr;), (%expr;), (%expr;), (%expr;))>
+```
+ 
+This is the declaration that `%expr;` appears inside of, making it the injection point. When we override `%expr;`, the parser substitutes our value in place of every `%expr;` reference — including the first one in this declaration.
+ 
+#### How the Parser Assembles the Payload
+ 
+Stripping out the exfiltration logic and focusing purely on structure, our override of `%expr;` looks like this:
+ 
+```
+aaa)>
+    [exfiltration logic]
+    <!ELEMENT aa (bb'
+```
+ 
+When the parser expands the first `%expr;` inside the `matrix` declaration, the assembled result is:
+ 
+```xml
+<!ELEMENT matrix ((aaa)>
+[exfiltration logic]
+<!ELEMENT aa (bb', (%expr;), (%expr;), (%expr;))>
+```
+ 
+Three things happen here:
+ 
+1. **`<!ELEMENT matrix ((aaa)>`** — the `aaa)>` from our override closes the `matrix` declaration prematurely. The parser sees a valid (if meaningless) element declaration and moves on.
+ 
+2. **Exfiltration logic** — now sitting outside any enclosing declaration, the parser processes our injected `%file`, `%eval`, and `%error` entities as independent DTD declarations. This is exactly where we need them.
+ 
+3. **`<!ELEMENT aa (bb', (%expr;), (%expr;), (%expr;))>`** — the `<!ELEMENT aa (bb'` from our padding combines with the *remainder* of the original `matrix` declaration (`, (%expr;), (%expr;), (%expr;))>`) to form a new, syntactically valid element declaration. Without the padding, the parser would encounter `, (%expr;)...` with no opening context and reject it as malformed.
+ 
+The padding's job is therefore twofold: introduce a new element name (`aa`) to give the leftover tokens a valid home, and open a content model parenthesis `(` that the remainder of the original declaration closes.
+ 
+The `bb'` is simply a placeholder element name that precedes the `, (%expr;)` tokens from the original declaration. The single quote has no special meaning inside a DTD content model and is tolerated by the parser.
+ 
+#### Deriving the Padding for Other DTDs
+ 
+The process is the same regardless of which DTD you are targeting:
+ 
+1. **Find the injection point.** Locate the declaration where `%name;` appears inside a `<!ELEMENT>` or `<!ATTLIST>` body. This is the declaration your override will break open.
+ 
+2. **Identify what precedes `%name;` in that declaration.** This tells you what your override needs to close. In `fonts.dtd` the context is `((%expr;)` — a double open parenthesis. The override closes the inner one with `aaa)>`, terminating the declaration.
+ 
+3. **Identify what follows `%name;` in that declaration.** This is the leftover content your padding needs to absorb. In `fonts.dtd` the remainder is `, (%expr;), (%expr;), (%expr;))>`. The padding opens a new `<!ELEMENT name (placeholder` so those tokens attach to a valid declaration.
+ 
+4. **Construct the padding.** The padding must open a new element declaration and a content model that the leftover tokens will close. The placeholder name (`aa`, `bb`, or any valid XML name) is irrelevant — it just needs to exist.
+ 
+5. **Verify the assembled output is valid DTD.** Mentally substitute your override into the original declaration and check that every `<!ELEMENT>` and `<!ENTITY>` that results is syntactically complete.
+
 ### Requirements for Robust Payloads
 
 Creating a working payload for local DTD-based XXE exploitation requires careful attention to XML and DTD parsing rules. Below are the key requirements:
@@ -1358,7 +1416,7 @@ Creating a working payload for local DTD-based XXE exploitation requires careful
     ```xml
     <!ENTITY % eval "<!ENTITY &#x25; error SYSTEM 'file:///path/%file;'>">
     ```
-- Failure to escape these characters often results in **markup declaration errors**.
+  - Failure to escape these characters often results in **markup declaration errors**.
 
 3. **Order of Expansion**
 
