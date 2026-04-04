@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
-  <link rel="stylesheet" href="/assets/style.css?v=1fa0bdb">
+  <link rel="stylesheet" href="/assets/style.css?v=030defe">
 </head>
 <body class="page-kb-sheet">
   <nav class="topnav">
@@ -1563,18 +1563,19 @@ C:\Program Files\IBM\SQLLIB\bin\dtds\*.dtd</code></pre>
 <li>Use <code>&amp;#x25;</code> for <code>%</code>, <code>&amp;#x26;</code> for <code>&amp;</code> and <code>&amp;#x27;</code> for quotes.</li>
 <li>
 <p><strong>Example</strong>:</p>
-<p><pre class="highlight"><code class="language-xml">&lt;!ENTITY % eval "&lt;!ENTITY &amp;#x25; error SYSTEM 'file:///path/%file;'&gt;"&gt;</code></pre>
-  - Failure to escape these characters often results in <strong>markup declaration errors</strong>.</p>
+<pre class="highlight"><code class="language-xml">&lt;!ENTITY % eval "&lt;!ENTITY &amp;#x25; error SYSTEM 'file:///path/%file;'&gt;"&gt;</code></pre>
+</li>
+<li>
+<p>Failure to escape these characters often results in <strong>markup declaration errors</strong>.</p>
 </li>
 </ul>
 <ol start="3">
 <li><strong>Order of Expansion</strong></li>
 </ol>
 <ul>
-<li>Define and expand entities in the correct sequence:</li>
-<li>Override entities first.</li>
-<li>Expand <code>%eval;</code> and <code>%error;</code> before including <code>%local_dtd;</code>.</li>
-<li>Incorrect ordering can cause the parser to reject the payload.</li>
+<li>Override entities must be declared before <code>%local_dtd;</code> is expanded — the internal subset is processed first, so any overrides must be in place before the external DTD is loaded.</li>
+<li>Once <code>%local_dtd;</code> is expanded, the parser reaches the first relevant use site of <code>%expr;</code> and injects the exfiltration chain into the DTD. Within that injected text, <code>%eval;</code> is expanded inline — its expansion produces the declaration of <code>%error</code>. Immediately after, <code>%error;</code> is expanded, triggering the URI resolution that leaks the file contents.</li>
+<li>The entire chain executes automatically as part of <code>%local_dtd;</code> processing. Explicitly expanding <code>%eval;</code> or <code>%error;</code> in the internal subset is neither possible nor necessary — and attempting to do so would cause the parser to reject the payload due to the parameter entity chaining restriction in the internal subset.</li>
 </ul>
 <ol start="4">
 <li><strong>Include a Structural Padding</strong></li>
@@ -1944,6 +1945,6 @@ unzip interactsh-client_1.0.0_linux_amd64.zip
       });
     });
   </script>
-  <script src="/assets/main.js?v=1fa0bdb" defer></script>
+  <script src="/assets/main.js?v=030defe" defer></script>
 </body>
 </html>
