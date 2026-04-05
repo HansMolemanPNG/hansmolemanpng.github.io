@@ -1254,7 +1254,7 @@ A parameter entity is a root-level injection point when it is referenced directl
 %ISOamso;
 ```
 
-The key signal is that the paraneter entity (i. this case `%ISOamso;`) appears as a standalone expansion call at the root of the DTD. When you override this entity, the replacement text is injected directly at root level — where the parser expects standalone DTD declarations. 
+The key signal is that the paraneter entity (in this case `%ISOamso;`) appears as a standalone expansion call at the root of the DTD. When you override this entity, the replacement text is injected directly at root level — where the parser expects standalone DTD declarations. 
 
 #### Identifying Candidates with grep
 
