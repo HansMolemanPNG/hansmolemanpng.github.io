@@ -16,7 +16,7 @@ Before diving into XXE exploitation it is important to understand the basics of 
 
 ## What is XML
 
-XML (eXtensible Markup Language) is a format for storing and transporting structured data. It looks similar to HTML but unlike HTML, XML lets you define your own tags. Here is a simple XML document:
+XML (eXtensible Markup Language) is a format for storing and transporting structured data. It looks similar to HTML, but unlike HTML, XML lets you define your own tags. Here is a simple XML document:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -33,7 +33,7 @@ The first line (`<?xml version="1.0" encoding="UTF-8"?>`) is the XML declaration
 
 An XML parser is a piece of software that reads XML documents and makes their content available to the application. When a web application receives XML data (for example in an API request), it passes that data to the parser. The parser reads the XML document, checks its syntax and converts it into something the application can work with. For instance, when a Java server receives a POST request with `Content-Type: application/xml`, it typically passes the body to a parser like `DocumentBuilderFactory` to extract the data.
 
-The key thing to understand is that the parser does not just read the data — it also **processes instructions** embedded in the XML document. This is where the security problem begins, because some of those instructions can tell the parser to read files from the server or make network requests. These instructions are called **entity declarations**, covered in the next sections.
+The key thing to understand is that the parser does not just read the data — it also **processes instructions** embedded in the XML document. This is where the security problem begins, because some of those instructions can tell the parser to read files from the server or make network requests. These instructions are called **entity declarations**, and will be covered in the following sections.
 
 ## What is a DTD
 
@@ -109,7 +109,7 @@ Why do they matter? Because parameter entities can define other entities. This c
 %step3;
 ```
 
-What happens here: `%step1` is an external entity (the `SYSTEM` keyword makes it fetch the file instead of treating the value as a literal string), `%step2` creates a new entity that embeds the hostname into a URL, and `%step3` makes the parser visit that URL — sending the stolen data to the attacker. Don't worry about the `&#x25;` syntax for now, it is explained in detail in the [OOB section](#understanding-the-escape-characters).
+What happens here: `%step1` is an external entity (the `SYSTEM` keyword makes it fetch the file instead of treating the value as a literal string), `%step2` creates a new entity that embeds the hostname into a URL, and `%step3` makes the parser visit that URL — sending the stolen data to the attacker. Don't worry about the `&#x25;` syntax for now — it is explained in detail in the [OOB section](#understanding-the-escape-characters).
 
 This chaining ability is what makes advanced XXE techniques (like blind exfiltration and OOB attacks) possible.
 
@@ -133,7 +133,7 @@ Many legacy and modern applications rely on the XML format to consume, store and
 
 ## What is it
 
-An XML External Entity attack is a type of attack against an application that parses XML input containing external entity references processed by a weakly configured XML parser. These external entities are defined by the attacker and they can lead to several side effects like data exfiltration, Server-Side Request Forgery (SSRF), denial of service or even, in very specific scenarios, Remote Code Execution (RCE).
+An XML External Entity attack is a type of attack against an application that parses XML input containing external entity references, processed by a weakly configured XML parser. These external entities are defined by the attacker, and they can lead to several side effects like data exfiltration, Server-Side Request Forgery (SSRF), denial of service or even, in very specific scenarios, Remote Code Execution (RCE).
 
 To understand the difference between a harmless entity and a dangerous one, compare these two examples:
 
@@ -148,7 +148,7 @@ To understand the difference between a harmless entity and a dangerous one, comp
  </userInfo>
 ```
 
-Here the attacker is defining the entity "example", assigning the value "Doe" to it and then reflecting it in the "lastName" element. Nothing leaves the server.
+Here the attacker is defining the entity "example", assigning the value "Doe" to it, and then reflecting it in the "lastName" element. Nothing leaves the server.
 
 **External entity (dangerous):**
 
@@ -165,7 +165,7 @@ Here the attacker is defining "example" and assigning the content of "/etc/passw
 
 ## Requirements
 
-XXE attacks require the application to accept XML from uncontrolled sources and parse it in an insecure way. Many XML parsers by default require the developer to limit their capabilities by setting different flags in the component that uses it in order to make them secure. 
+XXE attacks require the application to accept XML from uncontrolled sources and parse it in an insecure way. MMany XML parsers are insecure by default and require the developer to explicitly limit their capabilities by setting specific flags in the component that uses it in order to make them secure. 
 
 -----
 
