@@ -1279,7 +1279,7 @@ When a DTD offers both types, root-level injection points tend to produce simple
 ```
 /usr/share/xml/fontconfig/fonts.dtd
 /usr/share/yelp/dtd/docbookx.dtd
-/usr/share/xml/docbook/schema/dtd/4.5/docbookx.dtd
+/usr/share/yelp/dtd/docbookx.dtd
 /usr/share/xml/xhtml/xhtml11-flat.dtd
 /usr/share/xml/svg11/svg11-flat.dtd
 /usr/share/sgml/docbook/ent/iso8879/ISOtech.ent
