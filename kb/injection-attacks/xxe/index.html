@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
-  <link rel="stylesheet" href="/assets/style.css?v=b6f811c">
+  <link rel="stylesheet" href="/assets/style.css?v=0d8cb25">
 </head>
 <body class="page-kb-sheet">
   <nav class="topnav">
@@ -746,7 +746,7 @@
 <tr>
 <td><code>gopher://</code></td>
 <td>❌</td>
-<td>⚠️ Old versions</td>
+<td>⚠️ Legacy / extension-specific</td>
 <td>❌</td>
 <td>❌</td>
 <td>❌</td>
@@ -757,7 +757,7 @@
 <h3 id="notes-on-protocols">Notes on protocols</h3>
 <ul>
 <li>ftp:// : Modern .NET does not include native FTP support, as the built-in classes (<code>FtpWebRequest</code> and <code>WebClient</code>) have been deprecated from the core framework. Third-party libraries like <code>FluentFTP</code> can be used as a full-featured replacement for FTP communication. Regarding XXE exploitation, leveraging the FTP protocol is extremely difficult in modern .NET. However, legacy .NET (<strong>.NET Framework 4.x</strong> and <strong>.NET Core 3.1</strong> and earlier) internally uses <code>WebRequest</code> inside <code>XmlUrlResolver</code>, which can successfully resolve FTP URLs and therefore makes FTP-based XXE attacks feasible in those environments.</li>
-<li>gopher:// : Modern PHP (7.4.0 and later) does not include native Gopher protocol support, as it was officially removed from the core. Regarding XXE exploitation, leveraging the Gopher protocol is therefore not feasible in modern PHP. However, legacy PHP <strong>prior to 7.4.0</strong> natively supports the Gopher protocol, which makes Gopher-based XXE attacks feasible in those environments.</li>
+<li>gopher:// : Gopher support in PHP should be treated as a legacy or environment-dependent capability rather than a standard feature of modern PHP. Current PHP documentation no longer lists <code>gopher://</code> among the built-in stream wrappers, while legacy Gopher support such as <code>Net_Gopher</code> exists as an unmaintained PECL extension rather than as a maintained core feature. Separately, PHP’s cURL extension may still expose <code>GOPHER</code>/<code>GOPHERS</code> when the underlying libcurl build supports those protocols, but that is distinct from the built-in stream-wrapper and libxml loading path typically relevant to XXE parser behavior. In practice, PHP 7.4 serves as a useful cutoff point because its stream wrapper compatibility changes — especially the <code>stream_set_option()</code> behavior during <code>include/require</code> — broke or degraded many legacy wrappers. As a result, Gopher-based XXE is best considered feasible only in older or specially configured PHP environments, not as a generally available technique in modern PHP.</li>
 <li>netdoc:// : The <code>netdoc://</code> protocol is a Java-internal alternative to <code>file://</code>, functionally equivalent for reading local files and occasionally used in XXE payloads to bypass WAF rules that block <code>file://</code> patterns. Oracle states that <code>netdoc</code> protocol is designed to handle network documents, but it can access local files like <code>/etc/passwd</code>. However, the <code>netdoc</code> protocol handler was officially removed in <strong>JDK 9</strong>. As a result, leveraging <code>netdoc://</code> in XXE exploitation is only feasible in legacy Java environments running <strong>JDK 8 and earlier</strong>.</li>
 <li>expect:// : The <code>expect://</code> wrapper is not a built-in PHP feature but part of the <strong>PECL expect extension</strong>, which must be explicitly installed and is disabled by default. When active, it allows executing system commands directly from an XML entity, making it a particularly dangerous vector that can escalate XXE to <strong>Remote Code Execution (RCE)</strong>. Due to its non-default nature, this attack surface is rare in practice and fully dependent on whether the target environment has the extension installed.</li>
 </ul>
@@ -1969,6 +1969,6 @@ unzip interactsh-client_1.0.0_linux_amd64.zip
       });
     });
   </script>
-  <script src="/assets/main.js?v=b6f811c" defer></script>
+  <script src="/assets/main.js?v=0d8cb25" defer></script>
 </body>
 </html>
