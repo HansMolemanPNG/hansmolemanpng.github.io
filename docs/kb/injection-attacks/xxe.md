@@ -1254,7 +1254,7 @@ A parameter entity is a root-level injection point when it is referenced directl
 %ISOamso;
 ```
 
-The key signal is that the paraneter entity (in this case `%ISOamso;`) appears as a standalone expansion call at the root of the DTD. When you override this entity, the replacement text is injected directly at root level — where the parser expects standalone DTD declarations. 
+The key signal is that the parameter entity (in this case `%ISOamso;`) appears as a standalone expansion call at the root of the DTD. When you override this entity, the replacement text is injected directly at root level — where the parser expects standalone DTD declarations. 
 
 #### Identifying Candidates with grep
 
@@ -1348,9 +1348,9 @@ Error-based feedback indicates successful DTD loading. If we get a different err
 **Explanation:**
 
 1. `%file` loads the contents of `/etc/passwd` from the local filesystem.
-1. `%eval` creates a new parameter entity `%error` that references a non-existent file path concatenated with `%file` content.
-1. When the parser expands `%error`, it attempts to resolve the invalid path, triggering an error message that includes the contents of `/etc/passwd`.
-1. The structural padding `<!ELEMENT aa (bb'>` absorbs the remainder of the broken `<!ELEMENT>` declaration in `fonts.dtd`, keeping the assembled DTD syntactically valid.
+2. `%eval` creates a new parameter entity `%error` that references a non-existent file path concatenated with `%file` content.
+3. When the parser expands `%error`, it attempts to resolve the invalid path, triggering an error message that includes the contents of `/etc/passwd`.
+4. The structural padding `<!ELEMENT aa (bb'>` absorbs the remainder of the broken `<!ELEMENT>` declaration in `fonts.dtd`, keeping the assembled DTD syntactically valid.
 
 - **Step 3:** Trigger Error-Based Exfiltration:
   If the application returns error messages, the response will include something like:
@@ -1429,18 +1429,18 @@ When the parser expands `%expr;` inside the `test` declaration, the assembled DT
 Three things happen here:
 
 1. **`<!ELEMENT test (aaa)>`** — the `(` that precedes `%expr;` in the original declaration plus the `aaa)>` from our override produce `(aaa)` — a perfectly balanced, syntactically valid content model. The parser closes the `test` declaration and moves on.
-1. **Exfiltration logic** — now sitting outside any enclosing declaration, the parser processes `%file` and `%eval` as independent DTD declarations, then drives the three-phase expansion chain that triggers the error-based exfiltration.
-1. **`<!ELEMENT aa (bb)*>`** — the `<!ELEMENT aa (bb` from our padding combines with the remainder of the original `test` declaration (`)*>`) to form a new, syntactically valid element declaration. The `(` opened by the padding is closed by `)`, and `*` is applied as the quantifier. The parentheses are perfectly balanced. Without the padding, the parser would encounter `)*>` with no opening context and reject it as malformed.
+2. **Exfiltration logic** — now sitting outside any enclosing declaration, the parser processes `%file` and `%eval` as independent DTD declarations, then drives the three-phase expansion chain that triggers the error-based exfiltration.
+3. **`<!ELEMENT aa (bb)*>`** — the `<!ELEMENT aa (bb` from our padding combines with the remainder of the original `test` declaration (`)*>`) to form a new, syntactically valid element declaration. The `(` opened by the padding is closed by `)`, and `*` is applied as the quantifier. The parentheses are perfectly balanced. Without the padding, the parser would encounter `)*>` with no opening context and reject it as malformed.
 
 #### Deriving the Padding for Other DTDs
 
 When targeting a declaration-embedded injection point in a different DTD, the padding must be derived from the specific declaration that contains the entity reference. The process is:
 
 1. **Find the injection point.** Scan the DTD in order and locate the **first relevant use site** of the target entity — the first markup declaration body where it is referenced after its definition. This is where the parser will expand your override and where the exfiltration logic will execute.
-1. **Identify what precedes the entity reference in that declaration.** Count open parentheses and determine the minimum tokens needed to close them and terminate the declaration with `>`. This is the opening of your override value.
-1. **Identify what follows the entity reference in that declaration.** This is the remainder your padding must absorb. Look for injection points where this remainder is minimal — ideally just a quantifier (`*`, `+`, or `?`) followed by `>`, leaving only `)*>`, `)+>`, or `)?>`  as the leftover. These produce clean, balanced assemblies.
-1. **Construct the padding.** Open a new `<!ELEMENT name (placeholder` where `placeholder` is any valid XML name. Remember that the closing delimiter `'` of the entity value is not part of the injected content — the padding ends with `(placeholder`, and the remainder of the original declaration provides the closing `)`.
-1. **Verify the assembled output is valid DTD.** Mentally substitute your override into the original declaration and check that every resulting `<!ELEMENT>` and `<!ENTITY>` is syntactically complete. Parentheses should balance cleanly. If they do not, choose a different injection point.
+2. **Identify what precedes the entity reference in that declaration.** Count open parentheses and determine the minimum tokens needed to close them and terminate the declaration with `>`. This is the opening of your override value.
+3. **Identify what follows the entity reference in that declaration.** This is the remainder your padding must absorb. Look for injection points where this remainder is minimal — ideally just a quantifier (`*`, `+`, or `?`) followed by `>`, leaving only `)*>`, `)+>`, or `)?>`  as the leftover. These produce clean, balanced assemblies.
+4. **Construct the padding.** Open a new `<!ELEMENT name (placeholder` where `placeholder` is any valid XML name. Remember that the closing delimiter `'` of the entity value is not part of the injected content — the padding ends with `(placeholder`, and the remainder of the original declaration provides the closing `)`.
+5. **Verify the assembled output is valid DTD.** Mentally substitute your override into the original declaration and check that every resulting `<!ELEMENT>` and `<!ENTITY>` is syntactically complete. Parentheses should balance cleanly. If they do not, choose a different injection point.
    
 -----
 
@@ -1489,8 +1489,8 @@ Both techniques exploit the same fundamental mechanism — overriding a paramete
 **Explanation:**
 
 1. `%ISOamso;` is normally expanded at root level in `docbookx.dtd` to load a character entity set. We redefine it to inject the exfiltration chain instead.
-1. Because the injection happens at root level, the three-phase chain — `%file`, `%eval`, `%error` — lands directly in the DTD body as independent declarations. No declaration needs breaking open and no remainder needs absorbing.
-1. `%eval;` produces the declaration of `%error`, and `%error;` triggers the URI resolution error that leaks the file contents — identical to the `fonts.dtd` case.
+2. Because the injection happens at root level, the three-phase chain — `%file`, `%eval`, `%error` — lands directly in the DTD body as independent declarations. No declaration needs breaking open and no remainder needs absorbing.
+3. `%eval;` produces the declaration of `%error`, and `%error;` triggers the URI resolution error that leaks the file contents — identical to the `fonts.dtd` case.
 
 - **Step 3:** Trigger Error-Based Exfiltration:
   If the application returns error messages, the response will include something like:
@@ -1511,7 +1511,7 @@ Creating a working payload for local DTD-based XXE exploitation requires careful
 - All markup declarations (`<!ELEMENT>`, `<!ENTITY>`) must appear in a proper order.
 - For declaration-embedded injection points, use structural padding (e.g., `<!ELEMENT aa (bb'>`) to absorb the remainder of the broken declaration and prevent parser errors. Root-level injection points do not require padding.
 
-1. **Correct Entity Nesting and Escaping**
+2. **Correct Entity Nesting and Escaping**
 
 - Nested entity declarations inside another entity must be properly escaped:
   - Use `&#x25;` for `%`, `&#x26;` for `&` and `&#x27;` for quotes.
@@ -1522,13 +1522,13 @@ Creating a working payload for local DTD-based XXE exploitation requires careful
     ```
   - Failure to escape these characters often results in **markup declaration errors**.
 
-1. **Order of Expansion**
+3. **Order of Expansion**
 
 - Override entities must be declared before `%local_dtd;` is expanded — the internal subset is processed first, so any overrides must be in place before the external DTD is loaded.
 - Once `%local_dtd;` is expanded, the parser reaches the first relevant use site of the overridden entity and injects the exfiltration chain into the DTD. Within that injected text, `%eval;` is expanded inline — its expansion produces the declaration of `%error`. Immediately after, `%error;` is expanded, triggering the URI resolution that leaks the file contents.
 - The entire chain executes automatically as part of `%local_dtd;` processing. Explicitly expanding `%eval;` or `%error;` in the internal subset is neither possible nor necessary — and attempting to do so would cause the parser to reject the payload due to the parameter entity chaining restriction in the internal subset.
 
-1. **Include Structural Padding for Declaration-Embedded Injection Points**
+4. **Include Structural Padding for Declaration-Embedded Injection Points**
 
 - When the overridden entity is referenced inside a markup declaration (like `<!ELEMENT>` or `<!ATTLIST>`), add a padding declaration to absorb the remainder of the broken declaration:
 
@@ -1539,15 +1539,15 @@ Creating a working payload for local DTD-based XXE exploitation requires careful
 - The exact form of the padding depends on the target DTD. Refer to [Dissecting the Structural Padding](#dissecting-the-structural-padding) for the derivation process.
 - Root-level injection points do not require padding.
 
-1. **Use Single Quotes as Entity Value Delimiters**
+5. **Use Single Quotes as Entity Value Delimiters**
 
 - The exfiltration declarations inside the entity value use double quotes (`SYSTEM "..."`). The outer entity value delimiter must therefore be single quotes to avoid the parser closing the entity value prematurely at the first `"` it encounters. This applies to both injection types.
 
-1. **Use Parameter Entities for Injection**
+6. **Use Parameter Entities for Injection**
 
 - Always use **parameter entities** (`%`) for overriding and chaining.
 
-1. **Error-Based Exfiltration Logic**
+7. **Error-Based Exfiltration Logic**
 
 - Reference a non-existent file concatenated with the target file content.
 - Example:
@@ -1556,7 +1556,7 @@ Creating a working payload for local DTD-based XXE exploitation requires careful
     <!ENTITY % eval "<!ENTITY &#x25; error SYSTEM 'file:///nonexistent/%file;'>">
 ```
 
-1. **Compatibility with Target DTD**
+8. **Compatibility with Target DTD**
 
 - The chosen local DTD must allow parameter entity overrides.
 - Common candidates with declaration-embedded injection points: `fonts.dtd` (`%expr;`), `jspxml.dtd` (`%Body;`)
