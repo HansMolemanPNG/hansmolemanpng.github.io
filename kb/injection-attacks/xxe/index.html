@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
-  <link rel="stylesheet" href="/assets/style.css?v=9c4255e">
+  <link rel="stylesheet" href="/assets/style.css?v=fb947bc">
 </head>
 <body class="page-kb-sheet">
   <nav class="topnav">
@@ -1390,7 +1390,7 @@ Content-Type: application/json
 <p>A parameter entity is a root-level injection point when it is referenced directly in the DTD body, outside any markup declaration:</p>
 <pre class="highlight"><code>&lt;!ENTITY % ISOamso PUBLIC "..." "isoamso.ent"&gt;
 %ISOamso;</code></pre>
-<p>The key signal is that the paraneter entity (in this case <code>%ISOamso;</code>) appears as a standalone expansion call at the root of the DTD. When you override this entity, the replacement text is injected directly at root level — where the parser expects standalone DTD declarations. </p>
+<p>The key signal is that the parameter entity (in this case <code>%ISOamso;</code>) appears as a standalone expansion call at the root of the DTD. When you override this entity, the replacement text is injected directly at root level — where the parser expects standalone DTD declarations. </p>
 <h4 id="identifying-candidates-with-grep">Identifying Candidates with grep</h4>
 <p>To find candidates quickly, run these two commands and cross-reference the output:</p>
 <pre class="highlight"><code class="language-bash">grep -n 'ENTITY %' target.dtd     # list all parameter entity definitions
@@ -1573,7 +1573,7 @@ C:\Program Files\IBM\SQLLIB\bin\dtds\*.dtd</code></pre>
 <li>All markup declarations (<code>&lt;!ELEMENT&gt;</code>, <code>&lt;!ENTITY&gt;</code>) must appear in a proper order.</li>
 <li>For declaration-embedded injection points, use structural padding (e.g., <code>&lt;!ELEMENT aa (bb'&gt;</code>) to absorb the remainder of the broken declaration and prevent parser errors. Root-level injection points do not require padding.</li>
 </ul>
-<ol>
+<ol start="2">
 <li><strong>Correct Entity Nesting and Escaping</strong></li>
 </ol>
 <ul>
@@ -1585,7 +1585,7 @@ C:\Program Files\IBM\SQLLIB\bin\dtds\*.dtd</code></pre>
   - Failure to escape these characters often results in <strong>markup declaration errors</strong>.</p>
 </li>
 </ul>
-<ol>
+<ol start="3">
 <li><strong>Order of Expansion</strong></li>
 </ol>
 <ul>
@@ -1593,7 +1593,7 @@ C:\Program Files\IBM\SQLLIB\bin\dtds\*.dtd</code></pre>
 <li>Once <code>%local_dtd;</code> is expanded, the parser reaches the first relevant use site of the overridden entity and injects the exfiltration chain into the DTD. Within that injected text, <code>%eval;</code> is expanded inline — its expansion produces the declaration of <code>%error</code>. Immediately after, <code>%error;</code> is expanded, triggering the URI resolution that leaks the file contents.</li>
 <li>The entire chain executes automatically as part of <code>%local_dtd;</code> processing. Explicitly expanding <code>%eval;</code> or <code>%error;</code> in the internal subset is neither possible nor necessary — and attempting to do so would cause the parser to reject the payload due to the parameter entity chaining restriction in the internal subset.</li>
 </ul>
-<ol>
+<ol start="4">
 <li><strong>Include Structural Padding for Declaration-Embedded Injection Points</strong></li>
 </ol>
 <ul>
@@ -1604,19 +1604,19 @@ C:\Program Files\IBM\SQLLIB\bin\dtds\*.dtd</code></pre>
 <li>The exact form of the padding depends on the target DTD. Refer to <a href="#dissecting-the-structural-padding">Dissecting the Structural Padding</a> for the derivation process.</li>
 <li>Root-level injection points do not require padding.</li>
 </ul>
-<ol>
+<ol start="5">
 <li><strong>Use Single Quotes as Entity Value Delimiters</strong></li>
 </ol>
 <ul>
 <li>The exfiltration declarations inside the entity value use double quotes (<code>SYSTEM "..."</code>). The outer entity value delimiter must therefore be single quotes to avoid the parser closing the entity value prematurely at the first <code>"</code> it encounters. This applies to both injection types.</li>
 </ul>
-<ol>
+<ol start="6">
 <li><strong>Use Parameter Entities for Injection</strong></li>
 </ol>
 <ul>
 <li>Always use <strong>parameter entities</strong> (<code>%</code>) for overriding and chaining.</li>
 </ul>
-<ol>
+<ol start="7">
 <li><strong>Error-Based Exfiltration Logic</strong></li>
 </ol>
 <ul>
@@ -1624,7 +1624,7 @@ C:\Program Files\IBM\SQLLIB\bin\dtds\*.dtd</code></pre>
 <li>Example:</li>
 </ul>
 <pre class="highlight"><code class="language-xml">    &lt;!ENTITY % eval "&lt;!ENTITY &amp;#x25; error SYSTEM 'file:///nonexistent/%file;'&gt;"&gt;</code></pre>
-<ol>
+<ol start="8">
 <li><strong>Compatibility with Target DTD</strong></li>
 </ol>
 <ul>
@@ -1969,6 +1969,6 @@ unzip interactsh-client_1.0.0_linux_amd64.zip
       });
     });
   </script>
-  <script src="/assets/main.js?v=9c4255e" defer></script>
+  <script src="/assets/main.js?v=fb947bc" defer></script>
 </body>
 </html>
