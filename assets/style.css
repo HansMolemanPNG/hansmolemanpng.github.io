@@ -11,7 +11,7 @@
   --muted:        #6e6259;
   --accent:       #c027b4;
   --border:       #c027b41a;
-  --border-hover: rgba(245, 167, 66, 0.35);
+  --border-hover: rgba(192, 39, 180, 0.35);
 
   --writeup:      #f5a742;
   --cve:          #e05252;
@@ -47,7 +47,7 @@ body {
 }
 
 a { color: var(--accent); }
-a:hover { color: #f7bc6a; }
+a:hover { color: #d04ec8; }
 img { max-width: 100%; display: block; }
 
 /* ── Topnav ── */
@@ -682,7 +682,7 @@ img { max-width: 100%; display: block; }
 .article-content p { margin-bottom: 1.1rem; }
 
 .article-content a { color: var(--accent); text-decoration: underline; text-decoration-color: var(--border-hover); }
-.article-content a:hover { color: #f7bc6a; }
+.article-content a:hover { color: #d04ec8; }
 
 .article-content ul,
 .article-content ol {
