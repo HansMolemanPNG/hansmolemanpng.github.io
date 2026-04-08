@@ -165,7 +165,7 @@ Here the attacker is defining "example" and assigning the content of "/etc/passw
 
 ## Requirements
 
-XXE attacks require the application to accept XML from uncontrolled sources and parse it in an insecure way. Many XML parsers are insecure by default and require the developer to explicitly limit their capabilities by setting specific flags in the component that uses it in order to make them secure. 
+XXE attacks require the application to accept XML from uncontrolled sources and parse it in an insecure way. Historically, many XML parsers are insecure by default and require the developer to explicitly limit their capabilities by setting specific flags in the component that uses it in order to make them secure. 
 
 -----
 
