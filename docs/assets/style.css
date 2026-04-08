@@ -857,7 +857,7 @@ img { max-width: 100%; display: block; }
   transition: opacity .15s, color .15s;
   line-height: 1.4;
 }
-.copy-btn:hover    { opacity: 1; color: var(--text); }
+.copy-btn:hover    { opacity: 1; color: var(--accent-hover); }
 .copy-btn.is-copied { opacity: 1; color: var(--accent); }
 
 .article-content blockquote {
