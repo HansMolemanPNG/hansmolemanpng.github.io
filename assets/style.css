@@ -9,16 +9,16 @@
   --surface2:     #1d1a16;
   --text:         #dfd4c7;
   --muted:        #6e6259;
-  --accent:       #c027b4;
-  --accent-hover: #d04ec8;
-  --border:       #c027b41a;
-  --border-hover: rgba(192, 39, 180, 0.35);
+  --accent:       #2dd4bf;
+  --accent-hover: #57dccb;
+  --border:       #2dd4bf1a;
+  --border-hover: rgba(45, 212, 191, 0.35);
 
   --writeup:      #f5a742;
   --cve:          #e05252;
   --research:     #5dbe8a;
 
-   --core:        #4dcb1f;
+   --core:        #3aa318;
    --inter:       #f5a742;
    --advanced:    #c23b22;
 
