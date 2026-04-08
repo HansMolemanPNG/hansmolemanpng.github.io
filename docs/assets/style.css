@@ -1116,7 +1116,7 @@ img { max-width: 100%; display: block; }
   padding-top: 0;
   margin-top: 0;
 }
-.kb-toc-h1:hover   { color: var(--text); }
+.kb-toc-h1:hover   { color: var(--accent-hover); }
 .kb-toc-h1.is-active { color: var(--accent); }
 
 .kb-toc-children {
@@ -1137,7 +1137,7 @@ img { max-width: 100%; display: block; }
   line-height: 1.35;
   transition: color .15s, border-color .15s;
 }
-.kb-toc-h2:hover    { color: var(--text); border-left-color: var(--border-hover); }
+.kb-toc-h2:hover    { color: var(--accent-hover); border-left-color: var(--border-hover); }
 .kb-toc-h2.is-active { color: var(--accent); border-left-color: var(--accent); }
 
 /* Hidden by search */
