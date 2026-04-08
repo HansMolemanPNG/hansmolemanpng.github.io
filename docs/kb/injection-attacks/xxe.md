@@ -973,7 +973,9 @@ The approach is the same for all XML-based formats (SVG, XLSX, DOCX, ODS, ODP, X
 
 ## XXE in SOAP
 
-SOAP is built on XML and remains widely used in enterprise systems (financial, government). Since SOAP inherently consumes XML, it is a natural target for XXE. Note that many SOAP frameworks parse XML at the framework level, so XXE exploitability depends on the framework's parser configuration, not just the application code.
+SOAP is built on XML and remains widely used in enterprise systems (financial, government, healthcare). Because SOAP messages are XML documents, SOAP endpoints are often treated as natural candidates for XXE testing. However, the important distinction is that XXE in SOAP is not really a SOAP feature — it is a consequence of how the underlying XML parser or SOAP framework handles untrusted XML.
+
+In practice, XXE exploitability in SOAP depends on whether the framework accepts DTDs, whether external entities are enabled, and at what stage parsing happens relative to schema or message validation. This is why SOAP XXE is often highly implementation-dependent: two services using the same WSDL may behave very differently depending on the XML stack behind them.
 
 A typical SOAP request:
 
@@ -990,7 +992,15 @@ A typical SOAP request:
 </soap:Envelope>
 ```
 
+##### A Note on SOAP Conformance
+
+There is one important caveat before moving into payloads: modern SOAP specifications do not treat DOCTYPE declarations as valid SOAP message content. In strict SOAP implementations, a message containing a DTD may be rejected before any entity resolution takes place.
+
+That said, real-world systems do not always behave like strict specifications. Legacy SOAP stacks, permissive middleware, custom XML handlers and integrations that parse XML before SOAP-level validation may still process these payloads. For this reason, SOAP remains relevant during XXE testing even though the standard itself is restrictive.
+
 ### Injection in the SOAP Body
+
+If entity expansion happens before the service validates the message structure, the SOAP body can act as an injection sink just like any other XML element:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -1006,9 +1016,11 @@ A typical SOAP request:
 </soap:Envelope>
 ```
 
+As with other XXE scenarios, success depends on the parser resolving the external entity before the application rejects the message for semantic reasons.
+
 ### Injection in the SOAP Header
 
-The header is also parsed and can be used as injection point:
+The header is also parsed and can therefore become an injection point in implementations that process the full XML document before applying SOAP-specific validation:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -1029,9 +1041,11 @@ The header is also parsed and can be used as injection point:
 </soap:Envelope>
 ```
 
+In practice, header-based injection is useful when the application ignores the body content on malformed requests but still parses the envelope and header blocks first.
+
 ### SOAP Fault-Based Exfiltration
 
-SOAP returns SOAP Fault messages on errors which are useful for blind XXE:
+SOAP services often return structured fault messages when parsing fails. In environments where errors are exposed, this can provide a blind exfiltration channel in the same way as error-based XXE in regular XML endpoints:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -1049,6 +1063,7 @@ SOAP returns SOAP Fault messages on errors which are useful for blind XXE:
   </soap:Body>
 </soap:Envelope>
 ```
+If the parser attempts to resolve the invalid path, the resulting SOAP fault or backend error may include the expanded file contents.
 
 ##### ⚠️ A Note on Parser Strictness (again)
 
@@ -1058,7 +1073,7 @@ Many modern, spec-compliant parsers (like those in Java, .NET, or Libxml2) will 
 
 ### WS-Addressing
 
-Some SOAP services use WS-Addressing headers which provide another injection point:
+Some SOAP services use WS-Addressing headers, which can provide another injection location if the full document is parsed before semantic validation:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -1079,6 +1094,12 @@ Some SOAP services use WS-Addressing headers which provide another injection poi
   </soap:Body>
 </soap:Envelope>
 ```
+
+This should be understood as an injection point, not as a WS-Addressing-specific XXE primitive. In other words, the risk still comes from insecure XML parsing, not from WS-Addressing itself. Also note that elements like wsa:Address are expected to contain URIs, so even if entity resolution occurs, the message may later fail SOAP or WS-Addressing validation. For that reason, WS-Addressing headers are best treated as context-dependent sinks rather than universally reliable XXE vectors.
+
+#### Practical Takeaway
+
+SOAP XXE is best approached as an implementation problem, not a protocol guarantee. The standard itself is restrictive, but real deployments often include legacy libraries, XML middleware, schema validators, security gateways and custom integrations that change how messages are parsed. From a testing perspective, this means SOAP remains worth checking — especially in enterprise environments — but success is far more dependent on the XML stack than on the SOAP envelope itself.
 
 ## XXE via XInclude
 
