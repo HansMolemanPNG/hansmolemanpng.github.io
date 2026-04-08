@@ -1790,22 +1790,20 @@ go install -v github.com/projectdiscovery/interactsh/cmd/interactsh-client@lates
 ## OWASP
 
 - [A05:2021 – Security Misconfiguration (includes XXE)](https://owasp.org/Top10/A05_2021-Security_Misconfiguration/)
-- https://cheatsheetseries.owasp.org/cheatsheets/XML_External_Entity_Prevention_Cheat_Sheet.html
-- https://owasp.org/www-community/attacks/XML_External_Entity_(XXE)_Processing
+- [XML External Entity Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/XML_External_Entity_Prevention_Cheat_Sheet.html)
+- [XML External Entity (XXE) Processing](https://owasp.org/www-community/vulnerabilities/XML_External_Entity_(XXE)_Processing)
 
 ## PortSwigger Web Security Academy
 
-- https://portswigger.net/web-security/xxe
-- https://portswigger.net/web-security/xxe/blind
-- https://portswigger.net/web-security/xxe/file-upload
+- [XML External entity injection](https://portswigger.net/web-security/xxe)
+- [XML External entity injection - Blind](https://portswigger.net/web-security/xxe/blind)
 
 ## Community
 
-- https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/XXE%20Injection
-- https://book.hacktricks.xyz/pentesting-web/xxe-xee-xml-external-entity
-- https://tryhackme.com/room/xxe
+- [PayloadsAllTheThings](https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/XXE%20Injection)
+- [Hacktricks XXE](https://hacktricks.wiki/en/pentesting-web/xxe-xee-xml-external-entity.html)
+
 
 ## Papers
 
-- **XML External Entity (XXE) Processing** - NIST Guidelines
-- **DTD Security Considerations** - W3C XML Specifications
+- [DTD Security Considerations - W3C XML Specifications](https://www.w3.org/XML/1998/06/xmlspec-report-v20.htm)
