@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
-  <link rel="stylesheet" href="/assets/style.css?v=20e6a58">
+  <link rel="stylesheet" href="/assets/style.css?v=7057614">
 </head>
 <body class="page-kb-sheet">
   <nav class="topnav">
@@ -407,7 +407,7 @@
  &lt;/userInfo&gt;</code></pre>
 <p>Here the attacker is defining "example" and assigning the content of "/etc/passwd" as the value. In an ideal situation the content of the file will be printed in the response. If the application does not return the content directly, other exfiltration techniques covered later in this KB can be used.</p>
 <h2 id="requirements">Requirements</h2>
-<p>XXE attacks require the application to accept XML from uncontrolled sources and parse it in an insecure way. Many XML parsers are insecure by default and require the developer to explicitly limit their capabilities by setting specific flags in the component that uses it in order to make them secure. </p>
+<p>XXE attacks require the application to accept XML from uncontrolled sources and parse it in an insecure way. Historically, many XML parsers are insecure by default and require the developer to explicitly limit their capabilities by setting specific flags in the component that uses it in order to make them secure. </p>
 <hr />
 <h1 id="xxe-taxonomy">XXE Taxonomy</h1>
 <p>The following taxonomy classifies all XXE attack techniques covered in this KB. It serves both as a mental model for understanding how XXE exploitation works and as a navigational index. Techniques are grouped by their primary objective and sorted by difficulty/rarity within each category.</p>
@@ -1967,6 +1967,6 @@ ruby server.rb</code></pre>
       });
     });
   </script>
-  <script src="/assets/main.js?v=20e6a58" defer></script>
+  <script src="/assets/main.js?v=7057614" defer></script>
 </body>
 </html>
