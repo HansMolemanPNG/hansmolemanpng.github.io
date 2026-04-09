@@ -61,12 +61,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     while (article.firstChild) article.removeChild(article.firstChild);
     article.appendChild(frag);
+  }
 
-    /* Restore scroll after DOM rewrite */
-    const savedY = sessionStorage.getItem('scrollY:' + location.pathname);
-    if (savedY !== null) {
-      requestAnimationFrame(() => window.scrollTo(0, parseInt(savedY, 10)));
-    }
+  /* ── Scroll restore (after all DOM work) ── */
+  const savedY = sessionStorage.getItem('scrollY:' + location.pathname);
+  if (savedY !== null) {
+    requestAnimationFrame(() => window.scrollTo(0, parseInt(savedY, 10)));
   }
 
   /* ── KB sheet: sidebar TOC ── */
