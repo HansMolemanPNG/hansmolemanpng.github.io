@@ -605,12 +605,12 @@ img { max-width: 100%; display: block; }
   display: inline-block;
   font-family: var(--font-mono);
   font-size: .75rem;
-  color: var(--muted);
+  color: var(--cat-color, var(--muted));
   text-decoration: none;
   margin-bottom: 1.75rem;
   transition: color .15s;
 }
-.back-link:hover { color: var(--accent); }
+.back-link:hover { color: var(--cat-color, var(--accent)); }
 
 .article-title {
   font-family: var(--font-mono);
@@ -785,6 +785,23 @@ img { max-width: 100%; display: block; }
   height: 0.8em;
   border-radius: 2px;
 }
+
+/* ── Tier section wrappers (vertical lines) ── */
+.tier-section {
+  border-left: 3px solid var(--tier-color);
+  padding-left: 1.25rem;
+  margin: 2rem 0;
+}
+.tier-section--core         { --tier-color: var(--core);     --tier-color-dim: rgba(58, 163, 24, .3); }
+.tier-section--intermediate { --tier-color: var(--inter);    --tier-color-dim: rgba(245, 167, 66, .3); }
+.tier-section--advanced     { --tier-color: var(--advanced); --tier-color-dim: rgba(194, 59, 34, .3); }
+
+.technique-block {
+  border-left: 1.5px solid var(--tier-color-dim);
+  padding-left: 1rem;
+  margin: 1.5rem 0;
+}
+.technique-block:first-of-type { margin-top: 1rem; }
 
 .article-content .hljs {
   background: #161210 !important;
