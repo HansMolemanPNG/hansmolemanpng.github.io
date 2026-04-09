@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
-  <link rel="stylesheet" href="/assets/style.css?v=57dda08">
+  <link rel="stylesheet" href="/assets/style.css?v=bb0c927">
 </head>
 <body class="page-kb-sheet">
   <nav class="topnav">
@@ -1524,7 +1524,10 @@ C:\Program Files\IBM\SQLLIB\bin\dtds\*.dtd</code></pre>
 <h3 id="exploitation-using-docbookxdtd">Exploitation Using docbookx.dtd</h3>
 <p>Both techniques exploit the same fundamental mechanism — overriding a parameter entity to inject the exfiltration chain into an external DTD context where parameter entity chaining is permitted. The difference is purely structural: with a root-level injection point the overridden entity expands outside any markup declaration, so no declaration needs breaking open and no padding is required.</p>
 <p><code>docbookx.dtd</code> defines a set of ISO character entity sets as parameter entities that are expanded directly at root level:</p>
-<pre class="highlight"><code>&lt;!ENTITY % ISOamso PUBLIC "..." "isoamso.ent"&gt;
+<pre class="highlight"><code class="language-XML">&lt;!ENTITY % ISOamso PUBLIC "ISO 8879:1986//ENTITIES Added Math Symbols: Ordinary//EN//XML" "isoamso.ent"&gt;
+.
+.
+.
 %ISOamso;</code></pre>
 <p><code>%ISOamso;</code> is a root-level injection point. Overriding it injects the exfiltration logic directly into the DTD body as standalone declarations.</p>
 <ul>
@@ -1969,6 +1972,6 @@ ruby server.rb</code></pre>
       });
     });
   </script>
-  <script src="/assets/main.js?v=57dda08" defer></script>
+  <script src="/assets/main.js?v=bb0c927" defer></script>
 </body>
 </html>
