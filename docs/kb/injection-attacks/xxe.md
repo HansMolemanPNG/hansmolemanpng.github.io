@@ -1469,8 +1469,11 @@ Both techniques exploit the same fundamental mechanism — overriding a paramete
 
 `docbookx.dtd` defines a set of ISO character entity sets as parameter entities that are expanded directly at root level:
 
-```
-<!ENTITY % ISOamso PUBLIC "..." "isoamso.ent">
+```XML
+<!ENTITY % ISOamso PUBLIC "ISO 8879:1986//ENTITIES Added Math Symbols: Ordinary//EN//XML" "isoamso.ent">
+.
+.
+.
 %ISOamso;
 ```
 
