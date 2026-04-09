@@ -42,7 +42,7 @@
 
   <article class="article">
 
-    <a class="back-link" href="/kb/{{ cat_slug }}/">← {{ cat.title if cat else 'Knowledge Base' }}</a>
+    <a class="back-link" href="/kb/{{ cat_slug }}/"{% if cat %} style="--cat-color: var(--col-{{ cat.color }})"{% endif %}>← {{ cat.title if cat else 'Knowledge Base' }}</a>
 
     <h1 class="article-title">{{ page.title }}</h1>
 
