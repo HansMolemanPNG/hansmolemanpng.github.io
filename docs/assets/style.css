@@ -734,57 +734,14 @@ img { max-width: 100%; display: block; }
   word-break: normal;
 }
 /* ── KB technique tier markers ── */
-.article-content h1.tier--core,
-.article-content h1.tier--intermediate,
-.article-content h1.tier--advanced {
-  position: relative;
-  padding-left: 0.75rem;
-}
-.article-content h1.tier--core::before,
-.article-content h1.tier--intermediate::before,
-.article-content h1.tier--advanced::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 3px;
-  height: 0.85em;
-  border-radius: 2px;
-}
 .article-content h1.tier--core         { color: var(--core) !important; }
 .article-content h2.tier--core         { color: var(--core) !important; }
-.article-content h1.tier--core::before,
-.article-content h2.tier--core::before { background: var(--core); }
 
 .article-content h1.tier--intermediate { color: var(--inter) !important; }
 .article-content h2.tier--intermediate { color: var(--inter) !important; }
-.article-content h1.tier--intermediate::before,
-.article-content h2.tier--intermediate::before { background: var(--inter); }
 
 .article-content h1.tier--advanced     { color: var(--advanced) !important; }
 .article-content h2.tier--advanced     { color: var(--advanced) !important; }
-.article-content h1.tier--advanced::before,
-.article-content h2.tier--advanced::before { background: var(--advanced); }
-
-.article-content h2.tier--core,
-.article-content h2.tier--intermediate,
-.article-content h2.tier--advanced {
-  position: relative;
-  padding-left: 0.75rem;
-}
-.article-content h2.tier--core::before,
-.article-content h2.tier--intermediate::before,
-.article-content h2.tier--advanced::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 2px;
-  height: 0.8em;
-  border-radius: 2px;
-}
 
 /* ── Tier section wrappers (vertical lines) ── */
 .tier-section {
