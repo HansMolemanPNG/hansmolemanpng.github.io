@@ -22,15 +22,15 @@
    --inter:       #f5a742;
    --advanced:    #c23b22;
 
-  --col-web:       #c4829c;
-  --col-crypto:    #9e90cc;
-  --col-binary:    #72b0bc;
-  --col-network:   #7ea8c8;
-  --col-osint:     #84b8a4;
-  --col-misc:      #b8a882;
-  --col-re:        #be8cb4;
-  --col-server:    #8c9cca;
-  --col-forensics: #9494b8;
+  --col-web:       #d07898;
+  --col-crypto:    #9878cc;
+  --col-binary:    #68aab8;
+  --col-network:   #7a9ec4;
+  --col-osint:     #c09080;
+  --col-misc:      #5eaa88;
+  --col-re:        #b09050;
+  --col-server:    #a07858;
+  --col-forensics: #78b8c4;
 
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
   --font-sans: 'Inter', -apple-system, system-ui, sans-serif;
