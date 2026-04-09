@@ -7,22 +7,55 @@ document.addEventListener('DOMContentLoaded', () => {
     hljs.highlightAll();
   }
 
-  /* ── KB technique tier labels ── */
+  /* ── KB technique tier sections + vertical markers ── */
   const tierMap = {
     'Core Techniques':         'tier--core',
     'Intermediate Techniques': 'tier--intermediate',
     'Advanced Techniques':     'tier--advanced',
   };
-  const articleHeadings = document.querySelectorAll('.article-content h1, .article-content h2');
-  let activeTierCls = null;
-  articleHeadings.forEach(el => {
-    if (el.tagName === 'H1') {
-      activeTierCls = tierMap[el.textContent.trim()] || null;
-      if (activeTierCls) el.classList.add(activeTierCls);
-    } else if (activeTierCls) {
-      el.classList.add(activeTierCls);
-    }
-  });
+  const article = document.querySelector('.article-content');
+  if (article) {
+    const nodes = Array.from(article.childNodes);
+    const frag  = document.createDocumentFragment();
+    let tierWrap = null;
+    let techWrap = null;
+    let activeTierCls = null;
+
+    nodes.forEach(node => {
+      if (node.nodeType !== 1) {
+        (techWrap || tierWrap || frag).appendChild(node);
+        return;
+      }
+      const tag     = node.tagName;
+      const tierCls = tag === 'H1' ? tierMap[node.textContent.trim()] : null;
+
+      if (tierCls) {
+        activeTierCls = tierCls;
+        tierWrap = document.createElement('div');
+        tierWrap.className = 'tier-section ' + tierCls.replace('tier--', 'tier-section--');
+        techWrap = null;
+        node.classList.add(tierCls);
+        tierWrap.appendChild(node);
+        frag.appendChild(tierWrap);
+      } else if (tag === 'H1') {
+        activeTierCls = null;
+        tierWrap = null;
+        techWrap = null;
+        frag.appendChild(node);
+      } else if (tag === 'H2' && tierWrap) {
+        techWrap = document.createElement('div');
+        techWrap.className = 'technique-block';
+        node.classList.add(activeTierCls);
+        techWrap.appendChild(node);
+        tierWrap.appendChild(techWrap);
+      } else {
+        (techWrap || tierWrap || frag).appendChild(node);
+      }
+    });
+
+    while (article.firstChild) article.removeChild(article.firstChild);
+    article.appendChild(frag);
+  }
 
   /* ── KB sheet: sidebar TOC ── */
   (function () {
