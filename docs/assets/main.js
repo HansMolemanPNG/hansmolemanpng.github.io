@@ -1,11 +1,5 @@
 'use strict';
 
-/* ── Scroll position save/restore (survives DOM rewrites) ── */
-history.scrollRestoration = 'manual';
-window.addEventListener('beforeunload', () => {
-  sessionStorage.setItem('scrollY:' + location.pathname, window.scrollY);
-});
-
 document.addEventListener('DOMContentLoaded', () => {
 
   /* ── Syntax highlighting ── */
@@ -61,12 +55,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     while (article.firstChild) article.removeChild(article.firstChild);
     article.appendChild(frag);
-
-    /* Restore scroll after DOM rewrite */
-    const savedY = sessionStorage.getItem('scrollY:' + location.pathname);
-    if (savedY !== null) {
-      requestAnimationFrame(() => window.scrollTo(0, parseInt(savedY, 10)));
-    }
   }
 
   /* ── KB sheet: sidebar TOC ── */
