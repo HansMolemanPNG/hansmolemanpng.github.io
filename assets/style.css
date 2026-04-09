@@ -28,6 +28,9 @@
   --col-network:  #6ab0e8;
   --col-osint:    #78d4a0;
   --col-misc:     #c8a878;
+  --col-re:       #d878b8;
+  --col-server:   #8090d8;
+  --col-forensics: #e0a080;
 
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
   --font-sans: 'Inter', -apple-system, system-ui, sans-serif;
@@ -627,7 +630,7 @@ img { max-width: 100%; display: block; }
   color: var(--muted);
   line-height: 1.6;
   margin-bottom: 2rem;
-  border-left: 2px solid var(--border-hover);
+  border-left: 2px solid color-mix(in srgb, var(--cat-color, var(--accent)) 40%, transparent);
   padding-left: .85rem;
 }
 .article-subtitle p        { margin: 0 0 .4rem; }
