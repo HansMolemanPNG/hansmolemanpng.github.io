@@ -1,6 +1,6 @@
 ---
 title: Forensics
 icon: 🔎
-color: osint
+color: forensics
 group: other
 ---

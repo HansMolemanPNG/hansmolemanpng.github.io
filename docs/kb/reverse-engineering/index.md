@@ -1,6 +1,6 @@
 ---
 title: Reverse Engineering
 icon: 🔬
-color: binary
+color: re
 group: lowlevel
 ---
