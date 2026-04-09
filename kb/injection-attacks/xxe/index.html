@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
-  <link rel="stylesheet" href="/assets/style.css?v=6721cf0">
+  <link rel="stylesheet" href="/assets/style.css?v=1dadd62">
 </head>
 <body class="page-kb-sheet">
   <nav class="topnav">
@@ -1663,7 +1663,9 @@ C:\Program Files\IBM\SQLLIB\bin\dtds\*.dtd</code></pre>
 <p>More examples:</p>
 <pre class="highlight"><code class="language-xml">&lt;!ENTITY xxe SYSTEM "expect://id"&gt;
 &lt;!ENTITY xxe SYSTEM "expect://whoami"&gt;</code></pre>
-<p><strong>⚠️ Character restrictions in expect:// URIs.</strong> There is a catch when running commands with arguments: PHP's XML parser treats the <code>expect://</code> URI literally and rejects it if it contains spaces, <code>&gt;</code>, <code>&amp;</code> or other special characters. A payload like <code>expect://cat /etc/passwd</code> will fail with an "Invalid URI" error. URL encoding (<code>%20</code>, <code>+</code>) does not help — the parser does not decode it. XML character references (<code>&amp;#x20;</code>) do not work either.</p>
+<h5 id="character-restrictions-in-expect-uris">⚠️ Character restrictions in expect:// URIs</h5>
+<p>There is a catch when running commands with arguments: PHP's XML parser treats the <code>expect://</code> URI literally and rejects it if it contains spaces, <code>&gt;</code>, <code>&amp;</code> or other special characters. A payload like <code>expect://cat /etc/passwd</code> will fail with an "Invalid URI" error. URL encoding (<code>%20</code>, <code>+</code>) does not help — the parser does not decode it. XML character references (<code>&amp;#x20;</code>) do not work either.</p>
+<hr />
 <p>The workaround is to replace spaces with <code>$IFS</code> — the shell Internal Field Separator variable. When the next argument starts with letters, wrap it in single quotes so the shell does not try to read it as part of the variable name:</p>
 <pre class="highlight"><code class="language-xml">&lt;!-- cat /etc/passwd → replace spaces with $IFS --&gt;
 &lt;!ENTITY xxe SYSTEM "expect://cat$IFS/etc/passwd"&gt;
@@ -1964,6 +1966,6 @@ ruby server.rb</code></pre>
       });
     });
   </script>
-  <script src="/assets/main.js?v=6721cf0" defer></script>
+  <script src="/assets/main.js?v=1dadd62" defer></script>
 </body>
 </html>
