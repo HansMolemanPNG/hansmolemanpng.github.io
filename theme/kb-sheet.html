@@ -7,7 +7,7 @@
 {% set cat   = kb_categories | selectattr('slug', 'equalto', cat_slug) | first %}
 {% set sheet = (cat.sheets | selectattr('slug', 'equalto', sheet_slug) | first) if cat else none %}
 
-<div class="kb-layout">
+<div class="kb-layout"{% if cat %} style="--cat-color: var(--col-{{ cat.color }})"{% endif %}>
 
   {% if page.toc %}
   <aside class="kb-toc" id="kb-toc">
@@ -42,7 +42,7 @@
 
   <article class="article">
 
-    <a class="back-link" href="/kb/{{ cat_slug }}/"{% if cat %} style="--cat-color: var(--col-{{ cat.color }})"{% endif %}>← {{ cat.title if cat else 'Knowledge Base' }}</a>
+    <a class="back-link" href="/kb/{{ cat_slug }}/">← {{ cat.title if cat else 'Knowledge Base' }}</a>
 
     <h1 class="article-title">{{ page.title }}</h1>
 
