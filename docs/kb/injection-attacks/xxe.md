@@ -1642,7 +1642,11 @@ More examples:
 <!ENTITY xxe SYSTEM "expect://whoami">
 ```
 
-**⚠️ Character restrictions in expect:// URIs.** There is a catch when running commands with arguments: PHP's XML parser treats the `expect://` URI literally and rejects it if it contains spaces, `>`, `&` or other special characters. A payload like `expect://cat /etc/passwd` will fail with an "Invalid URI" error. URL encoding (`%20`, `+`) does not help — the parser does not decode it. XML character references (`&#x20;`) do not work either.
+##### ⚠️ Character restrictions in expect:// URIs
+
+There is a catch when running commands with arguments: PHP's XML parser treats the `expect://` URI literally and rejects it if it contains spaces, `>`, `&` or other special characters. A payload like `expect://cat /etc/passwd` will fail with an "Invalid URI" error. URL encoding (`%20`, `+`) does not help — the parser does not decode it. XML character references (`&#x20;`) do not work either.
+
+----
 
 The workaround is to replace spaces with `$IFS` — the shell Internal Field Separator variable. When the next argument starts with letters, wrap it in single quotes so the shell does not try to read it as part of the variable name:
 
