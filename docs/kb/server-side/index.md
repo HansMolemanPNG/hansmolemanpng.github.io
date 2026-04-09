@@ -1,6 +1,6 @@
 ---
 title: Server-Side Attacks
 icon: ⚡
-color: network
+color: server
 group: web
 ---
