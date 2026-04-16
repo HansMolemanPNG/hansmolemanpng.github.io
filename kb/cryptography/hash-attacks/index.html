@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
-  <link rel="stylesheet" href="/assets/style.css?v=9470351">
+  <link rel="stylesheet" href="/assets/style.css?v=4780742">
 </head>
 <body class="page-kb-sheet">
   <nav class="topnav">
@@ -88,8 +88,20 @@
 
   /* Cap at 919px so the 920px media-query breakpoint always fires.
      This guarantees the accordion layout on every mobile device. */
+  var setWidth = Math.min(needed, 919);
   var meta = document.querySelector('meta[name=viewport]');
-  if (meta) meta.content = 'width=' + Math.min(needed, 919);
+  if (meta) meta.content = 'width=' + setWidth;
+
+  /* Pass the scale ratio to CSS so the navbar can compensate.
+     scale = logical viewport / physical screen width
+     e.g. 919 / 375 ≈ 2.45  → navbar must be 2.45× larger in CSS px
+     so that after browser scaling (375/919) it renders at 52px physical. */
+  var scale = setWidth / window.innerWidth;
+  document.documentElement.style.setProperty('--vp-scale', scale.toFixed(4));
+  /* Adjust scroll-padding-top so headings aren't hidden under the scaled navbar */
+  var navH = Math.ceil(52 * scale);
+  document.documentElement.style.scrollPaddingTop =
+    'calc(' + navH + 'px + ' + (1.25 * scale).toFixed(3) + 'rem)';
 }());
 </script>
 
@@ -148,6 +160,6 @@
       });
     });
   </script>
-  <script src="/assets/main.js?v=9470351" defer></script>
+  <script src="/assets/main.js?v=4780742" defer></script>
 </body>
 </html>

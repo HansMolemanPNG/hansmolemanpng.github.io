@@ -1211,3 +1211,26 @@ img { max-width: 100%; display: block; }
   .article-title { font-size: 1.25rem; }
   .page-title    { font-size: 1.2rem; }
 }
+
+/* ── KB sheet: compensate viewport scaling so navbar renders at its natural size ──
+   The viewport script in kb-sheet.html may widen the meta viewport (up to 919px)
+   so wide code blocks fit without horizontal scroll. This causes the browser to
+   scale down everything by physicalScreen/viewportWidth. We counteract that for
+   the navbar by multiplying every dimension by the same ratio (--vp-scale).
+   When --vp-scale is unset (no widening needed, or desktop) the fallback is 1
+   and the rules are a no-op.                                                     */
+.page-kb-sheet .topnav {
+  height:  calc(52px    * var(--vp-scale, 1));
+  padding: 0 calc(1.75rem * var(--vp-scale, 1));
+}
+.page-kb-sheet .topnav-links {
+  gap: calc(2rem * var(--vp-scale, 1));
+}
+.page-kb-sheet .topnav-links a,
+.page-kb-sheet .topnav-home-name {
+  font-size: calc(0.78rem * var(--vp-scale, 1));
+}
+.page-kb-sheet .topnav-avatar {
+  width:  calc(30px * var(--vp-scale, 1));
+  height: calc(30px * var(--vp-scale, 1));
+}
