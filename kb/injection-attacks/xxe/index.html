@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
-  <link rel="stylesheet" href="/assets/style.css?v=588c326">
+  <link rel="stylesheet" href="/assets/style.css?v=bfd92fa">
 </head>
 <body class="page-kb-sheet">
   <nav class="topnav">
@@ -1961,6 +1961,7 @@ ruby server.rb</code></pre>
      so that after browser scaling (375/919) it renders at 52px physical. */
   var scale = setWidth / window.innerWidth;
   document.documentElement.style.setProperty('--vp-scale', scale.toFixed(4));
+  document.documentElement.classList.add('vp-widened');
   /* Adjust scroll-padding-top so headings aren't hidden under the scaled navbar */
   var navH = Math.ceil(52 * scale);
   document.documentElement.style.scrollPaddingTop =
@@ -2023,6 +2024,6 @@ ruby server.rb</code></pre>
       });
     });
   </script>
-  <script src="/assets/main.js?v=588c326" defer></script>
+  <script src="/assets/main.js?v=bfd92fa" defer></script>
 </body>
 </html>
