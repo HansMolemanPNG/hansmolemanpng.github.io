@@ -1220,11 +1220,11 @@ img { max-width: 100%; display: block; }
    When --vp-scale is unset (no widening needed, or desktop) the fallback is 1
    and the rules are a no-op.                                                     */
 .page-kb-sheet .topnav {
-  height:  calc(52px    * var(--vp-scale, 1));
-  padding: 0 calc(1.75rem * var(--vp-scale, 1));
+  height:  calc(52px   * var(--vp-scale, 1));
+  padding: 0 calc(1rem * var(--vp-scale, 1));
 }
 .page-kb-sheet .topnav-links {
-  gap: calc(2rem * var(--vp-scale, 1));
+  gap: calc(1.25rem * var(--vp-scale, 1));
 }
 .page-kb-sheet .topnav-links a,
 .page-kb-sheet .topnav-home-name {
