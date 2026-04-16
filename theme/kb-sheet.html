@@ -125,6 +125,7 @@
      so that after browser scaling (375/919) it renders at 52px physical. */
   var scale = setWidth / window.innerWidth;
   document.documentElement.style.setProperty('--vp-scale', scale.toFixed(4));
+  document.documentElement.classList.add('vp-widened');
   /* Adjust scroll-padding-top so headings aren't hidden under the scaled navbar */
   var navH = Math.ceil(52 * scale);
   document.documentElement.style.scrollPaddingTop =

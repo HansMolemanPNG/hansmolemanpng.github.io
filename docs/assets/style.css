@@ -1219,21 +1219,21 @@ img { max-width: 100%; display: block; }
    the navbar by multiplying every dimension by the same ratio (--vp-scale).
    When --vp-scale is unset (no widening needed, or desktop) the fallback is 1
    and the rules are a no-op.                                                     */
-.page-kb-sheet .topnav {
-  height:  calc(52px   * var(--vp-scale, 1));
-  padding: 0 calc(1rem * var(--vp-scale, 1));
+.vp-widened .topnav {
+  height:  calc(52px   * var(--vp-scale));
+  padding: 0 calc(1rem * var(--vp-scale));
 }
-.page-kb-sheet .topnav-links {
-  gap: calc(1.25rem * var(--vp-scale, 1));
+.vp-widened .topnav-links {
+  gap: calc(1.25rem * var(--vp-scale));
 }
-.page-kb-sheet .topnav-links a,
-.page-kb-sheet .topnav-home-name {
-  font-size: calc(0.78rem * var(--vp-scale, 1));
+.vp-widened .topnav-links a,
+.vp-widened .topnav-home-name {
+  font-size: calc(0.78rem * var(--vp-scale));
 }
-.page-kb-sheet .topnav-home-name {
-  margin-left: calc(0.55rem * var(--vp-scale, 1));
+.vp-widened .topnav-home-name {
+  margin-left: calc(0.55rem * var(--vp-scale));
 }
-.page-kb-sheet .topnav-avatar {
-  width:  calc(30px * var(--vp-scale, 1));
-  height: calc(30px * var(--vp-scale, 1));
+.vp-widened .topnav-avatar {
+  width:  calc(30px * var(--vp-scale));
+  height: calc(30px * var(--vp-scale));
 }
