@@ -115,8 +115,20 @@
 
   /* Cap at 919px so the 920px media-query breakpoint always fires.
      This guarantees the accordion layout on every mobile device. */
+  var setWidth = Math.min(needed, 919);
   var meta = document.querySelector('meta[name=viewport]');
-  if (meta) meta.content = 'width=' + Math.min(needed, 919);
+  if (meta) meta.content = 'width=' + setWidth;
+
+  /* Pass the scale ratio to CSS so the navbar can compensate.
+     scale = logical viewport / physical screen width
+     e.g. 919 / 375 ≈ 2.45  → navbar must be 2.45× larger in CSS px
+     so that after browser scaling (375/919) it renders at 52px physical. */
+  var scale = setWidth / window.innerWidth;
+  document.documentElement.style.setProperty('--vp-scale', scale.toFixed(4));
+  /* Adjust scroll-padding-top so headings aren't hidden under the scaled navbar */
+  var navH = Math.ceil(52 * scale);
+  document.documentElement.style.scrollPaddingTop =
+    'calc(' + navH + 'px + ' + (1.25 * scale).toFixed(3) + 'rem)';
 }());
 </script>
 {% endblock %}
