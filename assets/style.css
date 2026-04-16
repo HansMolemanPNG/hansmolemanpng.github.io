@@ -1230,6 +1230,9 @@ img { max-width: 100%; display: block; }
 .page-kb-sheet .topnav-home-name {
   font-size: calc(0.78rem * var(--vp-scale, 1));
 }
+.page-kb-sheet .topnav-home-name {
+  margin-left: calc(0.55rem * var(--vp-scale, 1));
+}
 .page-kb-sheet .topnav-avatar {
   width:  calc(30px * var(--vp-scale, 1));
   height: calc(30px * var(--vp-scale, 1));
