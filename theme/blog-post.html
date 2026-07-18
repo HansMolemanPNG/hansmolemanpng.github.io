@@ -1,0 +1,27 @@
+{% extends "main.html" %}
+{% block content %}
+<article class="article">
+
+  <a class="back-link" href="/blog/">← Blog</a>
+
+  <h1 class="article-title">{{ page.title }}</h1>
+
+  <div class="article-content">
+    {{ page.content }}
+  </div>
+
+  {% if page.meta.kb_ref %}
+  {% set ref = page.meta.kb_ref %}
+  {% set parts = ref.split('/') %}
+  <div class="article-footer-ref">
+    <span class="footer-ref-label">KB Reference</span>
+    {% if parts | length == 2 %}
+    <a href="/kb/{{ parts[0] }}/{{ parts[1] }}/">{{ parts[1].replace('-', ' ') | title }} →</a>
+    {% else %}
+    <a href="/kb/{{ ref }}/">{{ ref }} →</a>
+    {% endif %}
+  </div>
+  {% endif %}
+
+</article>
+{% endblock %}
