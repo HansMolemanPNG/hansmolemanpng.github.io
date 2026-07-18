@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Injection Attacks · Hans_Moleman.PNG</title>
+  <meta name="description" content="Security research, CTF writeups, CVEs and a security knowledge base.">
+  <meta property="og:site_name" content="Hans_Moleman.PNG">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Injection Attacks">
+  <meta property="og:description" content="Security research, CTF writeups, CVEs and a security knowledge base.">
+  <meta property="og:url" content="https://hansmolemanpng.github.io/kb/injection-attacks/">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Injection Attacks">
+  <meta name="twitter:description" content="Security research, CTF writeups, CVEs and a security knowledge base.">
+  <link rel="icon" href="/assets/profile.jpeg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+  <link rel="stylesheet" href="/assets/style.css?v=9787e9b">
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-2Q3X7BV1P2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-2Q3X7BV1P2');
+    </script>
+    
+</head>
+<body>
+  <nav class="topnav">
+    <a class="topnav-home" href="/" aria-label="Home">
+      <img class="topnav-avatar" src="/assets/profile.jpeg" alt="Hans_Moleman.PNG">
+      <span class="topnav-home-name">Home</span>
+    </a>
+    <div class="topnav-links">
+      <a href="/kb/">KB</a>
+      <a href="/blog/">Blog</a>
+      <a href="/about/">About</a>
+    </div>
+  </nav>
+
+  <main class="main">
+    
+
+
+
+<div class="page">
+
+  <a class="back-link" href="/kb/">← Knowledge Base</a>
+
+  <header class="page-hdr">
+    <h1 class="page-title" style="color: var(--col-web)">
+      💉 Injection Attacks
+    </h1>
+  </header>
+
+  <div class="sheet-list">
+    
+    <a class="sheet-row" href="/kb/injection-attacks/xxe/" style="--cat-color: var(--col-web)">
+      <div class="sheet-row-header">
+        <span class="sheet-row-title">XXE Exploitation Knowledge Base</span>
+        
+      </div>
+      
+        
+        <div class="sheet-row-tags">
+          <span class="sheet-tag">XXE</span><span class="sheet-tag">XML</span><span class="sheet-tag">SSRF</span><span class="sheet-tag">LFI</span><span class="sheet-tag">OOB</span><span class="sheet-tag">DTD</span><span class="sheet-tag">Blind XXE</span><span class="sheet-tag">SOAP</span>
+        </div>
+        
+        
+        <div class="sheet-row-excerpt"><p>This is not a payload list. This is a deep-dive into how XXE works internally, with the goal of:</p>
+<ul>
+<li>Building a mental model of XML parsing</li>
+<li>Understanding why payloads work (not just using them)</li>
+<li>Covering both fundamentals (for juniors) and advanced techniques (for experienced testers)</li>
+</ul></div>
+        
+      
+    </a>
+    
+  </div>
+
+  
+  
+  
+
+</div>
+
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/http.min.js"></script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: 'base',
+      themeVariables: {
+        background:           '#161310',
+        mainBkg:              '#1d1a16',
+        primaryColor:         '#1d1a16',
+        primaryBorderColor:   '#f5a742',
+        primaryTextColor:     '#dfd4c7',
+        lineColor:            '#f5a742',
+        edgeLabelBackground:  '#1d1a16',
+        secondaryColor:       '#161310',
+        tertiaryColor:        '#0f0d0b',
+        clusterBkg:           '#161310',
+        clusterBorder:        'rgba(245,167,66,0.35)',
+        titleColor:           '#dfd4c7',
+        fontFamily:           'JetBrains Mono, monospace',
+        fontSize:             '13px',
+      }
+    });
+    mermaid.run({ querySelector: '.mermaid' }).then(() => {
+      document.querySelectorAll('.mermaid svg').forEach(svg => {
+        const w = parseFloat(svg.getAttribute('width'));
+        const h = parseFloat(svg.getAttribute('height'));
+        if (!svg.getAttribute('viewBox') && w && h) {
+          svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+        }
+        svg.removeAttribute('width');
+        svg.removeAttribute('height');
+
+        /* Pan / zoom — loaded dynamically so a CDN failure never blocks mermaid */
+        const container = svg.closest('.mermaid');
+        if (!container) return;
+        import('https://cdn.jsdelivr.net/npm/@panzoom/panzoom@4/dist/panzoom.esm.js')
+          .then(({ default: Panzoom }) => {
+            const pz = Panzoom(svg, { maxScale: 10, minScale: 0.2 });
+            container.addEventListener('wheel', pz.zoomWithWheel, { passive: false });
+
+            const resetBtn = document.createElement('button');
+            resetBtn.className = 'mermaid-reset';
+            resetBtn.textContent = '⟳ reset';
+            resetBtn.title = 'Reset zoom';
+            container.appendChild(resetBtn);
+            resetBtn.addEventListener('click', () => pz.reset());
+          })
+          .catch(() => { /* Panzoom unavailable — diagram still displays */ });
+      });
+    });
+  </script>
+  <script src="/assets/main.js?v=9787e9b" defer></script>
+</body>
+</html>
